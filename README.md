@@ -1,4 +1,8 @@
-# Without a Bundler
+# rust_beats
+
+Bootstrapped with
+wasm-bindgen/example/without-a-bundler
+Typescript
 
 [View documentation for this example online][dox]
 
@@ -8,6 +12,7 @@ You can build the example locally with:
 
 ```
 $ wasm-pack build --target web
+$ npm build-ts
 ```
 
 Then serve this directory in your favourite webserver and navigate to `host:port`
