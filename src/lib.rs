@@ -1,5 +1,56 @@
-// use gloo::{events::EventListener, timers::callback::Timeout};
+mod rust_act;
+use rust_act::{render, Element, Props};
 use wasm_bindgen::prelude::*;
+
+// Called when the wasm module is instantiated
+#[wasm_bindgen(start)]
+pub fn main() -> Result<(), JsValue> {
+    // Use `web_sys`'s global `window` function to get a handle on the global
+    // window object.
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let body = document.body().expect("document should have a body");
+
+    // Manufacture the element we're gonna append
+    let val = document.create_element("p")?;
+    val.set_inner_html("Hello from Rust!");
+
+    body.append_child(&val)?;
+
+    let el: Element = Element::new(
+        "TEXT_ELEMENT".to_owned(),
+        Props {
+            children: "Hi there from rustact".to_owned(),
+        },
+    );
+    render(
+        el,
+        document
+            .get_element_by_id("root")
+            .expect("should have a root div"),
+    );
+
+    Ok(())
+}
+
+#[wasm_bindgen]
+pub fn add(a: u32, b: u32) -> u32 {
+    a + b
+}
+
+#[wasm_bindgen]
+extern "C" {
+    fn alert(s: &str);
+    #[wasm_bindgen(js_namespace = console)]
+    fn log(s: &str);
+}
+
+#[wasm_bindgen]
+pub fn greet(name: &str) {
+    alert(&format!("Hello, {}!", name));
+}
+
+// use gloo::{events::EventListener, timers::callback::Timeout};
 
 // struct HelloButton {
 //     button: web_sys::Element,
@@ -26,71 +77,6 @@ use wasm_bindgen::prelude::*;
 //     }
 // }
 
-// Called when the wasm module is instantiated
-#[wasm_bindgen(start)]
-pub fn main() -> Result<(), JsValue> {
-    // Use `web_sys`'s global `window` function to get a handle on the global
-    // window object.
-    let window = web_sys::window().expect("no global `window` exists");
-    let document = window.document().expect("should have a document on window");
-    let body = document.body().expect("document should have a body");
-
-    // let a_button = HelloButton::new(&document).expect("should be a button");
-    // let button = a_button.button;
-
-    // Manufacture the element we're gonna append
-    let val = document.create_element("p")?;
-    val.set_inner_html("Hello from Rust!");
-
-    body.append_child(&val)?;
-
-    Ok(())
-}
-
-struct Rustact {
-    element: Element,
-}
-struct Element {
-    html_type: String,
-    props: Props,
-}
-
-struct Props {
-    children: Vec<Element>,
-    text: String,
-}
-
-impl Element {
-    fn new(&self, html_type: String, props: Props) -> Element {
-        Element { html_type, props }
-    }
-}
-
-impl Rustact {
-    fn render(element: Element, container: String) -> Result<(), JsValue> {
-        let window = web_sys::window().expect("no global `window` exists");
-        let document = window.document().expect("should have a document on window");
-        let body = document.body().expect("document should have a body");
-
-        let val = document.create_element(element.html_type.as_str())?;
-        val.set_inner_html("Hello from Rust!");
-
-        body.append_child(&val)?;
-        Ok(())
-    }
-}
-
-#[wasm_bindgen]
-pub fn add(a: u32, b: u32) -> u32 {
-    a + b
-}
-
-#[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn greet(name: &str) {
-    alert(&format!("Hello, {}!", name));
-}
+// How to use?
+// let a_button = HelloButton::new(&document).expect("should be a button");
+// let button = a_button.button;
