@@ -8,14 +8,8 @@ pub fn main() -> Result<(), JsValue> {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
-    let hi_text = create_element(
-        "TEXT_ELEMENT",
-        create_props(None, Some("Hi from rustact".to_owned())),
-    );
-    let bye_text = create_element(
-        "TEXT_ELEMENT",
-        create_props(None, Some("Bye from rustact".to_owned())),
-    );
+    let hi_text = create_element("TEXT_ELEMENT", create_props(None, Some("Hi from rustact")));
+    let bye_text = create_element("TEXT_ELEMENT", create_props(None, Some("Bye from rustact")));
     let list_item_1 = create_element("li", create_props(Some(vec![hi_text]), None));
     let list_item_2 = create_element("li", create_props(Some(vec![bye_text]), None));
     let list = create_element(
@@ -23,10 +17,7 @@ pub fn main() -> Result<(), JsValue> {
         create_props(Some(vec![list_item_1, list_item_2]), None),
     );
 
-    let app_title = create_element(
-        "TEXT_ELEMENT",
-        create_props(None, Some("RUST_ACT".to_owned())),
-    );
+    let app_title = create_element("TEXT_ELEMENT", create_props(None, Some("RUST_ACT")));
 
     let app = create_element("div", create_props(Some(vec![app_title, list]), None));
 

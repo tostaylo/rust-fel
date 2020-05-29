@@ -13,7 +13,7 @@ pub struct Element<'a> {
 
 pub struct Props<'a> {
     pub children: Option<Vec<Element<'a>>>,
-    pub text: Option<String>,
+    pub text: Option<&'a str>,
 }
 
 impl<'a> Element<'_> {
@@ -23,7 +23,7 @@ impl<'a> Element<'_> {
 }
 
 impl<'a> Props<'_> {
-    pub fn new(children: Option<Vec<Element<'a>>>, text: Option<String>) -> Props<'a> {
+    pub fn new(children: Option<Vec<Element<'a>>>, text: Option<&'a str>) -> Props<'a> {
         Props { children, text }
     }
 }
@@ -71,6 +71,6 @@ pub fn create_element<'a>(html_type: &'a str, props: Props<'a>) -> Element<'a> {
     Element::new(html_type, props)
 }
 
-pub fn create_props(children: Option<Vec<Element>>, text: Option<String>) -> Props {
+pub fn create_props<'a>(children: Option<Vec<Element<'a>>>, text: Option<&'a str>) -> Props<'a> {
     Props::new(children, text)
 }
