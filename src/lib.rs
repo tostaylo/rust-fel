@@ -1,34 +1,45 @@
 mod rust_act;
-use rust_act::{render, Element, Props};
+use rust_act::{create_element, create_props, render};
 use wasm_bindgen::prelude::*;
 
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
-    // Use `web_sys`'s global `window` function to get a handle on the global
-    // window object.
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
-    let body = document.body().expect("document should have a body");
 
-    // Manufacture the element we're gonna append
-    let val = document.create_element("p")?;
-    val.set_inner_html("Hello from Rust!");
-
-    body.append_child(&val)?;
-
-    let el: Element = Element::new(
+    let hi_text = create_element(
         "TEXT_ELEMENT".to_owned(),
-        Props {
-            children: "Hi there from rustact".to_owned(),
-        },
+        create_props(None, Some("Hi from rustact".to_owned())),
     );
-    render(
-        el,
-        document
-            .get_element_by_id("root")
-            .expect("should have a root div"),
+    let bye_text = create_element(
+        "TEXT_ELEMENT".to_owned(),
+        create_props(None, Some("Bye from rustact".to_owned())),
     );
+    let list_item_1 = create_element("li".to_owned(), create_props(Some(vec![hi_text]), None));
+    let list_item_2 = create_element("li".to_owned(), create_props(Some(vec![bye_text]), None));
+    let list = create_element(
+        "ul".to_owned(),
+        create_props(Some(vec![list_item_1, list_item_2]), None),
+    );
+
+    let app_title = create_element(
+        "TEXT_ELEMENT".to_owned(),
+        create_props(None, Some("RUST_ACT".to_owned())),
+    );
+
+    let app = create_element(
+        "div".to_owned(),
+        create_props(Some(vec![app_title, list]), None),
+    );
+
+    let root_element = document
+        .get_element_by_id("root")
+        .expect("should have a root div")
+        .append_child(&document.create_element("div").unwrap())
+        .expect("couldn't append child");
+
+    render(&app, &root_element);
 
     Ok(())
 }
