@@ -6,24 +6,24 @@ extern "C" {
     fn log(s: &str);
 }
 
-pub struct Element {
-    html_type: String,
-    props: Props,
+pub struct Element<'a> {
+    html_type: &'a str,
+    props: Props<'a>,
 }
 
-pub struct Props {
-    pub children: Option<Vec<Element>>,
+pub struct Props<'a> {
+    pub children: Option<Vec<Element<'a>>>,
     pub text: Option<String>,
 }
 
-impl Element {
-    pub fn new(html_type: String, props: Props) -> Element {
+impl<'a> Element<'_> {
+    pub fn new(html_type: &'a str, props: Props<'a>) -> Element<'a> {
         Element { html_type, props }
     }
 }
 
-impl Props {
-    pub fn new(children: Option<Vec<Element>>, text: Option<String>) -> Props {
+impl<'a> Props<'_> {
+    pub fn new(children: Option<Vec<Element<'a>>>, text: Option<String>) -> Props<'a> {
         Props { children, text }
     }
 }
@@ -67,7 +67,7 @@ pub fn render(element: &Element, container: &web_sys::Node) {
     }
 }
 
-pub fn create_element(html_type: String, props: Props) -> Element {
+pub fn create_element<'a>(html_type: &'a str, props: Props<'a>) -> Element<'a> {
     Element::new(html_type, props)
 }
 

@@ -9,29 +9,26 @@ pub fn main() -> Result<(), JsValue> {
     let document = window.document().expect("should have a document on window");
 
     let hi_text = create_element(
-        "TEXT_ELEMENT".to_owned(),
+        "TEXT_ELEMENT",
         create_props(None, Some("Hi from rustact".to_owned())),
     );
     let bye_text = create_element(
-        "TEXT_ELEMENT".to_owned(),
+        "TEXT_ELEMENT",
         create_props(None, Some("Bye from rustact".to_owned())),
     );
-    let list_item_1 = create_element("li".to_owned(), create_props(Some(vec![hi_text]), None));
-    let list_item_2 = create_element("li".to_owned(), create_props(Some(vec![bye_text]), None));
+    let list_item_1 = create_element("li", create_props(Some(vec![hi_text]), None));
+    let list_item_2 = create_element("li", create_props(Some(vec![bye_text]), None));
     let list = create_element(
-        "ul".to_owned(),
+        "ul",
         create_props(Some(vec![list_item_1, list_item_2]), None),
     );
 
     let app_title = create_element(
-        "TEXT_ELEMENT".to_owned(),
+        "TEXT_ELEMENT",
         create_props(None, Some("RUST_ACT".to_owned())),
     );
 
-    let app = create_element(
-        "div".to_owned(),
-        create_props(Some(vec![app_title, list]), None),
-    );
+    let app = create_element("div", create_props(Some(vec![app_title, list]), None));
 
     let root_element = document
         .get_element_by_id("root")
