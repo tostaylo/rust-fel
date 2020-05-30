@@ -1,5 +1,5 @@
-mod rust_act;
-use rust_act::{create_element, render, Props};
+mod rustact;
+use rustact::{create_element, render, Props};
 use wasm_bindgen::prelude::*;
 
 // Called when the wasm module is instantiated
@@ -60,7 +60,7 @@ pub fn main() -> Result<(), JsValue> {
     let app_title = create_element(
         "TEXT_ELEMENT",
         Props {
-            text: Some("Rust_act"),
+            text: Some("rustact"),
             ..Default::default()
         },
     );
@@ -68,6 +68,7 @@ pub fn main() -> Result<(), JsValue> {
     let app = create_element(
         "div",
         Props {
+            class_name: Some("app"),
             children: Some(vec![app_title, list]),
             ..Default::default()
         },
