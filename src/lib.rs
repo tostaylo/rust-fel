@@ -1,5 +1,5 @@
 mod rust_act;
-use rust_act::{create_element, create_props, render};
+use rust_act::{create_element, render, Props};
 use wasm_bindgen::prelude::*;
 
 // Called when the wasm module is instantiated
@@ -8,18 +8,70 @@ pub fn main() -> Result<(), JsValue> {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
-    let hi_text = create_element("TEXT_ELEMENT", create_props(None, Some("Hi from rustact")));
-    let bye_text = create_element("TEXT_ELEMENT", create_props(None, Some("Bye from rustact")));
-    let list_item_1 = create_element("li", create_props(Some(vec![hi_text]), None));
-    let list_item_2 = create_element("li", create_props(Some(vec![bye_text]), None));
-    let list = create_element(
-        "ul",
-        create_props(Some(vec![list_item_1, list_item_2]), None),
+    let hi_text = create_element(
+        "TEXT_ELEMENT",
+        Props {
+            text: Some("Hi from rustact"),
+            ..Default::default()
+        },
     );
 
-    let app_title = create_element("TEXT_ELEMENT", create_props(None, Some("RUST_ACT")));
+    let bye_text = create_element(
+        "TEXT_ELEMENT",
+        Props {
+            text: Some("Bye from rustact"),
+            ..Default::default()
+        },
+    );
+    fn logs_on_click() {
+        log("I'm list item one");
+    }
 
-    let app = create_element("div", create_props(Some(vec![app_title, list]), None));
+    let list_item_1 = create_element(
+        "li",
+        Props {
+            children: Some(vec![hi_text]),
+            on_click: Some(&logs_on_click),
+            ..Default::default()
+        },
+    );
+
+    fn log_on_click() {
+        log("I'm list item two");
+    }
+
+    let list_item_2 = create_element(
+        "li",
+        Props {
+            children: Some(vec![bye_text]),
+            on_click: Some(&log_on_click),
+            ..Default::default()
+        },
+    );
+
+    let list = create_element(
+        "ul",
+        Props {
+            children: Some(vec![list_item_1, list_item_2]),
+            ..Default::default()
+        },
+    );
+
+    let app_title = create_element(
+        "TEXT_ELEMENT",
+        Props {
+            text: Some("Rust_act"),
+            ..Default::default()
+        },
+    );
+
+    let app = create_element(
+        "div",
+        Props {
+            children: Some(vec![app_title, list]),
+            ..Default::default()
+        },
+    );
 
     let root_element = document
         .get_element_by_id("root")
