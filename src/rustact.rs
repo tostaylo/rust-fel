@@ -69,7 +69,7 @@ pub fn render(rustact_element: &Element, container: &web_sys::Node) {
                 let closure = Closure::wrap(Box::new(move || on_click()) as Box<dyn Fn()>);
                 dom_el
                     .dyn_ref::<HtmlElement>()
-                    .expect("#loading should be an `HtmlElement`")
+                    .expect("should be an `HtmlElement`")
                     .set_onclick(Some(closure.as_ref().unchecked_ref()));
                 closure.forget();
             }
@@ -105,11 +105,9 @@ pub fn set_state() {
 
     root.remove_child(&node).expect("unable to remove child");
 
-    let root_element = document
-        .get_element_by_id("root")
-        .expect("should have a root div")
+    let root_node = root
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
 
-    render(&app(false), &root_element);
+    render(&app(false), &root_node);
 }

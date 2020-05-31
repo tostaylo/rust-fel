@@ -1,17 +1,17 @@
-use crate::{create_element, log, set_state, Element, Props};
-
-pub fn app<'a>(props: bool) -> Element<'a> {
-    let hi_text = create_element(
+use crate::log;
+use crate::rustact;
+pub fn app<'a>(props: bool) -> rustact::Element<'a> {
+    let hi_text = rustact::create_element(
         "TEXT_ELEMENT",
-        Props {
+        rustact::Props {
             text: Some("Hi from rustact"),
             ..Default::default()
         },
     );
 
-    let bye_text = create_element(
+    let bye_text = rustact::create_element(
         "TEXT_ELEMENT",
-        Props {
+        rustact::Props {
             text: Some("Bye from rustact"),
             ..Default::default()
         },
@@ -20,20 +20,20 @@ pub fn app<'a>(props: bool) -> Element<'a> {
         log("I'm list item one");
     }
 
-    let list_item_1 = create_element(
+    let list_item_1 = rustact::create_element(
         "li",
-        Props {
+        rustact::Props {
             children: Some(vec![hi_text]),
             on_click: Some(&logs_on_click),
             ..Default::default()
         },
     );
 
-    let list_item_2 = create_element(
+    let list_item_2 = rustact::create_element(
         "li",
-        Props {
+        rustact::Props {
             children: Some(vec![bye_text]),
-            on_click: Some(&set_state),
+            on_click: Some(&rustact::set_state),
             ..Default::default()
         },
     );
@@ -43,25 +43,25 @@ pub fn app<'a>(props: bool) -> Element<'a> {
         false => vec![list_item_2, list_item_1],
     };
 
-    let list = create_element(
+    let list = rustact::create_element(
         "ul",
-        Props {
+        rustact::Props {
             children: Some(list_items),
             ..Default::default()
         },
     );
 
-    let app_title = create_element(
+    let app_title = rustact::create_element(
         "TEXT_ELEMENT",
-        Props {
+        rustact::Props {
             text: Some("rustact"),
             ..Default::default()
         },
     );
 
-    let app = create_element(
+    let app = rustact::create_element(
         "div",
-        Props {
+        rustact::Props {
             class_name: Some("app"),
             children: Some(vec![app_title, list]),
             ..Default::default()
