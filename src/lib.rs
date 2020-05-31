@@ -1,6 +1,9 @@
 mod app;
+mod js;
+use js::log;
 mod rustact;
 use app::app;
+
 use rustact::{create_element, render, set_state, Element, Props};
 
 use wasm_bindgen::prelude::*;
@@ -20,21 +23,4 @@ pub fn main() -> Result<(), JsValue> {
     render(&app(true), &root_element);
 
     Ok(())
-}
-
-#[wasm_bindgen]
-pub fn add(a: u32, b: u32) -> u32 {
-    a + b
-}
-
-#[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
-
-#[wasm_bindgen]
-pub fn greet(name: &str) {
-    alert(&format!("Hello, {}!", name));
 }

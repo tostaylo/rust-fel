@@ -1,12 +1,4 @@
-use crate::{create_element, set_state, Element, Props};
-use wasm_bindgen::prelude::*;
-
-#[wasm_bindgen]
-extern "C" {
-    fn alert(s: &str);
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
+use crate::{create_element, log, set_state, Element, Props};
 
 pub fn app<'a>(props: bool) -> Element<'a> {
     let hi_text = create_element(
