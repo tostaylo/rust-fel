@@ -1,12 +1,7 @@
+use crate::app;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
-
-#[wasm_bindgen]
-extern "C" {
-    #[wasm_bindgen(js_namespace = console)]
-    fn log(s: &str);
-}
 
 pub struct Element<'a> {
     html_type: &'a str,
@@ -98,4 +93,23 @@ pub fn render(rustact_element: &Element, container: &web_sys::Node) {
 
 pub fn create_element<'a>(html_type: &'a str, props: Props<'a>) -> Element<'a> {
     Element::new(html_type, props)
+}
+
+pub fn set_state() {
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let root = document
+        .get_element_by_id("root")
+        .expect("should have a root div");
+    let node = root.first_child().unwrap();
+
+    root.remove_child(&node).expect("unable to remove child");
+
+    let root_element = document
+        .get_element_by_id("root")
+        .expect("should have a root div")
+        .append_child(&document.create_element("div").unwrap())
+        .expect("couldn't append child");
+
+    render(&app(false), &root_element);
 }
