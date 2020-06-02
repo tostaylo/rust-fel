@@ -1,6 +1,8 @@
 use crate::log;
+use crate::reducer::State;
 use crate::rustact;
-pub fn app<'a>(props: bool) -> rustact::Element<'a> {
+
+pub fn app<'a>() -> rustact::Element<'a> {
     let hi_text = rustact::create_element(
         "TEXT_ELEMENT",
         rustact::Props {
@@ -29,16 +31,18 @@ pub fn app<'a>(props: bool) -> rustact::Element<'a> {
         },
     );
 
+    let state = rustact::use_reducer(State { order: true });
+
     let list_item_2 = rustact::create_element(
         "li",
         rustact::Props {
             children: Some(vec![bye_text]),
-            on_click: Some(&rustact::set_state),
+            // on_click: Some(&dispatch),
             ..Default::default()
         },
     );
 
-    let list_items = match props {
+    let list_items = match state.order {
         true => vec![list_item_1, list_item_2],
         false => vec![list_item_2, list_item_1],
     };

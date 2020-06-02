@@ -1,5 +1,6 @@
 mod app;
 mod js;
+mod reducer;
 use js::log;
 mod rustact;
 use app::app;
@@ -17,7 +18,8 @@ pub fn main() -> Result<(), JsValue> {
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
 
-    rustact::render(&app(true), &root_node);
+    let app = app();
+    rustact::render(&app, &root_node);
 
     Ok(())
 }
