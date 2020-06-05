@@ -31,20 +31,27 @@ pub fn app<'a>() -> rustact::Element<'a> {
         },
     );
 
-    let state = rustact::use_reducer(State { order: true });
+    // let (state, mut dispatch) = rustact::use_reducer(&initial_state);
+    // dispatch("reverse");
+
+    let initial_state = 5;
+    let (state, mut set_state) = rustact::use_state(initial_state);
 
     let list_item_2 = rustact::create_element(
         "li",
         rustact::Props {
             children: Some(vec![bye_text]),
-            // on_click: Some(&dispatch),
+            // on_click: Some(&handle_dispatch),
             ..Default::default()
         },
     );
+    set_state(5);
+    set_state(5);
 
-    let list_items = match state.order {
-        true => vec![list_item_1, list_item_2],
-        false => vec![list_item_2, list_item_1],
+    let list_items = match *state.borrow() {
+        5 => vec![list_item_1, list_item_2],
+        10 => vec![list_item_2, list_item_1],
+        _ => vec![],
     };
 
     let list = rustact::create_element(

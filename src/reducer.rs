@@ -1,22 +1,16 @@
 pub trait Reducer {
-    fn reduce(&self, action: &str) -> Self;
+    fn reduce(&self, action: &str) -> State;
 }
-#[derive(Debug, Default, Clone)]
+#[derive(Debug, Default, Clone, Copy)]
 pub struct State {
     pub order: bool,
 }
 
 impl Reducer for State {
-    fn reduce(&self, action: &str) -> Self {
+    fn reduce(&self, action: &str) -> State {
         match action {
-            "reverse" => State {
-                order: false,
-                ..self.clone()
-            },
-            "initial" => State {
-                order: true,
-                ..self.clone()
-            },
+            "reverse" => State { order: false },
+            "initial" => State { order: true },
             _ => State { ..self.clone() },
         }
     }

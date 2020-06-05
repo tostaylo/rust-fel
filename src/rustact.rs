@@ -1,6 +1,8 @@
 use crate::app;
 use crate::js;
 use crate::reducer::{Reducer, State};
+use std::cell::RefCell;
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
@@ -97,23 +99,49 @@ pub fn create_element<'a>(html_type: &'a str, props: Props<'a>) -> Element<'a> {
     Element::new(html_type, props)
 }
 
-pub fn use_reducer(initial_state: State) -> State {
-    js::log("hello");
-    // let window = web_sys::window().expect("no global `window` exists");
-    // let document = window.document().expect("should have a document on window");
-    // let root = document
-    //     .get_element_by_id("root")
-    //     .expect("should have a root div");
-    // let node = root.first_child().unwrap();
+// pub fn use_reducer(initial_state: &'static State) -> (&State, Box<dyn FnMut(&str) -> ()>) {
+//     let message_1 = format!("here is state initially {:?}", initial_state);
+//     js::log(&message_1);
+//     let mut state = initial_state;
 
-    // root.remove_child(&node).expect("unable to remove child");
+//     let dispatch = Box::new(move |action: &str| {
+//         state = &state.reduce(action);
+//         let message_dispatch = format!("here is state in dispatch {:?}", state);
 
-    // let root_node = root
-    //     .append_child(&document.create_element("div").unwrap())
-    //     .expect("couldn't append child");
-    // render(&app(), &root_node);
+//         js::log(&message_dispatch);
+//         if initial_state.order == false {
+//             re_render();
+//         }
+//         ()
+//     });
+//     let message_2 = format!("here is state after dispatch {:?}", state);
+//     js::log(&message_2);
+//     (state, dispatch)
+// }
 
-    let new_state = initial_state.reduce("initial");
+pub fn use_state(initial_state: i32) -> (Rc<RefCell<i32>>, Box<dyn FnMut(i32) -> ()>) {
+    //
+    let state = Rc::new(RefCell::new(initial_state));
+    let state_copy = state.clone();
+    let set_state = Box::new(move |new_val| {
+        *state_copy.borrow_mut() += new_val;
+    });
 
-    new_state
+    (state, set_state) // exposing functions for external use
+}
+
+pub fn re_render() {
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let root = document
+        .get_element_by_id("root")
+        .expect("should have a root div");
+    let node = root.first_child().unwrap();
+
+    root.remove_child(&node).expect("unable to remove child");
+
+    let root_node = root
+        .append_child(&document.create_element("div").unwrap())
+        .expect("couldn't append child");
+    render(&app(), &root_node);
 }
