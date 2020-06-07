@@ -19,7 +19,7 @@ pub fn main() -> Result<(), JsValue> {
         .expect("couldn't append child");
 
     let app = app();
-    rustact::render(&app, &root_node);
+    rustact::render(app, &root_node);
 
     Ok(())
 }

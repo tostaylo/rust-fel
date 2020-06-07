@@ -7,19 +7,19 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-pub struct Element<'a> {
-    html_type: &'a str,
-    props: Props<'a>,
+pub struct Element {
+    html_type: String,
+    props: Props,
 }
 
-pub struct Props<'a> {
-    pub children: Option<Vec<Element<'a>>>,
-    pub text: Option<&'a str>,
-    pub on_click: Option<&'static dyn Fn() -> ()>,
-    pub class_name: Option<&'a str>,
+pub struct Props {
+    pub children: Option<Vec<Element>>,
+    pub text: Option<String>,
+    pub on_click: Option<Box<dyn FnMut() -> ()>>,
+    pub class_name: Option<String>,
 }
 
-impl<'a> Default for Props<'_> {
+impl Default for Props {
     fn default() -> Self {
         Props {
             children: None,
@@ -30,26 +30,26 @@ impl<'a> Default for Props<'_> {
     }
 }
 
-impl<'a> Element<'_> {
-    pub fn new(html_type: &'a str, props: Props<'a>) -> Element<'a> {
+impl Element {
+    pub fn new(html_type: String, props: Props) -> Element {
         Element { html_type, props }
     }
 }
 
-pub fn render(rustact_element: &Element, container: &web_sys::Node) {
+pub fn render(rustact_element: Element, container: &web_sys::Node) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
     if rustact_element.html_type == "TEXT_ELEMENT" {
-        match rustact_element.props.text.as_ref() {
+        match rustact_element.props.text {
             Some(text) => {
                 let dom = container
                     .append_child(&document.create_text_node(&text))
                     .expect("couldn't append text node");
 
-                match rustact_element.props.children.as_ref() {
+                match rustact_element.props.children {
                     Some(children) => {
-                        for child in children.iter() {
+                        for child in children {
                             render(child, &dom)
                         }
                     }
@@ -63,14 +63,14 @@ pub fn render(rustact_element: &Element, container: &web_sys::Node) {
 
         match rustact_element.props.class_name {
             Some(class_name) => {
-                dom_el.set_class_name(class_name);
+                dom_el.set_class_name(&class_name);
             }
             None => (),
         }
 
-        match rustact_element.props.on_click.as_ref() {
-            Some(&on_click) => {
-                let closure = Closure::wrap(Box::new(move || on_click()) as Box<dyn Fn()>);
+        match rustact_element.props.on_click {
+            Some(mut on_click) => {
+                let closure = Closure::wrap(Box::new(move || on_click()) as Box<dyn FnMut()>);
                 dom_el
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")
@@ -84,9 +84,9 @@ pub fn render(rustact_element: &Element, container: &web_sys::Node) {
             .append_child(&dom_el)
             .expect("couldn't append child");
 
-        match rustact_element.props.children.as_ref() {
+        match rustact_element.props.children {
             Some(children) => {
-                for child in children.iter() {
+                for child in children {
                     render(child, &dom)
                 }
             }
@@ -95,7 +95,7 @@ pub fn render(rustact_element: &Element, container: &web_sys::Node) {
     }
 }
 
-pub fn create_element<'a>(html_type: &'a str, props: Props<'a>) -> Element<'a> {
+pub fn create_element<'a>(html_type: String, props: Props) -> Element {
     Element::new(html_type, props)
 }
 
@@ -143,5 +143,5 @@ pub fn re_render() {
     let root_node = root
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
-    render(&app(), &root_node);
+    render(app(), &root_node);
 }
