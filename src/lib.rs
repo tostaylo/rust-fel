@@ -3,6 +3,7 @@ mod js;
 mod reducer;
 use js::log;
 mod rustact;
+use crate::reducer::State;
 use app::app;
 use wasm_bindgen::prelude::*;
 
@@ -17,8 +18,8 @@ pub fn main() -> Result<(), JsValue> {
         .expect("should have a root div")
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
-
-    let app = app();
+    let initial_state = State { order: true };
+    let app = app(initial_state);
     rustact::render(app, &root_node);
 
     Ok(())

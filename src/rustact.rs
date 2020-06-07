@@ -1,8 +1,6 @@
 use crate::app;
 use crate::js;
 use crate::reducer::{Reducer, State};
-use std::cell::RefCell;
-use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
@@ -95,7 +93,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
     }
 }
 
-pub fn create_element<'a>(html_type: String, props: Props) -> Element {
+pub fn create_element(html_type: String, props: Props) -> Element {
     Element::new(html_type, props)
 }
 
@@ -119,18 +117,18 @@ pub fn create_element<'a>(html_type: String, props: Props) -> Element {
 //     (state, dispatch)
 // }
 
-pub fn use_state(initial_state: i32) -> (Rc<RefCell<i32>>, Box<dyn FnMut(i32) -> ()>) {
-    //
-    let state = Rc::new(RefCell::new(initial_state));
-    let state_copy = state.clone();
-    let set_state = Box::new(move |new_val| {
-        *state_copy.borrow_mut() += new_val;
-    });
+// pub fn use_state(initial_state: i32) -> (Rc<RefCell<i32>>, Box<dyn FnMut(i32) -> ()>) {
+//     //
+//     let state = Rc::new(RefCell::new(initial_state));
+//     let state_copy = state.clone();
+//     let set_state = Box::new(move |new_val| {
+//         *state_copy.borrow_mut() += new_val;
+//     });
 
-    (state, set_state) // exposing functions for external use
-}
+//     (state, set_state) // exposing functions for external use
+// }
 
-pub fn re_render() {
+pub fn re_render(state: State) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
     let root = document
@@ -143,5 +141,5 @@ pub fn re_render() {
     let root_node = root
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
-    render(app(), &root_node);
+    render(app(state), &root_node);
 }

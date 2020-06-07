@@ -2,7 +2,7 @@ use crate::log;
 use crate::reducer::State;
 use crate::rustact;
 
-pub fn app() -> rustact::Element {
+pub fn app(props: State) -> rustact::Element {
     let hi_text = rustact::create_element(
         "TEXT_ELEMENT".to_owned(),
         rustact::Props {
@@ -31,33 +31,30 @@ pub fn app() -> rustact::Element {
         },
     );
 
-    // let (state, mut dispatch) = rustact::use_reducer(&initial_state);
-    // dispatch("reverse");
-
-    // let initial_state = 5;
-    // let (state, mut set_state) = rustact::use_state(initial_state);
-
-    let handler = || {};
+    fn handler(val: State) {
+        let val = State { order: !val.order };
+        rustact::re_render(val);
+        ()
+    }
     let list_item_2 = rustact::create_element(
         "li".to_owned(),
         rustact::Props {
             children: Some(vec![bye_text]),
-            on_click: Some(Box::new(handler)),
+            on_click: Some(Box::new(move || handler(props))),
             ..Default::default()
         },
     );
-    // set_state(5);
+    log(&format!("{:?}", props));
 
-    // let list_items = match *state.borrow() {
-    //     5 => vec![list_item_1, list_item_2],
-    //     10 => vec![list_item_2, list_item_1],
-    //     _ => vec![],
-    // };
+    let list_items = match props.order {
+        true => vec![list_item_1, list_item_2],
+        false => vec![list_item_2, list_item_1],
+    };
 
     let list = rustact::create_element(
         "ul".to_owned(),
         rustact::Props {
-            children: None,
+            children: Some(list_items),
             ..Default::default()
         },
     );
