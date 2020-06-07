@@ -1,6 +1,5 @@
 use crate::app;
-use crate::js;
-use crate::reducer::{Reducer, State};
+use crate::reducer::State;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;

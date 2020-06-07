@@ -4,6 +4,7 @@ pub trait Reducer {
 #[derive(Debug, Default, Clone, Copy)]
 pub struct State {
     pub order: bool,
+    // pub dispatch:
 }
 
 impl Reducer for State {

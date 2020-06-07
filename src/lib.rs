@@ -1,5 +1,6 @@
 mod app;
 mod js;
+mod list;
 mod reducer;
 use js::log;
 mod rustact;
