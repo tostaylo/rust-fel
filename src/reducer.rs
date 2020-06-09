@@ -7,6 +7,12 @@ pub struct State {
     // pub dispatch:
 }
 
+impl State {
+    pub fn new(order: bool) -> Self {
+        Self { order }
+    }
+}
+
 impl Reducer for State {
     fn reduce(&self, action: &str) -> State {
         match action {

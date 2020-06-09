@@ -1,5 +1,7 @@
 use crate::app;
+use crate::log;
 use crate::reducer::State;
+use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
@@ -116,16 +118,33 @@ pub fn create_element(html_type: String, props: Props) -> Element {
 //     (state, dispatch)
 // }
 
-// pub fn use_state(initial_state: i32) -> (Rc<RefCell<i32>>, Box<dyn FnMut(i32) -> ()>) {
-//     //
-//     let state = Rc::new(RefCell::new(initial_state));
-//     let state_copy = state.clone();
-//     let set_state = Box::new(move |new_val| {
-//         *state_copy.borrow_mut() += new_val;
-//     });
+pub fn rustact() -> Box<dyn FnMut(i32) -> (Rc<RefCell<i32>>, Box<dyn FnMut(i32) -> ()>)> {
+    let internal_state = Rc::new(RefCell::new(0));
+    let internal_state_copy = internal_state.clone();
 
-//     (state, set_state) // exposing functions for external use
-// }
+    let use_state = move |initial_state: i32| {
+        let val: i32;
+
+        if *internal_state_copy.borrow() > 0 {
+            val = *internal_state_copy.borrow();
+            log(&format!("{:?} setting val", internal_state));
+        } else {
+            *internal_state.borrow_mut() = initial_state;
+            val = initial_state;
+            log(&format!("{:?} setting internal", internal_state));
+        }
+
+        let state = Rc::new(RefCell::new(val));
+        let state_copy = state.clone();
+        let set_state = Box::new(move |new_val: i32| {
+            *state_copy.borrow_mut() += new_val;
+        }) as Box<dyn FnMut(i32) -> ()>;
+
+        (state, set_state)
+    };
+    return Box::new(use_state)
+        as Box<dyn FnMut(i32) -> (Rc<RefCell<i32>>, Box<dyn FnMut(i32) -> ()>)>;
+}
 
 pub fn re_render(state: State) {
     let window = web_sys::window().expect("no global `window` exists");
