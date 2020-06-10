@@ -2,11 +2,20 @@ use crate::log;
 use crate::reducer::State;
 use crate::rustact;
 
-pub fn list(props: State) -> rustact::Element {
+pub fn list(rustact_struct: rustact::Rustact<State>) -> rustact::Element {
     fn logs_on_click() {
         log("I'm list item one");
     }
 
+    fn reducer(state: &State, action: &str) -> State {
+        log(&format!("{:?} {:?} inside reduce", state, action));
+        match action {
+            "reverse" => State { order: false },
+            "initial" => State { order: true },
+            _ => State { ..state.clone() },
+        }
+    }
+    log(&format!("{:?} rustact struct from list", rustact_struct));
     let hi_text = rustact::create_element(
         "TEXT_ELEMENT".to_owned(),
         rustact::Props {
@@ -32,32 +41,29 @@ pub fn list(props: State) -> rustact::Element {
         },
     );
 
-    fn handler(val: State) {
-        //This should be dispatch
-        let val = State { order: !val.order };
-        rustact::re_render(val);
-    }
     let list_item_2 = rustact::create_element(
         "li".to_owned(),
         rustact::Props {
             children: Some(vec![bye_text]),
-            on_click: Some(Box::new(move || handler(props))),
+            on_click: Some(Box::new(move || handler(rustact_struct, Box::new(reducer)))),
             ..Default::default()
         },
     );
 
-    let list_items = match props.order {
+    let list_items = match rustact_struct.store.order {
         true => vec![list_item_1, list_item_2],
         false => vec![list_item_2, list_item_1],
     };
 
-    let list = rustact::create_element(
+    let listt = rustact::create_element(
         "ul".to_owned(),
         rustact::Props {
             children: Some(list_items),
             ..Default::default()
         },
     );
-
-    list
+    fn handler(mut rustact_struct: rustact::Rustact<State>, reducer: rustact::Reducer<State>) {
+        rustact_struct.reduce(Box::new(reducer), "initial");
+    }
+    listt
 }

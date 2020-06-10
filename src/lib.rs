@@ -20,7 +20,21 @@ pub fn main() -> Result<(), JsValue> {
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
     let initial_state = State { order: true };
-    let app = app(initial_state);
+    let mut rustact_struct = rustact::Rustact::new(initial_state);
+    log(&format!("{:?}", rustact_struct));
+
+    // fn reducer(state: &State, action: &str) -> State {
+    //     log(&format!("{:?} {:?} inside reduce", state, action));
+    //     match action {
+    //         "reverse" => State { order: false },
+    //         "initial" => State { order: true },
+    //         _ => State { ..state.clone() },
+    //     }
+    // }
+
+    // rustact_struct.reduce(Box::new(reducer), "reverse");
+    log(&format!("{:?} after reduce", rustact_struct.store));
+    let app = app(rustact_struct);
     rustact::render(app, &root_node);
 
     Ok(())
