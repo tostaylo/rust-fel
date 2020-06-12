@@ -104,7 +104,7 @@ pub fn create_element(html_type: String, props: Props) -> Element {
 pub type Reducer<T> = Box<dyn Fn(&T, &str) -> T>;
 #[derive(Debug, Default, Clone, Copy)]
 pub struct Rustact<T> {
-    pub store: T,
+    store: T,
     // reducer: Box<dyn Fn(&T, &str) -> T>,
     // Would like to make all these private with a Cell
 }
@@ -118,9 +118,10 @@ where
     }
     pub fn reduce(&mut self, reducer: Reducer<T>, action: &str) {
         let new_store = reducer(&self.store, action);
-        log(&format!("{:?}  new store", new_store));
         self.store = new_store;
-        log(&format!("{:?}  self store", self.store));
+    }
+    pub fn store(self) -> T {
+        self.store
     }
 }
 

@@ -5,10 +5,12 @@ use crate::log;
 use crate::rustact;
 
 pub fn list() -> rustact::Element {
-    log(&format!("{:?} static", R.lock().unwrap().store));
+    let store = R.lock().unwrap().store();
+    log(&format!("{:?} static", store));
     let l1 = list_item_1();
     let l2 = list_item_2();
-    let list_items = match R.lock().unwrap().store.order {
+
+    let list_items = match store.order {
         true => vec![l1, l2],
         false => vec![l2, l1],
     };

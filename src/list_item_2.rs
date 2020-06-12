@@ -5,6 +5,8 @@ use crate::reducer::State;
 use crate::rustact;
 
 pub fn list_item_2() -> rustact::Element {
+    let store = R.lock().unwrap().store();
+
     fn reducer(state: &State, action: &str) -> State {
         log(&format!("{:?} {:?} inside the reducer", state, action));
         match action {
@@ -14,7 +16,7 @@ pub fn list_item_2() -> rustact::Element {
         }
     }
 
-    let action = match R.lock().unwrap().store.order {
+    let action = match store.order {
         true => "reverse",
         false => "initial",
     };
