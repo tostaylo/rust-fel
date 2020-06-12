@@ -1,12 +1,23 @@
 mod app;
 mod js;
 mod list;
+mod list_item_1;
+mod list_item_2;
 mod reducer;
 use js::log;
 mod rustact;
 use crate::reducer::State;
 use app::app;
+use std::sync::{Arc, Mutex};
+use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
+#[macro_use]
+extern crate lazy_static;
+
+lazy_static! {
+#[derive(Debug, Default, Clone, Copy)]
+static ref R: Mutex<rustact::Rustact<State>> = Mutex::new(rustact::Rustact::new(State { order: true }));
+}
 
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
@@ -19,22 +30,8 @@ pub fn main() -> Result<(), JsValue> {
         .expect("should have a root div")
         .append_child(&document.create_element("div").unwrap())
         .expect("couldn't append child");
-    let initial_state = State { order: true };
-    let mut rustact_struct = rustact::Rustact::new(initial_state);
-    log(&format!("{:?}", rustact_struct));
 
-    // fn reducer(state: &State, action: &str) -> State {
-    //     log(&format!("{:?} {:?} inside reduce", state, action));
-    //     match action {
-    //         "reverse" => State { order: false },
-    //         "initial" => State { order: true },
-    //         _ => State { ..state.clone() },
-    //     }
-    // }
-
-    // rustact_struct.reduce(Box::new(reducer), "reverse");
-    log(&format!("{:?} after reduce", rustact_struct.store));
-    let app = app(rustact_struct);
+    let app = app();
     rustact::render(app, &root_node);
 
     Ok(())

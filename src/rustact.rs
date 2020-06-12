@@ -101,6 +101,45 @@ pub fn create_element(html_type: String, props: Props) -> Element {
     Element::new(html_type, props)
 }
 
+pub type Reducer<T> = Box<dyn Fn(&T, &str) -> T>;
+#[derive(Debug, Default, Clone, Copy)]
+pub struct Rustact<T> {
+    pub store: T,
+    // reducer: Box<dyn Fn(&T, &str) -> T>,
+    // Would like to make all these private with a Cell
+}
+
+impl<T> Rustact<T>
+where
+    T: std::fmt::Debug,
+{
+    pub fn new(store: T) -> Self {
+        Self { store }
+    }
+    pub fn reduce(&mut self, reducer: Reducer<T>, action: &str) {
+        let new_store = reducer(&self.store, action);
+        log(&format!("{:?}  new store", new_store));
+        self.store = new_store;
+        log(&format!("{:?}  self store", self.store));
+    }
+}
+
+pub fn re_render(app: Element) {
+    let window = web_sys::window().expect("no global `window` exists");
+    let document = window.document().expect("should have a document on window");
+    let root = document
+        .get_element_by_id("root")
+        .expect("should have a root div");
+    let node = root.first_child().unwrap();
+
+    root.remove_child(&node).expect("unable to remove child");
+
+    let root_node = root
+        .append_child(&document.create_element("div").unwrap())
+        .expect("couldn't append child");
+
+    render(app, &root_node);
+}
 // pub fn use_reducer(initial_state: &'static State) -> (&State, Box<dyn FnMut(&str) -> ()>) {
 //     let message_1 = format!("here is state initially {:?}", initial_state);
 //     js::log(&message_1);
@@ -120,66 +159,30 @@ pub fn create_element(html_type: String, props: Props) -> Element {
 //     js::log(&message_2);
 //     (state, dispatch)
 // }
-type UseState = (Rc<RefCell<i32>>, Box<dyn FnMut(i32, Element) -> ()>);
-pub fn rustact() -> Box<dyn FnMut(i32) -> UseState> {
-    let internal_state = Rc::new(RefCell::new(0));
-    let internal_state_copy = internal_state.clone();
+// type UseState = (Rc<RefCell<i32>>, Box<dyn FnMut(i32, Element) -> ()>);
+// pub fn rustact() -> Box<dyn FnMut(i32) -> UseState> {
+//     let internal_state = Rc::new(RefCell::new(0));
+//     let internal_state_copy = internal_state.clone();
 
-    let use_state = move |initial_state: i32| {
-        let val: i32;
+//     let use_state = move |initial_state: i32| {
+//         let val: i32;
 
-        if *internal_state_copy.borrow() > 0 {
-            val = *internal_state_copy.borrow();
-            log(&format!("{:?} setting val", internal_state));
-        } else {
-            *internal_state.borrow_mut() = initial_state;
-            val = initial_state;
-            log(&format!("{:?} setting internal", internal_state));
-        }
+//         if *internal_state_copy.borrow() > 0 {
+//             val = *internal_state_copy.borrow();
+//             log(&format!("{:?} setting val", internal_state));
+//         } else {
+//             *internal_state.borrow_mut() = initial_state;
+//             val = initial_state;
+//             log(&format!("{:?} setting internal", internal_state));
+//         }
 
-        let state = Rc::new(RefCell::new(val));
-        let state_copy = state.clone();
-        let set_state = Box::new(move |new_val: i32, el: Element| {
-            *state_copy.borrow_mut() += new_val;
-        }) as Box<dyn FnMut(i32, Element) -> ()>;
+//         let state = Rc::new(RefCell::new(val));
+//         let state_copy = state.clone();
+//         let set_state = Box::new(move |new_val: i32, el: Element| {
+//             *state_copy.borrow_mut() += new_val;
+//         }) as Box<dyn FnMut(i32, Element) -> ()>;
 
-        (state, set_state)
-    };
-    return Box::new(use_state) as Box<dyn FnMut(i32) -> UseState>;
-}
-
-pub fn re_render<T>(rustact_struct: Rustact<T>) {
-    let window = web_sys::window().expect("no global `window` exists");
-    let document = window.document().expect("should have a document on window");
-    let root = document
-        .get_element_by_id("root")
-        .expect("should have a root div");
-    let node = root.first_child().unwrap();
-
-    root.remove_child(&node).expect("unable to remove child");
-
-    let root_node = root
-        .append_child(&document.create_element("div").unwrap())
-        .expect("couldn't append child");
-    render(app(rustact_struct), &root_node);
-}
-
-pub type Reducer<T> = Box<dyn Fn(&T, &str) -> T>;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct Rustact<T> {
-    pub store: T,
-    // reducer: Box<dyn Fn(&T, &str) -> T>,
-    // Would like to make all these private with a Cell
-}
-
-impl<T: std::fmt::Debug> Rustact<T> {
-    pub fn new(store: T) -> Self {
-        Self { store }
-    }
-    pub fn reduce(&mut self, reducer: Reducer<T>, action: &str, el: Element) {
-        let new_store = reducer(&self.store, action);
-        log(&format!("{:?}  new store", new_store));
-        self.store = new_store;
-        log(&format!("{:?}  self store", self.store));
-    }
-}
+//         (state, set_state)
+//     };
+//     return Box::new(use_state) as Box<dyn FnMut(i32) -> UseState>;
+// }
