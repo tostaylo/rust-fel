@@ -4,19 +4,19 @@ mod list;
 mod list_item_1;
 mod list_item_2;
 mod reducer;
+mod state;
 use js::log;
 mod rustact;
-use crate::reducer::State;
+use crate::state::State;
 use app::app;
-use std::sync::{Arc, Mutex};
-use std::{cell::RefCell, rc::Rc};
+use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 #[macro_use]
 extern crate lazy_static;
 
 lazy_static! {
 #[derive(Debug, Default, Clone, Copy)]
-static ref R: Mutex<rustact::Rustact<State>> = Mutex::new(rustact::Rustact::new(State { order: true }));
+static ref STORE: Mutex<rustact::RustactStore<State>> = Mutex::new(rustact::RustactStore::new(State::new(true)));
 }
 
 // Called when the wasm module is instantiated

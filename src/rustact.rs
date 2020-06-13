@@ -1,8 +1,3 @@
-use crate::app;
-use crate::log;
-use crate::reducer::State;
-use std::cell::Cell;
-use std::{cell::RefCell, rc::Rc};
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
@@ -103,13 +98,11 @@ pub fn create_element(html_type: String, props: Props) -> Element {
 
 pub type Reducer<T> = Box<dyn Fn(&T, &str) -> T>;
 #[derive(Debug, Default, Clone, Copy)]
-pub struct Rustact<T> {
+pub struct RustactStore<T> {
     store: T,
-    // reducer: Box<dyn Fn(&T, &str) -> T>,
-    // Would like to make all these private with a Cell
 }
 
-impl<T> Rustact<T>
+impl<T> RustactStore<T>
 where
     T: std::fmt::Debug,
 {

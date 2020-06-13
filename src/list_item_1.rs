@@ -1,4 +1,3 @@
-use super::R;
 use crate::log;
 use crate::rustact;
 

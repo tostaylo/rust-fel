@@ -1,20 +1,11 @@
 use super::app;
-use super::R;
-use crate::log;
-use crate::reducer::State;
+use super::STORE;
+use crate::reducer::reducer;
 use crate::rustact;
+use crate::state::State;
 
 pub fn list_item_2() -> rustact::Element {
-    let store = R.lock().unwrap().store();
-
-    fn reducer(state: &State, action: &str) -> State {
-        log(&format!("{:?} {:?} inside the reducer", state, action));
-        match action {
-            "reverse" => State { order: false },
-            "initial" => State { order: true },
-            _ => State { ..state.clone() },
-        }
-    }
+    let store = STORE.lock().unwrap().store();
 
     let action = match store.order {
         true => "reverse",
@@ -29,7 +20,7 @@ pub fn list_item_2() -> rustact::Element {
         },
     );
 
-    fn handler(rustact_struct: R, reducer: rustact::Reducer<State>, action: &str) {
+    fn handler(rustact_struct: STORE, reducer: rustact::Reducer<State>, action: &str) {
         rustact_struct
             .lock()
             .unwrap()
@@ -41,7 +32,7 @@ pub fn list_item_2() -> rustact::Element {
         "li".to_owned(),
         rustact::Props {
             children: Some(vec![bye_text]),
-            on_click: Some(Box::new(move || handler(R, Box::new(reducer), action))),
+            on_click: Some(Box::new(move || handler(STORE, Box::new(reducer), action))),
             ..Default::default()
         },
     );

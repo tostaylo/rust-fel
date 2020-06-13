@@ -1,11 +1,11 @@
-use super::R;
+use super::STORE;
 use crate::list_item_1::list_item_1;
 use crate::list_item_2::list_item_2;
 use crate::log;
 use crate::rustact;
 
 pub fn list() -> rustact::Element {
-    let store = R.lock().unwrap().store();
+    let store = STORE.lock().unwrap().store();
     log(&format!("{:?} static", store));
     let l1 = list_item_1();
     let l2 = list_item_2();
