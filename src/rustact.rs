@@ -183,99 +183,88 @@ pub fn re_render(app: Element) {
 // }
 pub fn parse_html(html_string: String) {
     // bytes instead?
-    let mut arena_tree: ArenaTree<String> = ArenaTree::default();
+    let mut arena_tree: ArenaTree = ArenaTree::default();
     let tokens: Vec<char> = html_string.chars().collect();
-    let mut html_type: Option<String> = None;
-    let mut start_position = 0;
-    let current_parent = 0;
 
-    while start_position <= tokens.len() {
-        if tokens[start_position].to_string() == "<" {
-            let close_position = tokens.iter().position(|x| x.to_string() == ">").unwrap();
-            let slice = &tokens[start_position + 1..close_position];
-            html_type = Some(slice.into_iter().collect::<String>());
-            start_position = close_position + 1;
-            log(&format!("{:?}", html_type));
+    fn recurse(tokens: Vec<char>, mut arena_tree: ArenaTree) -> ArenaTree {
+        if tokens.len() <= 1 {
+            return arena_tree;
+        }
+        let start_position = tokens.iter().position(|x| x.to_string() == "<").unwrap();
+        let close_position = tokens.iter().rposition(|x| x.to_string() == ">").unwrap();
+        let current_element = &tokens[start_position..close_position + 1];
+        let current_element_type_close = current_element
+            .iter()
+            .position(|x| x.to_string() == ">")
+            .unwrap();
+        let children_close = tokens.iter().rposition(|x| x.to_string() == "<").unwrap();
+        let element_type = &current_element[start_position + 1..current_element_type_close];
+        let child_element = &tokens[current_element_type_close + 1..children_close];
+        let new_tokens = child_element.to_vec();
+        log(&format!(
+            "{:?}, {:?},",
+            child_element.to_vec(),
+            element_type
+        ));
+        arena_tree.insert(Node {
+            element_type: element_type.into_iter().collect::<String>(),
+            ..Default::default()
+        });
+        return recurse(new_tokens, arena_tree);
+    }
 
-            arena_tree
-                .arena
-                .push(Node::new(0, html_type.unwrap(), None, None));
-        } else {
-            let rest_of_tokens = &tokens[start_position..];
-            log(&format!("{:?} from else", &rest_of_tokens));
-            let close_position = rest_of_tokens
-                .iter()
-                .position(|x| x.to_string() == "<")
-                .unwrap();
+    let tree = recurse(tokens, arena_tree);
+    log(&format!("{:?}", tree));
+}
 
-            let slice = &rest_of_tokens[0..close_position];
-            log(&format!("{:?} from else", slice));
-            let val = Some(slice.into_iter().collect::<String>());
-            arena_tree.arena.push(Node::new(
-                current_parent + 1,
-                val.unwrap(),
-                Some(current_parent),
-                None,
-            ));
+#[derive(Debug, Default)]
+struct ArenaTree {
+    current_parent_idx: usize,
+    arena: Vec<Node>,
+}
 
-            //Let ArenaTree handle all the insertions and deletions instead of trying to manipulate the tree myself.
-            let parent = &arena_tree.arena[current_parent];
-            let children = &parent.children.unwrap();
-            children.push(current_parent + 1);
-            break;
+impl ArenaTree {
+    fn new(current_parent_idx: usize, arena: Vec<Node>) -> Self {
+        Self {
+            arena,
+            current_parent_idx,
         }
     }
 
-    log(&format!("{:?}", arena_tree));
-}
-//Handle Siblings
-//How to validate syntax?
-//Parse and build AST
-//Start tokenizing
-//Look for first <
-//Get first chars before either a space or a >
-//Create node with parent and children indexes
-//Children = first char after first >
-//Get all children and store their indexes.
-
-#[derive(Debug, Default)]
-struct ArenaTree<T>
-where
-    T: PartialEq,
-{
-    arena: Vec<Node<T>>,
-}
-
-impl<T> ArenaTree<T>
-where
-    T: PartialEq,
-{
-    fn new(arena: Vec<Node<T>>) -> Self {
-        Self { arena }
+    fn insert(&mut self, mut node: Node) {
+        // need to assign parents and children
+        if self.arena.len() == 0 {
+            //root node
+            self.arena.push(node);
+        } else {
+            node.parent = self.current_parent_idx;
+            let child_index = self.arena.len();
+            let parent_node = &mut self.arena[self.current_parent_idx];
+            parent_node.add_child(child_index);
+            self.arena.push(node);
+        }
     }
 }
 
-#[derive(Debug)]
-struct Node<T>
-where
-    T: PartialEq,
-{
+#[derive(Debug, Default)]
+struct Node {
     idx: usize,
-    val: T,
-    parent: Option<usize>,
-    children: Option<Vec<usize>>,
+    element_type: String,
+    parent: usize,
+    children: Vec<usize>,
 }
 
-impl<T> Node<T>
-where
-    T: PartialEq,
-{
-    fn new(idx: usize, val: T, parent: Option<usize>, children: Option<Vec<usize>>) -> Self {
+impl Node {
+    fn new(idx: usize, element_type: String, parent: usize, children: Vec<usize>) -> Self {
         Self {
             idx,
-            val,
+            element_type,
             parent,
             children,
         }
+    }
+
+    fn add_child(&mut self, child_idx: usize) {
+        self.children.push(child_idx);
     }
 }
