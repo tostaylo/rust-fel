@@ -217,6 +217,43 @@ pub fn parse_html(html_string: String) {
     log(&format!("{:?}", tree));
 }
 
+pub fn parse_with_stack(html_string: String) {
+    let mut tokens = html_string.chars().peekable();
+    let mut element_type: String = String::new();
+    let mut is_open_tag: bool = false;
+    let mut stack: Vec<String> = vec![];
+
+    //if stack has a length we are dealing with have one parent.
+    while let Some(character) = tokens.next() {
+        let string_character = character.to_string();
+
+        if string_character == "<" && tokens.peek().unwrap().to_string() != "/" {
+            is_open_tag = true;
+            continue;
+        }
+        if string_character == "<" && tokens.peek().unwrap().to_string() == "/" {
+            is_open_tag = false;
+            stack.pop();
+            continue;
+        }
+
+        if string_character == ">" {
+            if element_type != "".to_string() {
+                stack.push(element_type);
+                element_type = String::new();
+            }
+            continue;
+        }
+
+        if is_open_tag == true {
+            // let s = element_type.unwrap(); is breaking because it's empty; use match expression
+            element_type.push_str(&string_character);
+            log(&format!("{:?}", character));
+        }
+    }
+    log(&format!("{:?}", stack));
+}
+
 #[derive(Debug, Default)]
 struct ArenaTree {
     current_parent_idx: usize,
