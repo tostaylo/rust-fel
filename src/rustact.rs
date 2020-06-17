@@ -217,11 +217,13 @@ pub fn parse_html(html_string: String) {
     log(&format!("{:?}", tree));
 }
 
+// Can I make a parser struct?
 pub fn parse_with_stack(html_string: String) {
     let mut tokens = html_string.chars().peekable();
     let mut element_type: String = String::new();
     let mut is_open_tag: bool = false;
     let mut stack: Vec<String> = vec![];
+    let mut arena_tree: ArenaTree = ArenaTree::default();
 
     //if stack has a length we are dealing with have one parent.
     while let Some(character) = tokens.next() {
@@ -239,7 +241,18 @@ pub fn parse_with_stack(html_string: String) {
 
         if string_character == ">" {
             if element_type != "".to_string() {
-                stack.push(element_type);
+                //Let's go back to dealing with Options instead of empty strings.
+                let el = element_type.clone();
+                arena_tree.insert(Node {
+                    element_type,
+                    ..Default::default()
+                });
+                let len = stack.len();
+                log(&format!("{:?} hi", len));
+                arena_tree.set_current_parent_idx(len);
+
+                stack.push(el);
+
                 element_type = String::new();
             }
             continue;
@@ -248,10 +261,10 @@ pub fn parse_with_stack(html_string: String) {
         if is_open_tag == true {
             // let s = element_type.unwrap(); is breaking because it's empty; use match expression
             element_type.push_str(&string_character);
-            log(&format!("{:?}", character));
+            // log(&format!("{:?}", character));
         }
     }
-    log(&format!("{:?}", stack));
+    log(&format!("{:?}, {:?}", stack, arena_tree));
 }
 
 #[derive(Debug, Default)]
@@ -266,6 +279,9 @@ impl ArenaTree {
             arena,
             current_parent_idx,
         }
+    }
+    fn set_current_parent_idx(&mut self, idx: usize) {
+        self.current_parent_idx = idx;
     }
 
     fn insert(&mut self, mut node: Node) {

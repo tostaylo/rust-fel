@@ -22,7 +22,7 @@ static ref STORE: Mutex<rustact::RustactStore<State>> = Mutex::new(rustact::Rust
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
-    let html = "<div><span></span>";
+    let html = "<div><span></span><h1><h2></h2></h1></div>";
     // rustact::parse_html(html.to_owned());//
     rustact::parse_with_stack(html.to_owned());
     let window = web_sys::window().expect("no global `window` exists");
