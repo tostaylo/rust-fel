@@ -181,48 +181,55 @@ pub fn re_render(app: Element) {
 //     };
 //     return Box::new(use_state) as Box<dyn FnMut(i32) -> UseState>;
 // }
-pub fn parse_html(html_string: String) {
-    // bytes instead?
-    let mut arena_tree: ArenaTree = ArenaTree::default();
-    let tokens: Vec<char> = html_string.chars().collect();
+// pub fn parse_html(html_string: String) {
+//     // bytes instead?
+//     let mut arena_tree: ArenaTree = ArenaTree::default();
+//     let tokens: Vec<char> = html_string.chars().collect();
 
-    fn recurse(tokens: Vec<char>, mut arena_tree: ArenaTree) -> ArenaTree {
-        if tokens.len() <= 1 {
-            return arena_tree;
-        }
-        let start_position = tokens.iter().position(|x| x.to_string() == "<").unwrap();
-        let close_position = tokens.iter().rposition(|x| x.to_string() == ">").unwrap();
-        let current_element = &tokens[start_position..close_position + 1];
-        let current_element_type_close = current_element
-            .iter()
-            .position(|x| x.to_string() == ">")
-            .unwrap();
-        let children_close = tokens.iter().rposition(|x| x.to_string() == "<").unwrap();
-        let element_type = &current_element[start_position + 1..current_element_type_close];
-        let child_element = &tokens[current_element_type_close + 1..children_close];
-        let new_tokens = child_element.to_vec();
-        log(&format!(
-            "{:?}, {:?},",
-            child_element.to_vec(),
-            element_type
-        ));
-        arena_tree.insert(Node {
-            element_type: element_type.into_iter().collect::<String>(),
-            ..Default::default()
-        });
-        return recurse(new_tokens, arena_tree);
-    }
+//     fn recurse(tokens: Vec<char>, mut arena_tree: ArenaTree) -> ArenaTree {
+//         if tokens.len() <= 1 {
+//             return arena_tree;
+//         }
+//         let start_position = tokens.iter().position(|x| x.to_string() == "<").unwrap();
+//         let close_position = tokens.iter().rposition(|x| x.to_string() == ">").unwrap();
+//         let current_element = &tokens[start_position..close_position + 1];
+//         let current_element_type_close = current_element
+//             .iter()
+//             .position(|x| x.to_string() == ">")
+//             .unwrap();
+//         let children_close = tokens.iter().rposition(|x| x.to_string() == "<").unwrap();
+//         let element_type = &current_element[start_position + 1..current_element_type_close];
+//         let child_element = &tokens[current_element_type_close + 1..children_close];
+//         let new_tokens = child_element.to_vec();
+//         log(&format!(
+//             "{:?}, {:?},",
+//             child_element.to_vec(),
+//             element_type
+//         ));
+//         arena_tree.insert(Node {
+//             element_type: element_type.into_iter().collect::<String>(),
+//             ..Default::default()
+//         });
+//         return recurse(new_tokens, arena_tree);
+//     }
 
-    let tree = recurse(tokens, arena_tree);
-    log(&format!("{:?}", tree));
+//     let tree = recurse(tokens, arena_tree);
+//     log(&format!("{:?}", tree));
+// }
+
+#[derive(Debug, Default, Clone)]
+struct StackElement {
+    val: String,
+    arena_position: usize,
 }
 
-// Can I make a parser struct?
+// Can I make a parser struct that's not coupled to arena tree?
+// Input has to have a wrapper div.
 pub fn parse_with_stack(html_string: String) {
     let mut tokens = html_string.chars().peekable();
     let mut element_type: String = String::new();
     let mut is_open_tag: bool = false;
-    let mut stack: Vec<String> = vec![];
+    let mut stack: Vec<StackElement> = vec![];
     let mut arena_tree: ArenaTree = ArenaTree::default();
 
     //if stack has a length we are dealing with have one parent.
@@ -236,22 +243,29 @@ pub fn parse_with_stack(html_string: String) {
         if string_character == "<" && tokens.peek().unwrap().to_string() == "/" {
             is_open_tag = false;
             stack.pop();
+
             continue;
         }
 
         if string_character == ">" {
             if element_type != "".to_string() {
                 //Let's go back to dealing with Options instead of empty strings.
+
                 let el = element_type.clone();
+                if stack.len() >= 1 {
+                    arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
+                } else {
+                    arena_tree.set_current_parent_idx(0);
+                }
+
                 arena_tree.insert(Node {
                     element_type,
                     ..Default::default()
                 });
-                let len = stack.len();
-                log(&format!("{:?} hi", len));
-                arena_tree.set_current_parent_idx(len);
-
-                stack.push(el);
+                stack.push(StackElement {
+                    val: el,
+                    arena_position: arena_tree.arena.len() - 1,
+                });
 
                 element_type = String::new();
             }
@@ -264,7 +278,12 @@ pub fn parse_with_stack(html_string: String) {
             // log(&format!("{:?}", character));
         }
     }
-    log(&format!("{:?}, {:?}", stack, arena_tree));
+    log(&format!(
+        "{:?}, {:?}, the length is {:?} ",
+        stack,
+        arena_tree,
+        arena_tree.arena.len()
+    ));
 }
 
 #[derive(Debug, Default)]
@@ -291,9 +310,11 @@ impl ArenaTree {
             self.arena.push(node);
         } else {
             node.parent = self.current_parent_idx;
-            let child_index = self.arena.len();
-            let parent_node = &mut self.arena[self.current_parent_idx];
-            parent_node.add_child(child_index);
+
+            // let child_index = self.arena.len();
+            // let parent_node = &mut self.arena[self.current_parent_idx];
+            // log(&format!("{:?} ", child_index));
+            // parent_node.add_child(child_index);
             self.arena.push(node);
         }
     }
