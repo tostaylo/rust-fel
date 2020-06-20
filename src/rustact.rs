@@ -3,11 +3,13 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
+#[derive(Default, Debug)]
 pub struct Element {
     html_type: String,
     props: Props,
 }
 
+#[derive(Debug)]
 pub struct Props {
     pub children: Option<Vec<Element>>,
     pub text: Option<String>,
@@ -135,6 +137,156 @@ pub fn re_render(app: Element) {
 
     render(app, &root_node);
 }
+
+#[derive(Debug, Default, Clone)]
+struct StackElement {
+    val: String,
+    arena_position: usize,
+}
+
+// Can I make a parser struct that's not coupled to arena tree?
+// Input has to have a wrapper div.
+pub fn parse_with_stack(html_string: String) -> ArenaTree {
+    let mut tokens = html_string.chars().peekable();
+    let mut element_type: String = String::new();
+    let mut is_open_tag: bool = false;
+    let mut stack: Vec<StackElement> = vec![];
+    let mut arena_tree: ArenaTree = ArenaTree::default();
+
+    //if stack has a length we are dealing with have one parent.
+    while let Some(character) = tokens.next() {
+        let string_character = character.to_string();
+
+        if string_character == "<" && tokens.peek().unwrap().to_string() != "/" {
+            is_open_tag = true;
+            continue;
+        }
+        if string_character == "<" && tokens.peek().unwrap().to_string() == "/" {
+            is_open_tag = false;
+            stack.pop();
+
+            continue;
+        }
+
+        if string_character == ">" {
+            if element_type != "".to_string() {
+                //Let's go back to dealing with Options instead of empty strings.
+
+                let el = element_type.clone();
+                if stack.len() >= 1 {
+                    arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
+                } else {
+                    arena_tree.set_current_parent_idx(0);
+                }
+
+                arena_tree.insert(Node {
+                    element_type,
+                    ..Default::default()
+                });
+                stack.push(StackElement {
+                    val: el,
+                    arena_position: arena_tree.arena.len() - 1,
+                });
+
+                element_type = String::new();
+            }
+            continue;
+        }
+
+        if is_open_tag == true {
+            // let s = element_type.unwrap(); is breaking because it's empty; use match expression
+            element_type.push_str(&string_character);
+            // log(&format!("{:?}", character));
+        }
+    }
+    log(&format!(
+        "{:?}, {:?}, the length is {:?} ",
+        stack,
+        arena_tree,
+        arena_tree.arena.len()
+    ));
+    arena_tree.create_elements_from_tree();
+    arena_tree
+}
+
+#[derive(Debug, Default)]
+pub struct ArenaTree {
+    current_parent_idx: usize,
+    arena: Vec<Node>,
+}
+
+impl ArenaTree {
+    fn new(current_parent_idx: usize, arena: Vec<Node>) -> Self {
+        Self {
+            arena,
+            current_parent_idx,
+        }
+    }
+    fn set_current_parent_idx(&mut self, idx: usize) {
+        self.current_parent_idx = idx;
+    }
+
+    fn insert(&mut self, mut node: Node) {
+        node.parent = self.current_parent_idx;
+        self.arena.push(node);
+        let child_index = self.arena.len() - 1;
+        let parent_node = &mut self.arena[self.current_parent_idx];
+        if child_index > 0 {
+            parent_node.add_child(child_index);
+        }
+    }
+
+    fn create_elements_from_tree(&self) {
+        let arena = &self.arena;
+
+        fn create(node: &Node, arena: &Vec<Node>) -> Element {
+            fn children(node: &Node, arena: &Vec<Node>) -> Option<Vec<Element>> {
+                return Some(
+                    node.children
+                        .iter()
+                        .enumerate()
+                        .map(move |(child, index)| return create(&arena[child], &arena))
+                        .collect::<Vec<Element>>(),
+                );
+            };
+            let children = children(node, arena);
+            let new_el = Element {
+                html_type: node.element_type.clone(),
+                props: Props {
+                    ..Default::default()
+                },
+            };
+            log(&format!("{:?}", children.unwrap()));
+            new_el
+        }
+        let node = &arena[0];
+        let el = create(node, arena);
+    }
+}
+
+#[derive(Debug, Default)]
+struct Node {
+    idx: usize,
+    element_type: String,
+    parent: usize,
+    children: Vec<usize>,
+}
+
+impl Node {
+    fn new(idx: usize, element_type: String, parent: usize, children: Vec<usize>) -> Self {
+        Self {
+            idx,
+            element_type,
+            parent,
+            children,
+        }
+    }
+
+    fn add_child(&mut self, child_idx: usize) {
+        self.children.push(child_idx);
+    }
+}
+
 // pub fn use_reducer(initial_state: &'static State) -> (&State, Box<dyn FnMut(&str) -> ()>) {
 //     let message_1 = format!("here is state initially {:?}", initial_state);
 //     js::log(&message_1);
@@ -216,129 +368,3 @@ pub fn re_render(app: Element) {
 //     let tree = recurse(tokens, arena_tree);
 //     log(&format!("{:?}", tree));
 // }
-
-#[derive(Debug, Default, Clone)]
-struct StackElement {
-    val: String,
-    arena_position: usize,
-}
-
-// Can I make a parser struct that's not coupled to arena tree?
-// Input has to have a wrapper div.
-pub fn parse_with_stack(html_string: String) {
-    let mut tokens = html_string.chars().peekable();
-    let mut element_type: String = String::new();
-    let mut is_open_tag: bool = false;
-    let mut stack: Vec<StackElement> = vec![];
-    let mut arena_tree: ArenaTree = ArenaTree::default();
-
-    //if stack has a length we are dealing with have one parent.
-    while let Some(character) = tokens.next() {
-        let string_character = character.to_string();
-
-        if string_character == "<" && tokens.peek().unwrap().to_string() != "/" {
-            is_open_tag = true;
-            continue;
-        }
-        if string_character == "<" && tokens.peek().unwrap().to_string() == "/" {
-            is_open_tag = false;
-            stack.pop();
-
-            continue;
-        }
-
-        if string_character == ">" {
-            if element_type != "".to_string() {
-                //Let's go back to dealing with Options instead of empty strings.
-
-                let el = element_type.clone();
-                if stack.len() >= 1 {
-                    arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
-                } else {
-                    arena_tree.set_current_parent_idx(0);
-                }
-
-                arena_tree.insert(Node {
-                    element_type,
-                    ..Default::default()
-                });
-                stack.push(StackElement {
-                    val: el,
-                    arena_position: arena_tree.arena.len() - 1,
-                });
-
-                element_type = String::new();
-            }
-            continue;
-        }
-
-        if is_open_tag == true {
-            // let s = element_type.unwrap(); is breaking because it's empty; use match expression
-            element_type.push_str(&string_character);
-            // log(&format!("{:?}", character));
-        }
-    }
-    log(&format!(
-        "{:?}, {:?}, the length is {:?} ",
-        stack,
-        arena_tree,
-        arena_tree.arena.len()
-    ));
-}
-
-#[derive(Debug, Default)]
-struct ArenaTree {
-    current_parent_idx: usize,
-    arena: Vec<Node>,
-}
-
-impl ArenaTree {
-    fn new(current_parent_idx: usize, arena: Vec<Node>) -> Self {
-        Self {
-            arena,
-            current_parent_idx,
-        }
-    }
-    fn set_current_parent_idx(&mut self, idx: usize) {
-        self.current_parent_idx = idx;
-    }
-
-    fn insert(&mut self, mut node: Node) {
-        // need to assign parents and children
-        if self.arena.len() == 0 {
-            //root node
-            self.arena.push(node);
-        } else {
-            node.parent = self.current_parent_idx;
-
-            // let child_index = self.arena.len();
-            // let parent_node = &mut self.arena[self.current_parent_idx];
-            // log(&format!("{:?} ", child_index));
-            // parent_node.add_child(child_index);
-            self.arena.push(node);
-        }
-    }
-}
-
-#[derive(Debug, Default)]
-struct Node {
-    idx: usize,
-    element_type: String,
-    parent: usize,
-    children: Vec<usize>,
-}
-
-impl Node {
-    fn new(idx: usize, element_type: String, parent: usize, children: Vec<usize>) -> Self {
-        Self {
-            idx,
-            element_type,
-            parent,
-            children,
-        }
-    }
-
-    fn add_child(&mut self, child_idx: usize) {
-        self.children.push(child_idx);
-    }
-}
