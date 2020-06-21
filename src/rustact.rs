@@ -210,19 +210,17 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
         }
 
         if is_open_tag == true {
-            // let s = element_type.unwrap(); is breaking because it's empty; use match expression
             element_type.push_str(&string_character);
-            // log(&format!("{:?}", character));
         }
     }
-    // log(&format!(
-    //     "{:#?}, {:#?}, the length is {:#?} ",
-    //     stack,
-    //     arena_tree,
-    //     arena_tree.arena.len()
-    // ));
 
     arena_tree
+}
+
+pub fn html(html_string: String) -> Element {
+    let arena_tree = parse_with_stack(html_string);
+    let el = arena_tree.create_elements_from_tree();
+    el
 }
 
 #[derive(Debug, Default)]
@@ -244,6 +242,7 @@ impl ArenaTree {
 
     fn insert(&mut self, mut node: Node) {
         node.parent = self.current_parent_idx;
+        node.idx = self.arena.len();
         self.arena.push(node);
         let child_index = self.arena.len() - 1;
         let parent_node = &mut self.arena[self.current_parent_idx];
@@ -270,7 +269,7 @@ impl ArenaTree {
             let new_el = Element {
                 html_type: node.element_type.clone(),
                 props: Props {
-                    children: Some(children(node, arena).unwrap()),
+                    children: children(node, arena),
                     ..Default::default()
                 },
             };
