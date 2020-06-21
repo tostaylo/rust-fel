@@ -1,21 +1,37 @@
 use crate::log;
+use std::fmt;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-#[derive(Default, Debug)]
+// #[derive(Default, Debug)]
 pub struct Element {
     html_type: String,
     props: Props,
 }
 
-#[derive(Debug)]
+impl fmt::Debug for Element {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{:#?}, {:#?} this is a element",
+            self.html_type, self.props
+        )
+    }
+}
+
 pub struct Props {
     pub children: Option<Vec<Element>>,
     pub text: Option<String>,
     pub on_click: Option<Box<dyn FnMut() -> ()>>,
     pub class_name: Option<String>,
     pub id: Option<String>,
+}
+
+impl fmt::Debug for Props {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(f, "{:#?} this is props", self.children)
+    }
 }
 
 impl Default for Props {
@@ -199,13 +215,13 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
             // log(&format!("{:?}", character));
         }
     }
-    log(&format!(
-        "{:?}, {:?}, the length is {:?} ",
-        stack,
-        arena_tree,
-        arena_tree.arena.len()
-    ));
-    arena_tree.create_elements_from_tree();
+    // log(&format!(
+    //     "{:#?}, {:#?}, the length is {:#?} ",
+    //     stack,
+    //     arena_tree,
+    //     arena_tree.arena.len()
+    // ));
+
     arena_tree
 }
 
@@ -236,31 +252,36 @@ impl ArenaTree {
         }
     }
 
-    fn create_elements_from_tree(&self) {
+    pub fn create_elements_from_tree(&self) -> Element {
         let arena = &self.arena;
 
+        fn children(node: &Node, arena: &Vec<Node>) -> Option<Vec<Element>> {
+            return Some(
+                node.children
+                    .iter()
+                    .map(|child| return create(&arena[child.to_owned()], &arena))
+                    .collect::<Vec<Element>>(),
+            );
+        };
+
         fn create(node: &Node, arena: &Vec<Node>) -> Element {
-            fn children(node: &Node, arena: &Vec<Node>) -> Option<Vec<Element>> {
-                return Some(
-                    node.children
-                        .iter()
-                        .enumerate()
-                        .map(move |(child, index)| return create(&arena[child], &arena))
-                        .collect::<Vec<Element>>(),
-                );
-            };
-            let children = children(node, arena);
+            log(&format!("{:#?} inside create", node));
+
             let new_el = Element {
                 html_type: node.element_type.clone(),
                 props: Props {
+                    children: Some(children(node, arena).unwrap()),
                     ..Default::default()
                 },
             };
-            log(&format!("{:?}", children.unwrap()));
+
             new_el
         }
         let node = &arena[0];
         let el = create(node, arena);
+
+        log(&format!("{:?} from end of create_elements_from_tree", el));
+        el
     }
 }
 
