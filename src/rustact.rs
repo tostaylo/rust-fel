@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-// #[derive(Default, Debug)]
+#[derive(Default)]
 pub struct Element {
     html_type: String,
     props: Props,
@@ -121,10 +121,7 @@ pub struct RustactStore<T> {
     store: T,
 }
 
-impl<T> RustactStore<T>
-where
-    T: std::fmt::Debug,
-{
+impl<T> RustactStore<T> {
     pub fn new(store: T) -> Self {
         Self { store }
     }
@@ -219,7 +216,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
 
 pub fn html(html_string: String) -> Element {
     let arena_tree = parse_with_stack(html_string);
-    let el = arena_tree.create_elements_from_tree();
+    let el = arena_tree.create_element_from_tree();
     el
 }
 
@@ -250,8 +247,14 @@ impl ArenaTree {
             parent_node.add_child(child_index);
         }
     }
+}
 
-    pub fn create_elements_from_tree(&self) -> Element {
+trait CreateElement {
+    fn create_element_from_tree(&self) -> Element;
+}
+
+impl CreateElement for ArenaTree {
+    fn create_element_from_tree(&self) -> Element {
         let arena = &self.arena;
 
         fn children(node: &Node, arena: &Vec<Node>) -> Option<Vec<Element>> {

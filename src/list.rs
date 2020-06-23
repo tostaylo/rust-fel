@@ -13,7 +13,7 @@ pub fn list() -> rustact::Element {
     let l3 = list_item_3();
 
     let list_items = match store.order {
-        true => vec![l1, l2, l3],
+        true => vec![l1, l2, l3, list_item_1()],
         false => vec![l2, l1, l3],
     };
 
