@@ -1,3 +1,4 @@
+mod a_component;
 mod app;
 mod js;
 mod list;

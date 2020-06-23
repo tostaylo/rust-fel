@@ -52,6 +52,16 @@ impl Element {
     }
 }
 
+pub trait Render {
+    fn render(&self) -> Element;
+}
+
+// pub trait SetState {
+//     fn set_state(&self, new_state: &Self) {
+//         self = new_state;
+//     }
+// }
+
 pub fn render(rustact_element: Element, container: &web_sys::Node) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
@@ -62,15 +72,15 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
                 let dom = container
                     .append_child(&document.create_text_node(&text))
                     .expect("couldn't append text node");
-
-                match rustact_element.props.children {
-                    Some(children) => {
-                        for child in children {
-                            render(child, &dom)
-                        }
-                    }
-                    None => (),
-                }
+                // TODO: Not sure this is needed
+                // match rustact_element.props.children {
+                //     Some(children) => {
+                //         for child in children {
+                //             render(child, &dom)
+                //         }
+                //     }
+                //     None => (),
+                // }
             }
             None => (),
         };
@@ -83,7 +93,12 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
             }
             None => (),
         }
-
+        match rustact_element.props.id {
+            Some(id) => {
+                dom_el.set_id(&id);
+            }
+            None => (),
+        }
         match rustact_element.props.on_click {
             Some(mut on_click) => {
                 let closure = Closure::wrap(Box::new(move || on_click()) as Box<dyn FnMut()>);
