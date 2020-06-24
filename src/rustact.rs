@@ -149,21 +149,33 @@ impl<T> RustactStore<T> {
     }
 }
 
-pub fn re_render(app: Element) {
+pub fn re_render(app: Element, id: Option<String>) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
-    let root = document
-        .get_element_by_id("root")
-        .expect("should have a root div");
-    let node = root.first_child().unwrap();
+    if let Some(i) = id {
+        let root = document
+            .get_element_by_id(&i)
+            .expect("should have a root div");
+        let root_node = root
+            .append_child(&document.create_element("div").unwrap())
+            .expect("couldn't append child");
+        log(&format!("{:#?} {:#?} {:#?} inside re-render", app, i, root));
 
-    root.remove_child(&node).expect("unable to remove child");
+        render(app, &root_node);
+    } else {
+        let root = document
+            .get_element_by_id("root")
+            .expect("should have a root div");
+        let node = root.first_child().unwrap();
 
-    let root_node = root
-        .append_child(&document.create_element("div").unwrap())
-        .expect("couldn't append child");
+        root.remove_child(&node).expect("unable to remove child");
 
-    render(app, &root_node);
+        let root_node = root
+            .append_child(&document.create_element("div").unwrap())
+            .expect("couldn't append child");
+
+        render(app, &root_node);
+    }
 }
 
 #[derive(Debug, Default, Clone)]

@@ -25,7 +25,7 @@ pub fn list_item_2() -> rustact::Element {
             .lock()
             .unwrap()
             .reduce(Box::new(reducer), action);
-        rustact::re_render(app());
+        rustact::re_render(app(), None);
     }
 
     let list_item_2 = rustact::create_element(
