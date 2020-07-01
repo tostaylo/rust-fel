@@ -22,7 +22,7 @@ pub fn app() -> rustact::Element {
         "div".to_owned(),
         rustact::Props {
             class_name: Some("app".to_owned()),
-            children: Some(vec![app_title, list(), html, a_component.render()]),
+            children: Some(vec![a_component.render(), app_title, list(), html]),
             ..Default::default()
         },
     );

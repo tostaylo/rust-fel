@@ -1,13 +1,15 @@
 use super::app;
+use crate::a_child_component::AChildComponent;
 use crate::log;
 use crate::rustact;
 use crate::rustact::Render;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Default, Clone)]
 pub struct AComponent {
     id: String,
     count: i32,
     class_name_from_parent: Option<String>,
+    components: Vec<Box<dyn rustact::Render>>,
 }
 
 impl AComponent {
@@ -16,6 +18,7 @@ impl AComponent {
             id: "a_component".to_owned(),
             count: 0,
             class_name_from_parent,
+            components: vec![Box::new(AChildComponent::new())],
         }
     }
     // TODO: How to make set_state call rustact::re_render automatically
@@ -36,18 +39,25 @@ impl rustact::Render for AComponent {
                 ..Default::default()
             },
         );
+        // let children: Vec<rustact::Element> = self
+        //     .components
+        //     .iter()
+        //     .map(|component| component.render())
+        //     .collect();
+
+        let mut first_child = vec![hi_text];
 
         let div = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
                 id: Some(self.id.clone()),
-                children: Some(vec![hi_text]),
+                children: Some(vec![self.components[0].render()]),
                 class_name: self.class_name_from_parent.clone(),
-                on_click: Some(Box::new(move || clone.set_state(2))),
+                // on_click: Some(Box::new(move || clone.set_state(2))),
                 ..Default::default()
             },
         );
-        log(&format!("{:#?} inside create", self.count));
+
         div
     }
 }

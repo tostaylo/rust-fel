@@ -1,3 +1,4 @@
+mod a_child_component;
 mod a_component;
 mod app;
 mod js;

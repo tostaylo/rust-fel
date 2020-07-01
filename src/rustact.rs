@@ -52,8 +52,24 @@ impl Element {
     }
 }
 
-pub trait Render {
+pub trait Render: RenderClone {
     fn render(&self) -> Element;
+}
+pub trait RenderClone {
+    fn clone_box(&self) -> Box<dyn Render>;
+}
+impl<T> RenderClone for T
+where
+    T: 'static + Render + Clone,
+{
+    fn clone_box(&self) -> Box<dyn Render> {
+        Box::new(self.clone())
+    }
+}
+impl Clone for Box<dyn Render> {
+    fn clone(&self) -> Box<dyn Render> {
+        self.clone_box()
+    }
 }
 
 // pub trait SetState {
@@ -156,12 +172,13 @@ pub fn re_render(app: Element, id: Option<String>) {
         let root = document
             .get_element_by_id(&i)
             .expect("should have a root div");
-        let root_node = root
-            .append_child(&document.create_element("div").unwrap())
-            .expect("couldn't append child");
-        log(&format!("{:#?} {:#?} {:#?} inside re-render", app, i, root));
 
-        render(app, &root_node);
+        let parent = root.parent_node().unwrap();
+
+        root.remove();
+
+        //TODO: Determine how to render child vs sibling
+        render(app, &parent);
     } else {
         let root = document
             .get_element_by_id("root")
@@ -294,8 +311,6 @@ impl CreateElement for ArenaTree {
         };
 
         fn create(node: &Node, arena: &Vec<Node>) -> Element {
-            log(&format!("{:#?} inside create", node));
-
             let new_el = Element {
                 html_type: node.element_type.clone(),
                 props: Props {
@@ -309,7 +324,6 @@ impl CreateElement for ArenaTree {
         let node = &arena[0];
         let el = create(node, arena);
 
-        log(&format!("{:?} from end of create_elements_from_tree", el));
         el
     }
 }
