@@ -4,6 +4,46 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
+pub trait Component: Sized + 'static {
+    type Message: 'static;
+    type Properties;
+
+    fn create(props: Self::Properties) -> Self;
+    fn render(&self) -> Element;
+}
+
+#[derive(Debug)]
+pub struct App<COMP: Component> {
+    component: Option<COMP>,
+}
+
+impl<COMP> App<COMP>
+where
+    COMP: Component,
+    COMP::Properties: Default,
+    COMP: std::fmt::Debug,
+{
+    pub fn new(component: COMP) -> Self {
+        App {
+            component: Some(component),
+        }
+    }
+
+    pub fn mount(&self) {
+        log(&format!("{:?}", self));
+        let el = self.component.as_ref().unwrap().render();
+        let window = web_sys::window().expect("no global `window` exists");
+        let document = window.document().expect("should have a document on window");
+
+        let root_node = document
+            .get_element_by_id("root")
+            .expect("should have a root div")
+            .append_child(&document.create_element("div").unwrap())
+            .expect("couldn't append child");
+        render(el, &root_node);
+    }
+}
+
 #[derive(Default)]
 pub struct Element {
     html_type: String,
@@ -70,27 +110,6 @@ impl Clone for Box<dyn Render> {
     fn clone(&self) -> Box<dyn Render> {
         self.clone_box()
     }
-}
-
-#[derive(Debug, Default, Clone)]
-pub struct Component<T> {
-    pub id: String,
-    pub components: Option<Vec<Self>>,
-    pub state: T,
-}
-
-impl<T> Component<T> {
-    pub fn new(id: String, components: Option<Vec<Self>>, state: T) -> Self {
-        Self {
-            id,
-            components,
-            state,
-        }
-    }
-}
-
-pub trait SetState<T> {
-    fn set_state(&mut self, new_state: T);
 }
 
 pub fn render(rustact_element: Element, container: &web_sys::Node) {

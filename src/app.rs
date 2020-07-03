@@ -2,7 +2,6 @@ use crate::a_component::AComponent;
 use crate::list::list;
 use crate::rustact;
 use crate::rustact::Render;
-use crate::use_component::use_component;
 
 pub fn app() -> rustact::Element {
     let html = rustact::html(
@@ -23,13 +22,7 @@ pub fn app() -> rustact::Element {
         "div".to_owned(),
         rustact::Props {
             class_name: Some("app".to_owned()),
-            children: Some(vec![
-                a_component.render(),
-                app_title,
-                list(),
-                html,
-                use_component().render(),
-            ]),
+            children: Some(vec![a_component.render(), app_title, list(), html]),
             ..Default::default()
         },
     );
