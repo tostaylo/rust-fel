@@ -72,11 +72,26 @@ impl Clone for Box<dyn Render> {
     }
 }
 
-// pub trait SetState {
-//     fn set_state(&self, new_state: &Self) {
-//         self = new_state;
-//     }
-// }
+#[derive(Debug, Default, Clone)]
+pub struct Component<T> {
+    pub id: String,
+    pub components: Option<Vec<Self>>,
+    pub state: T,
+}
+
+impl<T> Component<T> {
+    pub fn new(id: String, components: Option<Vec<Self>>, state: T) -> Self {
+        Self {
+            id,
+            components,
+            state,
+        }
+    }
+}
+
+pub trait SetState<T> {
+    fn set_state(&mut self, new_state: T);
+}
 
 pub fn render(rustact_element: Element, container: &web_sys::Node) {
     let window = web_sys::window().expect("no global `window` exists");

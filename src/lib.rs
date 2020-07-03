@@ -9,6 +9,8 @@ mod list_item_2;
 mod list_item_3;
 mod reducer;
 mod state;
+mod use_component;
+mod use_component_child;
 use js::log;
 mod rustact;
 use crate::state::State;
