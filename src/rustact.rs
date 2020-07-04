@@ -14,7 +14,7 @@ pub trait Component: Sized + 'static {
 
 #[derive(Debug)]
 pub struct App<COMP: Component> {
-    component: Option<COMP>,
+    component: COMP,
 }
 
 impl<COMP> App<COMP>
@@ -24,14 +24,12 @@ where
     COMP: std::fmt::Debug,
 {
     pub fn new(component: COMP) -> Self {
-        App {
-            component: Some(component),
-        }
+        App { component }
     }
 
     pub fn mount(&self) {
         log(&format!("{:?}", self));
-        let el = self.component.as_ref().unwrap().render();
+        let el = self.component.render();
         let window = web_sys::window().expect("no global `window` exists");
         let document = window.document().expect("should have a document on window");
 
@@ -64,6 +62,7 @@ pub struct Props {
     pub children: Option<Vec<Element>>,
     pub text: Option<String>,
     pub on_click: Option<Box<dyn FnMut() -> ()>>,
+    pub mouse: Option<Box<dyn FnMut() -> ()>>,
     pub class_name: Option<String>,
     pub id: Option<String>,
 }
@@ -82,6 +81,7 @@ impl Default for Props {
             on_click: None,
             class_name: None,
             id: None,
+            mouse: None,
         }
     }
 }
@@ -156,6 +156,19 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")
                     .set_onclick(Some(closure.as_ref().unchecked_ref()));
+                closure.forget();
+            }
+            None => (),
+        }
+
+        match rustact_element.props.mouse {
+            Some(mut mouse) => {
+                let closure = Closure::wrap(Box::new(move || mouse()) as Box<dyn FnMut()>);
+                dom_el
+                    .dyn_ref::<HtmlElement>()
+                    .expect("should be an `HtmlElement`")
+                    .add_event_listener_with_callback("mouseout", closure.as_ref().unchecked_ref())
+                    .expect("could not add event listenter");
                 closure.forget();
             }
             None => (),

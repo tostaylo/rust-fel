@@ -16,8 +16,10 @@ mod rustact;
 use crate::state::State;
 use app::app;
 use rustact::Component;
+use std::rc::Rc;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
+
 #[macro_use]
 extern crate lazy_static;
 
@@ -26,9 +28,21 @@ lazy_static! {
 static ref STORE: Mutex<rustact::RustactStore<State>> = Mutex::new(rustact::RustactStore::new(State::new(true)));
 }
 
-#[derive(Debug, Default, Clone, Copy)]
+#[derive(Debug, Default, Clone)]
 pub struct Main {
     props: i32,
+    child: MainChild,
+    id: String,
+    count: i32,
+}
+
+impl Main {
+    pub fn set_state(&mut self, new_count: i32) {
+        log(&format!("Hi, From Main Set State {:?}", self.child));
+        self.count += new_count;
+
+        rustact::re_render(self.render(), Some(self.id.clone()));
+    }
 }
 
 impl rustact::Component for Main {
@@ -36,10 +50,25 @@ impl rustact::Component for Main {
     type Message = String;
 
     fn create(props: Self::Properties) -> Self {
-        Main { props }
+        log(&format!("create Main"));
+        Main {
+            props,
+            id: "main".to_owned(),
+            child: MainChild::create(5),
+            ..Default::default()
+        }
     }
 
     fn render(&self) -> rustact::Element {
+        let mut clone = self.clone();
+        log(&format!("Hi, From Main {:?}", self.child));
+        let main_text = rustact::create_element(
+            "TEXT_ELEMENT".to_owned(),
+            rustact::Props {
+                text: Some(format!("Hi, From Main {}", self.count.to_string())),
+                ..Default::default()
+            },
+        );
         let html = rustact::html(
             "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
                 .to_owned(),
@@ -48,8 +77,67 @@ impl rustact::Component for Main {
         let main = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
-                class_name: Some("app".to_owned()),
-                children: Some(vec![html]),
+                id: Some(self.id.clone()),
+                mouse: Some(Box::new(move || clone.set_state(2))),
+                class_name: Some("main".to_owned()),
+                children: Some(vec![main_text, html, self.child.render()]),
+                ..Default::default()
+            },
+        );
+
+        main
+    }
+}
+
+#[derive(Debug, Default, Clone)]
+pub struct MainChild {
+    props: i32,
+    count: i32,
+    id: String,
+}
+
+impl MainChild {
+    pub fn set_state(&mut self, new_count: i32) {
+        self.count += new_count;
+        rustact::re_render(self.render(), Some(self.id.clone()));
+    }
+}
+
+impl rustact::Component for MainChild {
+    type Properties = i32;
+    type Message = String;
+
+    fn create(props: Self::Properties) -> Self {
+        log(&format!("create MainChild"));
+        MainChild {
+            props,
+            id: "main-child".to_owned(),
+            ..Default::default()
+        }
+    }
+
+    fn render(&self) -> rustact::Element {
+        let mut clone = self.clone();
+        log(&format!("Hi, From Main Child {:?}", self));
+        let main_text = rustact::create_element(
+            "TEXT_ELEMENT".to_owned(),
+            rustact::Props {
+                text: Some(format!("Hi, From Main Child {}", clone.count.to_string())),
+                ..Default::default()
+            },
+        );
+        let html = rustact::html(
+            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
+                .to_owned(),
+        );
+
+        let main = rustact::create_element(
+            "div".to_owned(),
+            rustact::Props {
+                id: Some(self.id.clone()),
+                on_click: Some(Box::new(move || clone.set_state(2))),
+                class_name: Some("main-child".to_owned()),
+                children: Some(vec![main_text, html]),
                 ..Default::default()
             },
         );
@@ -70,8 +158,8 @@ pub fn main() -> Result<(), JsValue> {
     //     .append_child(&document.create_element("div").unwrap())
     //     .expect("couldn't append child");
 
-    // let app = app();
-    // rustact::render(app, &root_node);
+    // let first_app = app();
+    // rustact::render(first_app, &root_node);
     let main = Main::create(5);
     let app = rustact::App::new(main);
     app.mount();

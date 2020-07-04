@@ -45,15 +45,13 @@ impl rustact::Render for AComponent {
         //     .map(|component| component.render())
         //     .collect();
 
-        let mut first_child = vec![hi_text];
-
         let div = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
                 id: Some(self.id.clone()),
-                children: Some(vec![self.components[0].render()]),
+                children: Some(vec![self.components[0].render(), hi_text]),
                 class_name: self.class_name_from_parent.clone(),
-                // on_click: Some(Box::new(move || clone.set_state(2))),
+                mouse: Some(Box::new(move || clone.set_state(2))),
                 ..Default::default()
             },
         );
