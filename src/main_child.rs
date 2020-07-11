@@ -27,16 +27,25 @@ impl rustact::Component for rustact::Handle<MainChild> {
 
     fn set_state(&mut self, new_count: Self::State) {
         self.0.borrow_mut().count += new_count;
-        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+        rustact::re_render(self.render(None), Some(self.0.borrow().id.clone()));
     }
 
-    fn render(&self) -> rustact::Element {
+    fn render(&self, props: Option<Self::Properties>) -> rustact::Element {
+        let mut clone = self.clone();
+        let borrow = self.0.borrow();
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
+                text: Some(format!("Hi, From Main Child {}", borrow.count.to_string())),
+                ..Default::default()
+            },
+        );
+        let more_text = rustact::create_element(
+            "TEXT_ELEMENT".to_owned(),
+            rustact::Props {
                 text: Some(format!(
-                    "Hi, From Main Child {}",
-                    self.0.borrow().count.to_string()
+                    "Hi, From Main Child More {}",
+                    borrow.count.to_string()
                 )),
                 ..Default::default()
             },
@@ -45,14 +54,37 @@ impl rustact::Component for rustact::Handle<MainChild> {
             "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
                 .to_owned(),
         );
-        let mut clone = self.clone();
+
+        let closure = move || clone.set_state(2);
+
+        let extra_text = rustact::create_element(
+            "TEXT_ELEMENT".to_owned(),
+            rustact::Props {
+                text: Some(format!(
+                    "Hi, From Main Child Extra {}",
+                    props.unwrap_or(20).to_string()
+                )),
+                ..Default::default()
+            },
+        );
+
+        let extra = rustact::create_element(
+            "div".to_owned(),
+            rustact::Props {
+                on_click: Some(Box::new(closure.clone())),
+                class_name: Some("main-child".to_owned()),
+                children: Some(vec![extra_text]),
+                ..Default::default()
+            },
+        );
+
         let main = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(Box::new(move || clone.set_state(2))),
+                on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_text, html]),
+                children: Some(vec![main_text, more_text, extra, html]),
                 ..Default::default()
             },
         );

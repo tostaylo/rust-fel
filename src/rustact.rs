@@ -15,7 +15,7 @@ pub trait Component: Sized + 'static {
     type State;
 
     // fn create(props: Self::Properties) -> Handle<Self>;
-    fn render(&self) -> Element;
+    fn render(&self, props: Option<Self::Properties>) -> Element;
     fn set_state(&mut self, state: Self::State);
 }
 
@@ -36,7 +36,7 @@ where
 
     pub fn mount(&self) {
         log(&format!("{:?}", self));
-        let el = self.component.render();
+        let el = self.component.render(None);
         let window = web_sys::window().expect("no global `window` exists");
         let document = window.document().expect("should have a document on window");
 

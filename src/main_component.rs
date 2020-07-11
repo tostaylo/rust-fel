@@ -29,10 +29,10 @@ impl rustact::Component for rustact::Handle<Main> {
 
     fn set_state(&mut self, new_count: Self::State) {
         self.0.borrow_mut().count += new_count;
-        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+        rustact::re_render(self.render(None), Some(self.0.borrow().id.clone()));
     }
 
-    fn render(&self) -> rustact::Element {
+    fn render(&self, props: Option<Self::Properties>) -> rustact::Element {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
         let main_text = rustact::create_element(
@@ -58,14 +58,14 @@ impl rustact::Component for rustact::Handle<Main> {
         let main = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
-                id: Some(self.0.borrow().id.clone()),
+                id: Some(borrow.id.clone()),
                 mouse: Some(Box::new(move || clone.set_state(2))),
                 class_name: Some("main".to_owned()),
                 children: Some(vec![
                     main_text,
                     more_text,
                     html,
-                    self.0.borrow().child.render(),
+                    borrow.child.render(Some(borrow.count)),
                 ]),
                 ..Default::default()
             },
