@@ -126,18 +126,9 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
     if rustact_element.html_type == "TEXT_ELEMENT" {
         match rustact_element.props.text {
             Some(text) => {
-                let dom = container
+                container
                     .append_child(&document.create_text_node(&text))
                     .expect("couldn't append text node");
-                // TODO: Not sure this is needed
-                // match rustact_element.props.children {
-                //     Some(children) => {
-                //         for child in children {
-                //             render(child, &dom)
-                //         }
-                //     }
-                //     None => (),
-                // }
             }
             None => (),
         };

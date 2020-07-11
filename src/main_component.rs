@@ -4,18 +4,17 @@ use std::cell::RefCell;
 use std::rc::Rc;
 #[derive(Debug, Default, Clone)]
 pub struct Main {
-    props: i32,
     child: rustact::Handle<MainChild>,
     id: String,
-    count: i32,
+    state: i32,
 }
 
 impl Main {
-    pub fn create(props: i32) -> rustact::Handle<Self> {
+    pub fn create() -> rustact::Handle<Self> {
         let main = Main {
-            props,
             id: "main".to_owned(),
-            child: MainChild::create(5),
+            state: 2,
+            child: MainChild::create(),
             ..Default::default()
         };
         rustact::Handle(Rc::new(RefCell::new(main)))
@@ -28,17 +27,18 @@ impl rustact::Component for rustact::Handle<Main> {
     type State = i32;
 
     fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().count += new_count;
+        self.0.borrow_mut().state += new_count;
         rustact::re_render(self.render(None), Some(self.0.borrow().id.clone()));
     }
 
     fn render(&self, props: Option<Self::Properties>) -> rustact::Element {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
+
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From Main {}", borrow.count.to_string())),
+                text: Some(format!("Hi, From Main {}", borrow.state.to_string())),
                 ..Default::default()
             },
         );
@@ -46,7 +46,7 @@ impl rustact::Component for rustact::Handle<Main> {
         let more_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From More {}", borrow.count.to_string())),
+                text: Some(format!("Hi, From More {}", borrow.state.to_string())),
                 ..Default::default()
             },
         );
@@ -65,7 +65,7 @@ impl rustact::Component for rustact::Handle<Main> {
                     main_text,
                     more_text,
                     html,
-                    borrow.child.render(Some(borrow.count)),
+                    borrow.child.render(Some(borrow.state)),
                 ]),
                 ..Default::default()
             },

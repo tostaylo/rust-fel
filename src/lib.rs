@@ -35,7 +35,7 @@ static ref STORE: Mutex<rustact::RustactStore<State>> = Mutex::new(rustact::Rust
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
-    let main = Main::create(5);
+    let main = Main::create();
     let app = rustact::App::new(main);
     app.mount();
 
