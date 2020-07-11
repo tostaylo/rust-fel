@@ -1,15 +1,21 @@
 use crate::log;
+use std::cell::RefCell;
 use std::fmt;
+use std::rc::Rc;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
+
+#[derive(Debug, Default, Clone)]
+pub struct Handle<T>(pub Rc<RefCell<T>>);
 
 pub trait Component: Sized + 'static {
     type Message: 'static;
     type Properties;
 
-    fn create(props: Self::Properties) -> Self;
+    // fn create(props: Self::Properties) -> Handle<Self>;
     fn render(&self) -> Element;
+    fn set_state(&mut self, state: i32);
 }
 
 #[derive(Debug)]
