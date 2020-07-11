@@ -12,10 +12,11 @@ pub struct Handle<T>(pub Rc<RefCell<T>>);
 pub trait Component: Sized + 'static {
     type Message: 'static;
     type Properties;
+    type State;
 
     // fn create(props: Self::Properties) -> Handle<Self>;
     fn render(&self) -> Element;
-    fn set_state(&mut self, state: i32);
+    fn set_state(&mut self, state: Self::State);
 }
 
 #[derive(Debug)]
