@@ -1,6 +1,7 @@
 mod js;
 mod main_child;
 mod main_component;
+mod main_sibling;
 mod text_wrapper;
 use js::log;
 mod rustact;

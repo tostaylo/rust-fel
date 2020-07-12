@@ -42,10 +42,9 @@ where
 
         let root_node = document
             .get_element_by_id("root")
-            .expect("should have a root div")
-            .append_child(&document.create_element("div").unwrap())
-            .expect("couldn't append child");
-        render(el, &root_node);
+            .expect("should have a root div");
+
+        render(el, &root_node, false);
     }
 }
 
@@ -101,7 +100,7 @@ impl Element {
     }
 }
 
-pub fn render(rustact_element: Element, container: &web_sys::Node) {
+pub fn render(rustact_element: Element, container: &web_sys::Node, replace_child: bool) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
@@ -123,12 +122,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
             }
             None => (),
         }
-        match rustact_element.props.id {
-            Some(id) => {
-                dom_el.set_id(&id);
-            }
-            None => (),
-        }
+
         match rustact_element.props.on_click {
             Some(mut on_click) => {
                 let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);
@@ -154,14 +148,50 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
             None => (),
         }
 
-        let dom = container
-            .append_child(&dom_el)
-            .expect("couldn't append child");
+        let mut id_copy = None;
+        match rustact_element.props.id {
+            Some(id) => {
+                dom_el.set_id(&id);
+
+                // Is this really necessary. Kinda ugly
+                id_copy = Some(id);
+            }
+            None => (),
+        }
+        let dom;
+        if replace_child == true {
+            let id = &id_copy.unwrap();
+            let formatted = format!("#{}", id);
+            let old_child = document
+                .query_selector_all(&formatted)
+                .expect("can't find node")
+                .item(0)
+                .unwrap();
+
+            // Here we replace instead of append
+            // We do this because we need to keep an element position in the dom
+            container
+                .replace_child(&dom_el, &old_child)
+                .expect(" can't replace");
+
+            let new_child = document
+                .query_selector_all(&formatted)
+                .expect("can't find node")
+                .item(0)
+                .unwrap();
+            dom = new_child;
+        } else {
+            // Here we append instead or replace
+            // This only occurs on first render of the app.
+            dom = container
+                .append_child(&dom_el)
+                .expect("couldn't append child");
+        };
 
         match rustact_element.props.children {
             Some(children) => {
                 for child in children {
-                    render(child, &dom)
+                    render(child, &dom, false)
                 }
             }
             None => (),
@@ -173,53 +203,18 @@ pub fn create_element(html_type: String, props: Props) -> Element {
     Element::new(html_type, props)
 }
 
-pub type Reducer<T> = Box<dyn Fn(&T, &str) -> T>;
-#[derive(Debug, Default, Clone, Copy)]
-pub struct RustactStore<T> {
-    store: T,
-}
-
-impl<T> RustactStore<T> {
-    pub fn new(store: T) -> Self {
-        Self { store }
-    }
-    pub fn reduce(&mut self, reducer: Reducer<T>, action: &str) {
-        let new_store = reducer(&self.store, action);
-        self.store = new_store;
-    }
-    pub fn store(self) -> T {
-        self.store
-    }
-}
-
 pub fn re_render(app: Element, id: Option<String>) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
     if let Some(i) = id {
-        let root = document
+        let child = document
             .get_element_by_id(&i)
             .expect("should have a root div");
 
-        let parent = root.parent_node().unwrap();
+        let parent = child.parent_node().unwrap();
 
-        root.remove();
-
-        //TODO: Determine how to render child vs sibling
-        render(app, &parent);
-    } else {
-        let root = document
-            .get_element_by_id("root")
-            .expect("should have a root div");
-        let node = root.first_child().unwrap();
-
-        root.remove_child(&node).expect("unable to remove child");
-
-        let root_node = root
-            .append_child(&document.create_element("div").unwrap())
-            .expect("couldn't append child");
-
-        render(app, &root_node);
-    }
+        render(app, &parent, true);
+    };
 }
 
 #[derive(Debug, Default, Clone)]
@@ -298,12 +293,6 @@ pub struct ArenaTree {
 }
 
 impl ArenaTree {
-    fn new(current_parent_idx: usize, arena: Vec<Node>) -> Self {
-        Self {
-            arena,
-            current_parent_idx,
-        }
-    }
     fn set_current_parent_idx(&mut self, idx: usize) {
         self.current_parent_idx = idx;
     }
@@ -364,15 +353,6 @@ struct Node {
 }
 
 impl Node {
-    fn new(idx: usize, element_type: String, parent: usize, children: Vec<usize>) -> Self {
-        Self {
-            idx,
-            element_type,
-            parent,
-            children,
-        }
-    }
-
     fn add_child(&mut self, child_idx: usize) {
         self.children.push(child_idx);
     }
@@ -478,5 +458,24 @@ impl Node {
 // impl Clone for Box<dyn Render> {
 //     fn clone(&self) -> Box<dyn Render> {
 //         self.clone_box()
+//     }
+// }
+
+// pub type Reducer<T> = Box<dyn Fn(&T, &str) -> T>;
+// #[derive(Debug, Default, Clone, Copy)]
+// pub struct RustactStore<T> {
+//     store: T,
+// }
+
+// impl<T> RustactStore<T> {
+//     pub fn new(store: T) -> Self {
+//         Self { store }
+//     }
+//     pub fn reduce(&mut self, reducer: Reducer<T>, action: &str) {
+//         let new_store = reducer(&self.store, action);
+//         self.store = new_store;
+//     }
+//     pub fn store(self) -> T {
+//         self.store
 //     }
 // }

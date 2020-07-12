@@ -1,4 +1,5 @@
 use crate::main_child::{ChildProps, MainChild};
+use crate::main_sibling::{ChildProps as MainSiblingChildProps, MainSibling};
 use crate::rustact;
 use crate::text_wrapper::text_wrapper;
 use std::cell::RefCell;
@@ -13,6 +14,7 @@ pub struct MainState {
 #[derive(Debug, Default, Clone)]
 pub struct Main {
     child: rustact::Handle<MainChild>,
+    child_sibling: rustact::Handle<MainSibling>,
     id: String,
     state: MainState,
     props: String,
@@ -27,7 +29,7 @@ impl Main {
                 vec_state: vec!["howdy".to_owned(), "doody".to_owned(), "man".to_owned()],
             },
             child: MainChild::create(),
-
+            child_sibling: MainSibling::create(),
             ..Default::default()
         };
         rustact::Handle(Rc::new(RefCell::new(main)))
@@ -55,11 +57,17 @@ impl rustact::Component for rustact::Handle<Main> {
         let state = borrow.state.clone();
 
         let child_props = ChildProps {
-            vec_props: state.vec_state,
+            vec_props: state.vec_state.clone(),
+            string_props: state.i32_state.to_string(),
+        };
+
+        let child_sibling_props = MainSiblingChildProps {
+            vec_props: state.vec_state.clone(),
             string_props: state.i32_state.to_string(),
         };
 
         borrow.child.add_props(child_props);
+        borrow.child_sibling.add_props(child_sibling_props);
 
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
@@ -101,7 +109,13 @@ impl rustact::Component for rustact::Handle<Main> {
                 id: Some(borrow.id.clone()),
                 mouse: Some(Box::new(move || clone.set_state(2))),
                 class_name: Some("main".to_owned()),
-                children: Some(vec![main_el, more_el, html, borrow.child.render()]),
+                children: Some(vec![
+                    main_el,
+                    more_el,
+                    html,
+                    borrow.child.render(),
+                    borrow.child_sibling.render(),
+                ]),
                 ..Default::default()
             },
         );
