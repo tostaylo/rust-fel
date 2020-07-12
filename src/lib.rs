@@ -1,3 +1,4 @@
+mod grand_child;
 mod js;
 mod main_child;
 mod main_component;

@@ -10,23 +10,23 @@ pub struct ChildProps {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct MainSibling {
+pub struct GrandChild {
     state: i32,
     props: ChildProps,
     id: String,
 }
 
-impl MainSibling {
+impl GrandChild {
     pub fn create() -> rustact::Handle<Self> {
-        let main_child = MainSibling {
-            id: "main-sibling".to_owned(),
+        let grand_child = GrandChild {
+            id: "grand-child".to_owned(),
             ..Default::default()
         };
-        rustact::Handle(Rc::new(RefCell::new(main_child)))
+        rustact::Handle(Rc::new(RefCell::new(grand_child)))
     }
 }
 
-impl rustact::Component for rustact::Handle<MainSibling> {
+impl rustact::Component for rustact::Handle<GrandChild> {
     type Properties = ChildProps;
     type Message = String;
     type State = i32;
@@ -44,20 +44,17 @@ impl rustact::Component for rustact::Handle<MainSibling> {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
-        let main_text = rustact::create_element(
+        let grand_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!(
-                    "Hi, From Main Child Sibling {}",
-                    borrow.state.to_string()
-                )),
+                text: Some(format!("Hi, From grand Child {}", borrow.state.to_string())),
                 ..Default::default()
             },
         );
 
-        let main_el = text_wrapper(
+        let grand_el = text_wrapper(
             "div".to_owned(),
-            Some(vec![main_text]),
+            Some(vec![grand_text]),
             None,
             Some("main-text".to_owned()),
         );
@@ -66,7 +63,7 @@ impl rustact::Component for rustact::Handle<MainSibling> {
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
                 text: Some(format!(
-                    "Hi, From Main Child Sibling More {}",
+                    "Hi, From grand Child More {}",
                     borrow.state.to_string()
                 )),
                 ..Default::default()
@@ -100,10 +97,7 @@ impl rustact::Component for rustact::Handle<MainSibling> {
         let extra_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!(
-                    "Hi, From Main Child Sibling Extra {:?}",
-                    borrow.props
-                )),
+                text: Some(format!("Hi, From grand Child Extra {:?}", borrow.props)),
                 ..Default::default()
             },
         );
@@ -125,17 +119,22 @@ impl rustact::Component for rustact::Handle<MainSibling> {
             },
         );
 
-        let main = rustact::create_element(
+        let html = rustact::html(
+            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
+                .to_owned(),
+        );
+
+        let grand = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(Box::new(closure.clone())),
-                class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_el, more_el, vec_element, extra_el]),
+                mouse: Some(Box::new(closure.clone())),
+                class_name: Some("grand-child".to_owned()),
+                children: Some(vec![grand_el, more_el, vec_element, extra_el, html]),
                 ..Default::default()
             },
         );
 
-        main
+        grand
     }
 }

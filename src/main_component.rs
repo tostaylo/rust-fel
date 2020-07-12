@@ -98,11 +98,6 @@ impl rustact::Component for rustact::Handle<Main> {
             Some("main-text".to_owned()),
         );
 
-        let html = rustact::html(
-            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
-                .to_owned(),
-        );
-
         let main = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
@@ -112,7 +107,6 @@ impl rustact::Component for rustact::Handle<Main> {
                 children: Some(vec![
                     main_el,
                     more_el,
-                    html,
                     borrow.child.render(),
                     borrow.child_sibling.render(),
                 ]),

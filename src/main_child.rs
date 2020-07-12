@@ -1,3 +1,4 @@
+use crate::grand_child::{ChildProps as GrandChildProps, GrandChild};
 use crate::rustact;
 use crate::text_wrapper::text_wrapper;
 use std::cell::RefCell;
@@ -14,11 +15,13 @@ pub struct MainChild {
     state: i32,
     props: ChildProps,
     id: String,
+    child: rustact::Handle<GrandChild>,
 }
 
 impl MainChild {
     pub fn create() -> rustact::Handle<Self> {
         let main_child = MainChild {
+            child: GrandChild::create(),
             id: "main-child".to_owned(),
             ..Default::default()
         };
@@ -42,12 +45,14 @@ impl rustact::Component for rustact::Handle<MainChild> {
 
     fn render(&self) -> rustact::Element {
         let mut clone = self.clone();
-        let borrow = self.0.borrow();
+        let mut borrow = self.0.borrow();
+        let mut child = borrow.child.clone();
+        let state = borrow.state.clone();
 
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From Main Child {}", borrow.state.to_string())),
+                text: Some(format!("Hi, From Main Child {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -62,10 +67,7 @@ impl rustact::Component for rustact::Handle<MainChild> {
         let more_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!(
-                    "Hi, From Main Child More {}",
-                    borrow.state.to_string()
-                )),
+                text: Some(format!("Hi, From Main Child More {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -119,10 +121,12 @@ impl rustact::Component for rustact::Handle<MainChild> {
             },
         );
 
-        let html = rustact::html(
-            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
-                .to_owned(),
-        );
+        let grand_child_props = GrandChildProps {
+            vec_props: borrow.props.vec_props.clone(),
+            string_props: borrow.props.string_props.clone(),
+        };
+
+        child.add_props(grand_child_props);
 
         let main = rustact::create_element(
             "div".to_owned(),
@@ -130,7 +134,13 @@ impl rustact::Component for rustact::Handle<MainChild> {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_el, more_el, vec_element, extra_el, html]),
+                children: Some(vec![
+                    main_el,
+                    more_el,
+                    vec_element,
+                    extra_el,
+                    child.render(),
+                ]),
                 ..Default::default()
             },
         );
