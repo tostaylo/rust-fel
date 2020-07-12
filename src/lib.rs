@@ -18,9 +18,6 @@ mod rustact;
 use crate::main_component::Main;
 use crate::state::State;
 use app::app;
-use rustact::Component;
-use std::cell::RefCell;
-use std::rc::Rc;
 use std::sync::Mutex;
 use wasm_bindgen::prelude::*;
 

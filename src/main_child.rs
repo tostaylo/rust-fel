@@ -5,6 +5,7 @@ use std::rc::Rc;
 #[derive(Debug, Default, Clone)]
 pub struct MainChild {
     state: i32,
+    props: String,
     id: String,
 }
 
@@ -19,16 +20,20 @@ impl MainChild {
 }
 
 impl rustact::Component for rustact::Handle<MainChild> {
-    type Properties = i32;
+    type Properties = String;
     type Message = String;
     type State = i32;
 
-    fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().state += new_count;
-        rustact::re_render(self.render(None), Some(self.0.borrow().id.clone()));
+    fn add_props(&mut self, props: Self::Properties) {
+        self.0.borrow_mut().props = props;
     }
 
-    fn render(&self, props: Option<Self::Properties>) -> rustact::Element {
+    fn set_state(&mut self, new_count: Self::State) {
+        self.0.borrow_mut().state += new_count;
+        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+    }
+
+    fn render(&self) -> rustact::Element {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
@@ -59,10 +64,7 @@ impl rustact::Component for rustact::Handle<MainChild> {
         let extra_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!(
-                    "Hi, From Main Child Extra {}",
-                    props.unwrap_or(20).to_string()
-                )),
+                text: Some(format!("Hi, From Main Child Extra {:?}", borrow.props)),
                 ..Default::default()
             },
         );

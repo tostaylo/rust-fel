@@ -7,6 +7,7 @@ pub struct Main {
     child: rustact::Handle<MainChild>,
     id: String,
     state: i32,
+    props: String,
 }
 
 impl Main {
@@ -22,23 +23,29 @@ impl Main {
 }
 
 impl rustact::Component for rustact::Handle<Main> {
-    type Properties = i32;
+    type Properties = String;
     type Message = String;
     type State = i32;
 
-    fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().state += new_count;
-        rustact::re_render(self.render(None), Some(self.0.borrow().id.clone()));
+    fn add_props(&mut self, props: Self::Properties) {
+        self.0.borrow_mut().props = props;
     }
 
-    fn render(&self, props: Option<Self::Properties>) -> rustact::Element {
+    fn set_state(&mut self, new_count: Self::State) {
+        self.0.borrow_mut().state += new_count;
+        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+    }
+
+    fn render(&self) -> rustact::Element {
         let mut clone = self.clone();
-        let borrow = self.0.borrow();
+        let mut borrow = self.0.borrow_mut();
+        let state = borrow.state;
+        borrow.child.add_props(state.to_string());
 
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From Main {}", borrow.state.to_string())),
+                text: Some(format!("Hi, From Main {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -46,7 +53,7 @@ impl rustact::Component for rustact::Handle<Main> {
         let more_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From More {}", borrow.state.to_string())),
+                text: Some(format!("Hi, From More {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -61,12 +68,7 @@ impl rustact::Component for rustact::Handle<Main> {
                 id: Some(borrow.id.clone()),
                 mouse: Some(Box::new(move || clone.set_state(2))),
                 class_name: Some("main".to_owned()),
-                children: Some(vec![
-                    main_text,
-                    more_text,
-                    html,
-                    borrow.child.render(Some(borrow.state)),
-                ]),
+                children: Some(vec![main_text, more_text, html, borrow.child.render()]),
                 ..Default::default()
             },
         );
