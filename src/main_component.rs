@@ -1,5 +1,6 @@
 use crate::main_child::{ChildProps, MainChild};
 use crate::rustact;
+use crate::text_wrapper::text_wrapper;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -67,6 +68,12 @@ impl rustact::Component for rustact::Handle<Main> {
                 ..Default::default()
             },
         );
+        let main_el = text_wrapper(
+            "div".to_owned(),
+            Some(vec![main_text]),
+            None,
+            Some("main-text".to_owned()),
+        );
 
         let more_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
@@ -75,6 +82,14 @@ impl rustact::Component for rustact::Handle<Main> {
                 ..Default::default()
             },
         );
+
+        let more_el = text_wrapper(
+            "div".to_owned(),
+            Some(vec![more_text]),
+            None,
+            Some("main-text".to_owned()),
+        );
+
         let html = rustact::html(
             "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
                 .to_owned(),
@@ -86,7 +101,7 @@ impl rustact::Component for rustact::Handle<Main> {
                 id: Some(borrow.id.clone()),
                 mouse: Some(Box::new(move || clone.set_state(2))),
                 class_name: Some("main".to_owned()),
-                children: Some(vec![main_text, more_text, html, borrow.child.render()]),
+                children: Some(vec![main_el, more_el, html, borrow.child.render()]),
                 ..Default::default()
             },
         );

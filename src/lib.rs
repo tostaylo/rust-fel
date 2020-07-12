@@ -1,6 +1,7 @@
 mod js;
 mod main_child;
 mod main_component;
+mod text_wrapper;
 use js::log;
 mod rustact;
 use crate::main_component::Main;

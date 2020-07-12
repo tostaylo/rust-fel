@@ -20,17 +20,17 @@ pub trait Component: Sized + 'static {
 }
 
 #[derive(Debug)]
-pub struct App<COMP: Component> {
-    component: COMP,
+pub struct App<Component> {
+    component: Component,
 }
 
-impl<COMP> App<COMP>
+impl<COMPONENT> App<COMPONENT>
 where
-    COMP: Component,
-    COMP::Properties: Default,
-    COMP: std::fmt::Debug,
+    COMPONENT: Component,
+    COMPONENT::Properties: Default,
+    COMPONENT: std::fmt::Debug,
 {
-    pub fn new(component: COMP) -> Self {
+    pub fn new(component: COMPONENT) -> Self {
         App { component }
     }
 
@@ -65,11 +65,13 @@ impl fmt::Debug for Element {
     }
 }
 
+pub type ClosureProp = Box<dyn FnMut() -> ()>;
+
 pub struct Props {
     pub children: Option<Vec<Element>>,
     pub text: Option<String>,
-    pub on_click: Option<Box<dyn FnMut() -> ()>>,
-    pub mouse: Option<Box<dyn FnMut() -> ()>>,
+    pub on_click: Option<ClosureProp>,
+    pub mouse: Option<ClosureProp>,
     pub class_name: Option<String>,
     pub id: Option<String>,
 }
@@ -129,7 +131,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
         }
         match rustact_element.props.on_click {
             Some(mut on_click) => {
-                let closure = Closure::wrap(Box::new(move || on_click()) as Box<dyn FnMut()>);
+                let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);
                 dom_el
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")
@@ -141,7 +143,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node) {
 
         match rustact_element.props.mouse {
             Some(mut mouse) => {
-                let closure = Closure::wrap(Box::new(move || mouse()) as Box<dyn FnMut()>);
+                let closure = Closure::wrap(Box::new(move || mouse()) as ClosureProp);
                 dom_el
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")

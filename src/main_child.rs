@@ -1,4 +1,5 @@
 use crate::rustact;
+use crate::text_wrapper::text_wrapper;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -50,6 +51,14 @@ impl rustact::Component for rustact::Handle<MainChild> {
                 ..Default::default()
             },
         );
+
+        let main_el = text_wrapper(
+            "div".to_owned(),
+            Some(vec![main_text]),
+            None,
+            Some("main-text".to_owned()),
+        );
+
         let more_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
@@ -60,9 +69,12 @@ impl rustact::Component for rustact::Handle<MainChild> {
                 ..Default::default()
             },
         );
-        let html = rustact::html(
-            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
-                .to_owned(),
+
+        let more_el = text_wrapper(
+            "div".to_owned(),
+            Some(vec![more_text]),
+            None,
+            Some("main-text".to_owned()),
         );
 
         let closure = move || clone.set_state(2);
@@ -90,14 +102,26 @@ impl rustact::Component for rustact::Handle<MainChild> {
             },
         );
 
+        let extra_el = text_wrapper(
+            "div".to_owned(),
+            Some(vec![extra_text]),
+            None,
+            Some("main-text".to_owned()),
+        );
+
         let vec_element = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
                 on_click: Some(Box::new(closure.clone())),
-                class_name: Some("main-child".to_owned()),
+                class_name: Some("main-text".to_owned()),
                 children: Some(vec_text_elements),
                 ..Default::default()
             },
+        );
+
+        let html = rustact::html(
+            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
+                .to_owned(),
         );
 
         let main = rustact::create_element(
@@ -106,7 +130,7 @@ impl rustact::Component for rustact::Handle<MainChild> {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_text, more_text, vec_element, extra_text, html]),
+                children: Some(vec![main_el, more_el, vec_element, extra_el, html]),
                 ..Default::default()
             },
         );

@@ -1,15 +1,25 @@
-.app {
+.main {
 	display: flex;
+	flex-wrap: wrap;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid black;
 }
 
-#use-component {
-	width: 100px;
+.main-text {
 	height: 100px;
-	background: black;
+	width: 100%;
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	border: 1px solid red;
 }
 
-#use-component-child {
-	width: 50px;
-	height: 100px;
-	background: red;
+.main-child {
+	display: flex;
+	justify-content: center;
+	align-items: center;
+	background: rgb(161, 170, 173);
+	width: 90%;
+	border: 1px solid green;
 }
