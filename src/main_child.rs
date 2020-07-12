@@ -3,9 +3,15 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Debug, Default, Clone)]
+pub struct ChildProps {
+    pub vec_props: Vec<String>,
+    pub string_props: String,
+}
+
+#[derive(Debug, Default, Clone)]
 pub struct MainChild {
     state: i32,
-    props: String,
+    props: ChildProps,
     id: String,
 }
 
@@ -20,7 +26,7 @@ impl MainChild {
 }
 
 impl rustact::Component for rustact::Handle<MainChild> {
-    type Properties = String;
+    type Properties = ChildProps;
     type Message = String;
     type State = i32;
 
@@ -61,6 +67,21 @@ impl rustact::Component for rustact::Handle<MainChild> {
 
         let closure = move || clone.set_state(2);
 
+        let vec_text_elements = borrow
+            .props
+            .vec_props
+            .iter()
+            .map(|item| {
+                rustact::create_element(
+                    "TEXT_ELEMENT".to_owned(),
+                    rustact::Props {
+                        text: Some(format!(" {:?}", item)),
+                        ..Default::default()
+                    },
+                )
+            })
+            .collect::<Vec<rustact::Element>>();
+
         let extra_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
@@ -69,12 +90,12 @@ impl rustact::Component for rustact::Handle<MainChild> {
             },
         );
 
-        let extra = rustact::create_element(
+        let vec_element = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![extra_text]),
+                children: Some(vec_text_elements),
                 ..Default::default()
             },
         );
@@ -85,7 +106,7 @@ impl rustact::Component for rustact::Handle<MainChild> {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_text, more_text, extra, html]),
+                children: Some(vec![main_text, more_text, vec_element, extra_text, html]),
                 ..Default::default()
             },
         );

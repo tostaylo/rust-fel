@@ -1,12 +1,19 @@
-use crate::main_child::MainChild;
+use crate::main_child::{ChildProps, MainChild};
 use crate::rustact;
 use std::cell::RefCell;
 use std::rc::Rc;
+
+#[derive(Debug, Default, Clone)]
+pub struct MainState {
+    i32_state: i32,
+    vec_state: Vec<String>,
+}
+
 #[derive(Debug, Default, Clone)]
 pub struct Main {
     child: rustact::Handle<MainChild>,
     id: String,
-    state: i32,
+    state: MainState,
     props: String,
 }
 
@@ -14,8 +21,12 @@ impl Main {
     pub fn create() -> rustact::Handle<Self> {
         let main = Main {
             id: "main".to_owned(),
-            state: 2,
+            state: MainState {
+                i32_state: 0,
+                vec_state: vec!["howdy".to_owned(), "doody".to_owned(), "man".to_owned()],
+            },
             child: MainChild::create(),
+
             ..Default::default()
         };
         rustact::Handle(Rc::new(RefCell::new(main)))
@@ -32,20 +43,27 @@ impl rustact::Component for rustact::Handle<Main> {
     }
 
     fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().state += new_count;
+        self.0.borrow_mut().state.i32_state += new_count;
+        self.0.borrow_mut().state.vec_state.pop();
         rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
     fn render(&self) -> rustact::Element {
         let mut clone = self.clone();
         let mut borrow = self.0.borrow_mut();
-        let state = borrow.state;
-        borrow.child.add_props(state.to_string());
+        let state = borrow.state.clone();
+
+        let child_props = ChildProps {
+            vec_props: state.vec_state,
+            string_props: state.i32_state.to_string(),
+        };
+
+        borrow.child.add_props(child_props);
 
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From Main {}", state.to_string())),
+                text: Some(format!("Hi, From Main {}", state.i32_state.to_string())),
                 ..Default::default()
             },
         );
@@ -53,7 +71,7 @@ impl rustact::Component for rustact::Handle<Main> {
         let more_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
             rustact::Props {
-                text: Some(format!("Hi, From More {}", state.to_string())),
+                text: Some(format!("Hi, From More {}", state.i32_state.to_string())),
                 ..Default::default()
             },
         );
