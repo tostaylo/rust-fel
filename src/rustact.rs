@@ -14,7 +14,6 @@ pub trait Component: Sized + 'static {
     type Properties;
     type State;
 
-    // fn create(props: Self::Properties) -> Handle<Self>;
     fn render(&self) -> Element;
     fn set_state(&mut self, state: Self::State);
     fn add_props(&mut self, props: Self::Properties);
@@ -36,7 +35,7 @@ where
     }
 
     pub fn mount(&self) {
-        log(&format!("{:?}", self));
+        log(&format!("app mounted"));
         let el = self.component.render();
         let window = web_sys::window().expect("no global `window` exists");
         let document = window.document().expect("should have a document on window");
@@ -97,26 +96,6 @@ impl Default for Props {
 impl Element {
     pub fn new(html_type: String, props: Props) -> Element {
         Element { html_type, props }
-    }
-}
-
-pub trait Render: RenderClone {
-    fn render(&self) -> Element;
-}
-pub trait RenderClone {
-    fn clone_box(&self) -> Box<dyn Render>;
-}
-impl<T> RenderClone for T
-where
-    T: 'static + Render + Clone,
-{
-    fn clone_box(&self) -> Box<dyn Render> {
-        Box::new(self.clone())
-    }
-}
-impl Clone for Box<dyn Render> {
-    fn clone(&self) -> Box<dyn Render> {
-        self.clone_box()
     }
 }
 
@@ -477,4 +456,25 @@ impl Node {
 
 //     let tree = recurse(tokens, arena_tree);
 //     log(&format!("{:?}", tree));
+// }
+
+// Cloning Trait Object
+// pub trait Render: RenderClone {
+//     fn render(&self) -> Element;
+// }
+// pub trait RenderClone {
+//     fn clone_box(&self) -> Box<dyn Render>;
+// }
+// impl<T> RenderClone for T
+// where
+//     T: 'static + Render + Clone,
+// {
+//     fn clone_box(&self) -> Box<dyn Render> {
+//         Box::new(self.clone())
+//     }
+// }
+// impl Clone for Box<dyn Render> {
+//     fn clone(&self) -> Box<dyn Render> {
+//         self.clone_box()
+//     }
 // }
