@@ -56,10 +56,12 @@ impl rustact::Component for rustact::Handle<Main> {
         let mut clone2 = self.clone();
         let mut borrow = self.0.borrow_mut();
         let state = borrow.state.clone();
+        let closure = Rc::new(RefCell::new(move || clone2.set_state(1000)));
 
         let child_props = ChildProps {
             vec_props: state.vec_state.clone(),
             string_props: state.i32_state.to_string(),
+            closure: Some(closure),
         };
 
         let child_sibling_props = MainSiblingChildProps {
@@ -68,9 +70,6 @@ impl rustact::Component for rustact::Handle<Main> {
         };
 
         borrow.child.add_props(child_props);
-        let child = borrow.child.clone();
-        let closure = Rc::new(RefCell::new(move || clone2.set_state(1000)));
-        child.0.borrow_mut().closure = Some(closure);
         borrow.child_sibling.add_props(child_sibling_props);
 
         let main_text = rustact::create_element(

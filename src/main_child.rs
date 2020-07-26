@@ -6,28 +6,24 @@ use std::fmt;
 use std::ops::DerefMut;
 use std::rc::Rc;
 
-#[derive(Debug, Default, Clone)]
+#[derive(Default, Clone)]
 pub struct ChildProps {
     pub vec_props: Vec<String>,
     pub string_props: String,
+    pub closure: Option<Rc<RefCell<dyn FnMut()>>>,
 }
 
-#[derive(Default, Clone)]
+#[derive(Debug, Default, Clone)]
 pub struct MainChild {
     state: i32,
     props: ChildProps,
     id: String,
     child: rustact::Handle<GrandChild>,
-    pub closure: Option<Rc<RefCell<dyn FnMut()>>>,
 }
 
-impl fmt::Debug for MainChild {
+impl fmt::Debug for ChildProps {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(
-            f,
-            "{:#?}, {:#?} this is a mainchild",
-            self.state, self.props
-        )
+        write!(f, "{:#?} this is a mainchild props", self.string_props)
     }
 }
 
@@ -36,7 +32,6 @@ impl MainChild {
         let main_child = MainChild {
             child: GrandChild::create(),
             id: "main-child".to_owned(),
-            closure: Some(Rc::new(RefCell::new(|| ()))),
             ..Default::default()
         };
         rustact::Handle(Rc::new(RefCell::new(main_child)))
@@ -63,12 +58,13 @@ impl rustact::Component for rustact::Handle<MainChild> {
         let mut child = borrow.child.clone();
         let state = borrow.state.clone();
         let borrow_clone = borrow.clone();
-        let closure = borrow_clone.closure.unwrap();
-        let rc_closure = Rc::clone(&closure);
+        let closure_prop = borrow_clone.props.closure.unwrap();
+        let rc_closure_prop = Rc::clone(&closure_prop);
         let mut child_closure = move || clone.set_state(2);
-        let parent_closure = Box::new(move || {
-            let mut p = rc_closure.borrow_mut();
-            let deref = p.deref_mut();
+
+        let on_click_closure = Box::new(move || {
+            let mut reference = rc_closure_prop.borrow_mut();
+            let deref = reference.deref_mut();
             deref();
             child_closure();
         });
@@ -153,7 +149,7 @@ impl rustact::Component for rustact::Handle<MainChild> {
             "div".to_owned(),
             rustact::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(parent_closure),
+                on_click: Some(on_click_closure),
                 class_name: Some("main-child".to_owned()),
                 children: Some(vec![
                     main_el,
