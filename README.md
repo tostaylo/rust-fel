@@ -1,4 +1,5 @@
-# rust_beats
+# rust-fel
+A small front end library for Rust Wasm. Experimental.
 
 Bootstrapped with
 wasm-bindgen/example/without-a-bundler
