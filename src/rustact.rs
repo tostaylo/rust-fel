@@ -35,7 +35,6 @@ where
     }
 
     pub fn mount(&self) {
-        log(&format!("app mounted"));
         let el = self.component.render();
         let window = web_sys::window().expect("no global `window` exists");
         let document = window.document().expect("should have a document on window");

@@ -2,6 +2,8 @@ use crate::grand_child::{ChildProps as GrandChildProps, GrandChild};
 use crate::rustact;
 use crate::text_wrapper::text_wrapper;
 use std::cell::RefCell;
+use std::fmt;
+use std::ops::DerefMut;
 use std::rc::Rc;
 
 #[derive(Debug, Default, Clone)]
@@ -10,12 +12,23 @@ pub struct ChildProps {
     pub string_props: String,
 }
 
-#[derive(Debug, Default, Clone)]
+#[derive(Default, Clone)]
 pub struct MainChild {
     state: i32,
     props: ChildProps,
     id: String,
     child: rustact::Handle<GrandChild>,
+    pub closure: Option<Rc<RefCell<dyn FnMut()>>>,
+}
+
+impl fmt::Debug for MainChild {
+    fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+        write!(
+            f,
+            "{:#?}, {:#?} this is a mainchild",
+            self.state, self.props
+        )
+    }
 }
 
 impl MainChild {
@@ -23,6 +36,7 @@ impl MainChild {
         let main_child = MainChild {
             child: GrandChild::create(),
             id: "main-child".to_owned(),
+            closure: Some(Rc::new(RefCell::new(|| ()))),
             ..Default::default()
         };
         rustact::Handle(Rc::new(RefCell::new(main_child)))
@@ -45,9 +59,19 @@ impl rustact::Component for rustact::Handle<MainChild> {
 
     fn render(&self) -> rustact::Element {
         let mut clone = self.clone();
-        let mut borrow = self.0.borrow();
+        let borrow = self.0.borrow();
         let mut child = borrow.child.clone();
         let state = borrow.state.clone();
+        let borrow_clone = borrow.clone();
+        let closure = borrow_clone.closure.unwrap();
+        let rc_closure = Rc::clone(&closure);
+        let mut child_closure = move || clone.set_state(2);
+        let parent_closure = Box::new(move || {
+            let mut p = rc_closure.borrow_mut();
+            let deref = p.deref_mut();
+            deref();
+            child_closure();
+        });
 
         let main_text = rustact::create_element(
             "TEXT_ELEMENT".to_owned(),
@@ -78,8 +102,6 @@ impl rustact::Component for rustact::Handle<MainChild> {
             None,
             Some("main-text".to_owned()),
         );
-
-        let closure = move || clone.set_state(2);
 
         let vec_text_elements = borrow
             .props
@@ -114,7 +136,6 @@ impl rustact::Component for rustact::Handle<MainChild> {
         let vec_element = rustact::create_element(
             "div".to_owned(),
             rustact::Props {
-                on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-text".to_owned()),
                 children: Some(vec_text_elements),
                 ..Default::default()
@@ -132,7 +153,7 @@ impl rustact::Component for rustact::Handle<MainChild> {
             "div".to_owned(),
             rustact::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(Box::new(closure.clone())),
+                on_click: Some(parent_closure),
                 class_name: Some("main-child".to_owned()),
                 children: Some(vec![
                     main_el,
