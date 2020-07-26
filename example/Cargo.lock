@@ -63,6 +63,15 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-fel-example"
+version = "0.1.0"
+dependencies = [
+ "rust-fel",
+ "wasm-bindgen",
+ "web-sys",
+]
+
+[[package]]
 name = "syn"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"

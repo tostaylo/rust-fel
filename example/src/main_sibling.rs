@@ -1,5 +1,6 @@
-use crate::rustact;
+use crate::handle;
 use crate::text_wrapper::text_wrapper;
+use rust_fel;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -10,23 +11,23 @@ pub struct ChildProps {
 }
 
 #[derive(Debug, Default, Clone)]
-pub struct GrandChild {
+pub struct MainSibling {
     state: i32,
     props: ChildProps,
     id: String,
 }
 
-impl GrandChild {
-    pub fn create() -> rustact::Handle<Self> {
-        let grand_child = GrandChild {
-            id: "grand-child".to_owned(),
+impl MainSibling {
+    pub fn create() -> handle::Handle<Self> {
+        let main_child = MainSibling {
+            id: "main-sibling".to_owned(),
             ..Default::default()
         };
-        rustact::Handle(Rc::new(RefCell::new(grand_child)))
+        handle::Handle(Rc::new(RefCell::new(main_child)))
     }
 }
 
-impl rustact::Component for rustact::Handle<GrandChild> {
+impl rust_fel::Component for handle::Handle<MainSibling> {
     type Properties = ChildProps;
     type Message = String;
     type State = i32;
@@ -37,33 +38,36 @@ impl rustact::Component for rustact::Handle<GrandChild> {
 
     fn set_state(&mut self, new_count: Self::State) {
         self.0.borrow_mut().state += new_count;
-        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+        rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
-    fn render(&self) -> rustact::Element {
+    fn render(&self) -> rust_fel::Element {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
-        let grand_text = rustact::create_element(
+        let main_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
-                text: Some(format!("Hi, From grand Child {}", borrow.state.to_string())),
+            rust_fel::Props {
+                text: Some(format!(
+                    "Hi, From Main Child Sibling {}",
+                    borrow.state.to_string()
+                )),
                 ..Default::default()
             },
         );
 
-        let grand_el = text_wrapper(
+        let main_el = text_wrapper(
             "div".to_owned(),
-            Some(vec![grand_text]),
+            Some(vec![main_text]),
             None,
             Some("main-text".to_owned()),
         );
 
-        let more_text = rustact::create_element(
+        let more_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 text: Some(format!(
-                    "Hi, From grand Child More {}",
+                    "Hi, From Main Child Sibling More {}",
                     borrow.state.to_string()
                 )),
                 ..Default::default()
@@ -84,20 +88,23 @@ impl rustact::Component for rustact::Handle<GrandChild> {
             .vec_props
             .iter()
             .map(|item| {
-                rustact::create_element(
+                rust_fel::create_element(
                     "TEXT_ELEMENT".to_owned(),
-                    rustact::Props {
+                    rust_fel::Props {
                         text: Some(format!(" {:?}", item)),
                         ..Default::default()
                     },
                 )
             })
-            .collect::<Vec<rustact::Element>>();
+            .collect::<Vec<rust_fel::Element>>();
 
-        let extra_text = rustact::create_element(
+        let extra_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
-                text: Some(format!("Hi, From grand Child Extra {:?}", borrow.props)),
+            rust_fel::Props {
+                text: Some(format!(
+                    "Hi, From Main Child Sibling Extra {:?}",
+                    borrow.props
+                )),
                 ..Default::default()
             },
         );
@@ -109,9 +116,9 @@ impl rustact::Component for rustact::Handle<GrandChild> {
             Some("main-text".to_owned()),
         );
 
-        let vec_element = rustact::create_element(
+        let vec_element = rust_fel::create_element(
             "div".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-text".to_owned()),
                 children: Some(vec_text_elements),
@@ -119,22 +126,17 @@ impl rustact::Component for rustact::Handle<GrandChild> {
             },
         );
 
-        let html = rustact::html(
-            "<h5><span><span><p></p></span></span><h1><h2></h2><h3><h4></h4></h3></h1></h5>"
-                .to_owned(),
-        );
-
-        let grand = rustact::create_element(
+        let main = rust_fel::create_element(
             "div".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
-                mouse: Some(Box::new(closure.clone())),
-                class_name: Some("grand-child".to_owned()),
-                children: Some(vec![grand_el, more_el, vec_element, extra_el, html]),
+                on_click: Some(Box::new(closure.clone())),
+                class_name: Some("main-child".to_owned()),
+                children: Some(vec![main_el, more_el, vec_element, extra_el]),
                 ..Default::default()
             },
         );
 
-        grand
+        main
     }
 }

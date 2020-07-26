@@ -1,14 +1,14 @@
-use crate::rustact;
+use rust_fel;
 
 pub fn text_wrapper(
     html_type: String,
-    children: Option<Vec<rustact::Element>>,
-    on_click: Option<rustact::ClosureProp>,
+    children: Option<Vec<rust_fel::Element>>,
+    on_click: Option<rust_fel::ClosureProp>,
     class_name: Option<String>,
-) -> rustact::Element {
-    let text_container = rustact::create_element(
+) -> rust_fel::Element {
+    let text_container = rust_fel::create_element(
         html_type,
-        rustact::Props {
+        rust_fel::Props {
             on_click,
             class_name,
             children,

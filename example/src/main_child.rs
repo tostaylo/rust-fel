@@ -1,6 +1,7 @@
 use crate::grand_child::{ChildProps as GrandChildProps, GrandChild};
-use crate::rustact;
+use crate::handle;
 use crate::text_wrapper::text_wrapper;
+use rust_fel;
 use std::cell::RefCell;
 use std::fmt;
 use std::ops::DerefMut;
@@ -18,7 +19,7 @@ pub struct MainChild {
     state: i32,
     props: ChildProps,
     id: String,
-    child: rustact::Handle<GrandChild>,
+    child: handle::Handle<GrandChild>,
 }
 
 impl fmt::Debug for ChildProps {
@@ -28,17 +29,17 @@ impl fmt::Debug for ChildProps {
 }
 
 impl MainChild {
-    pub fn create() -> rustact::Handle<Self> {
+    pub fn create() -> handle::Handle<Self> {
         let main_child = MainChild {
             child: GrandChild::create(),
             id: "main-child".to_owned(),
             ..Default::default()
         };
-        rustact::Handle(Rc::new(RefCell::new(main_child)))
+        handle::Handle(Rc::new(RefCell::new(main_child)))
     }
 }
 
-impl rustact::Component for rustact::Handle<MainChild> {
+impl rust_fel::Component for handle::Handle<MainChild> {
     type Properties = ChildProps;
     type Message = String;
     type State = i32;
@@ -49,10 +50,10 @@ impl rustact::Component for rustact::Handle<MainChild> {
 
     fn set_state(&mut self, new_count: Self::State) {
         self.0.borrow_mut().state += new_count;
-        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+        rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
-    fn render(&self) -> rustact::Element {
+    fn render(&self) -> rust_fel::Element {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
         let mut child = borrow.child.clone();
@@ -69,9 +70,9 @@ impl rustact::Component for rustact::Handle<MainChild> {
             child_closure();
         });
 
-        let main_text = rustact::create_element(
+        let main_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 text: Some(format!("Hi, From Main Child {}", state.to_string())),
                 ..Default::default()
             },
@@ -84,9 +85,9 @@ impl rustact::Component for rustact::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rustact::create_element(
+        let more_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 text: Some(format!("Hi, From Main Child More {}", state.to_string())),
                 ..Default::default()
             },
@@ -104,19 +105,19 @@ impl rustact::Component for rustact::Handle<MainChild> {
             .vec_props
             .iter()
             .map(|item| {
-                rustact::create_element(
+                rust_fel::create_element(
                     "TEXT_ELEMENT".to_owned(),
-                    rustact::Props {
+                    rust_fel::Props {
                         text: Some(format!(" {:?}", item)),
                         ..Default::default()
                     },
                 )
             })
-            .collect::<Vec<rustact::Element>>();
+            .collect::<Vec<rust_fel::Element>>();
 
-        let extra_text = rustact::create_element(
+        let extra_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 text: Some(format!("Hi, From Main Child Extra {:?}", borrow.props)),
                 ..Default::default()
             },
@@ -129,9 +130,9 @@ impl rustact::Component for rustact::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let vec_element = rustact::create_element(
+        let vec_element = rust_fel::create_element(
             "div".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 class_name: Some("main-text".to_owned()),
                 children: Some(vec_text_elements),
                 ..Default::default()
@@ -145,9 +146,9 @@ impl rustact::Component for rustact::Handle<MainChild> {
 
         child.add_props(grand_child_props);
 
-        let main = rustact::create_element(
+        let main = rust_fel::create_element(
             "div".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(on_click_closure),
                 class_name: Some("main-child".to_owned()),

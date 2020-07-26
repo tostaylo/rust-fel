@@ -1,7 +1,8 @@
+use crate::handle;
 use crate::main_child::{ChildProps, MainChild};
 use crate::main_sibling::{ChildProps as MainSiblingChildProps, MainSibling};
-use crate::rustact;
 use crate::text_wrapper::text_wrapper;
+use rust_fel;
 use std::cell::RefCell;
 use std::rc::Rc;
 
@@ -13,15 +14,15 @@ pub struct MainState {
 
 #[derive(Debug, Default, Clone)]
 pub struct Main {
-    child: rustact::Handle<MainChild>,
-    child_sibling: rustact::Handle<MainSibling>,
+    child: handle::Handle<MainChild>,
+    child_sibling: handle::Handle<MainSibling>,
     id: String,
     state: MainState,
     props: String,
 }
 
 impl Main {
-    pub fn create() -> rustact::Handle<Self> {
+    pub fn create() -> handle::Handle<Self> {
         let main = Main {
             id: "main".to_owned(),
             state: MainState {
@@ -32,11 +33,11 @@ impl Main {
             child_sibling: MainSibling::create(),
             ..Default::default()
         };
-        rustact::Handle(Rc::new(RefCell::new(main)))
+        handle::Handle(Rc::new(RefCell::new(main)))
     }
 }
 
-impl rustact::Component for rustact::Handle<Main> {
+impl rust_fel::Component for handle::Handle<Main> {
     type Properties = String;
     type Message = String;
     type State = i32;
@@ -48,10 +49,10 @@ impl rustact::Component for rustact::Handle<Main> {
     fn set_state(&mut self, new_count: Self::State) {
         self.0.borrow_mut().state.i32_state += new_count;
         self.0.borrow_mut().state.vec_state.pop();
-        rustact::re_render(self.render(), Some(self.0.borrow().id.clone()));
+        rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
-    fn render(&self) -> rustact::Element {
+    fn render(&self) -> rust_fel::Element {
         let mut clone = self.clone();
         let mut clone2 = self.clone();
         let mut borrow = self.0.borrow_mut();
@@ -72,9 +73,9 @@ impl rustact::Component for rustact::Handle<Main> {
         borrow.child.add_props(child_props);
         borrow.child_sibling.add_props(child_sibling_props);
 
-        let main_text = rustact::create_element(
+        let main_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 text: Some(format!("Hi, From Main {}", state.i32_state.to_string())),
                 ..Default::default()
             },
@@ -86,9 +87,9 @@ impl rustact::Component for rustact::Handle<Main> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rustact::create_element(
+        let more_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 text: Some(format!("Hi, From More {}", state.i32_state.to_string())),
                 ..Default::default()
             },
@@ -101,9 +102,9 @@ impl rustact::Component for rustact::Handle<Main> {
             Some("main-text".to_owned()),
         );
 
-        let main = rustact::create_element(
+        let main = rust_fel::create_element(
             "div".to_owned(),
-            rustact::Props {
+            rust_fel::Props {
                 id: Some(borrow.id.clone()),
                 mouse: Some(Box::new(move || clone.set_state(2))),
                 class_name: Some("main".to_owned()),
