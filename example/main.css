@@ -35,3 +35,7 @@
 	background: lightyellow;
 	border: 1px solid black;
 }
+
+.grandchild-html {
+	background: red;
+}

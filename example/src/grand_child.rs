@@ -121,7 +121,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
     );
 
     let html = rust_fel::html(
-            "<h5><span><span><p>From a P</p></span></span><h1>From an h1</h1><h1><h2>Are we parsing yet?</h2><h3><h4></h4></h3></h1></h5>"
+            "<h5 |class=grandchild-html|><span><span><p>From a P</p></span></span><h1>From an h1</h1><h1><h2>Are we parsing yet?</h2><h3><h4>Last Little Guy Here</h4></h3></h1></h5>"
                 .to_owned(),
         );
 

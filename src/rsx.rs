@@ -17,6 +17,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
   let mut text: String = String::new();
   let mut stack: Vec<StackElement> = vec![];
   let mut arena_tree: ArenaTree = ArenaTree::default();
+  let mut has_attributes: bool = false;
+  let mut attributes: String = String::new();
 
   //if stack has a length we have one parent.
   while let Some(character) = tokens.next() {
@@ -25,6 +27,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
     if string_character == "<" {
       if has_text {
         // This pattern may need to be function-ized since we may need to repeat.
+        // If the child is a text elment we insert
         if stack.len() >= 1 {
           arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
         } else {
@@ -52,9 +55,13 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
     if string_character == ">" {
       if element_type != "".to_string() {
         let next_token = tokens.peek().unwrap().to_string();
+
+        // Here we must have text if it's not another element
         if next_token != "<" {
           has_text = true;
         };
+
+        // Here we insert our element type and all attributes collected
         let el = element_type.clone();
         if stack.len() >= 1 {
           arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
@@ -62,40 +69,69 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
           arena_tree.set_current_parent_idx(0);
         }
 
+        let mut class_name = None;
+        if attributes.len() >= 1 {
+          let attributes_split = attributes.split("=");
+          let attribute_vec = attributes_split.collect::<Vec<&str>>();
+          class_name = Some(attribute_vec[1].to_owned());
+        }
         arena_tree.insert(Node {
           element_type: element_type.clone(),
+          class_name,
           ..Default::default()
         });
         stack.push(StackElement {
           val: el,
           arena_position: arena_tree.arena.len() - 1,
         });
-
+        // Reset everything to read next child
         element_type = String::new();
+        attributes = String::new();
+        has_attributes = false;
       }
       continue;
     }
 
+    if string_character == "|" && has_attributes == false {
+      has_attributes = true;
+      continue;
+    }
     // Down here we decide what types of variables to push to
 
     if is_open_tag == true && has_text == false {
-      element_type.push_str(&string_character);
-      continue;
+      if string_character != " ".to_owned() && has_attributes == false {
+        element_type.push_str(&string_character);
+        continue;
+      }
+      if has_attributes == true && string_character != "|" {
+        attributes.push_str(&string_character);
+        continue;
+      }
     }
+
     if has_text {
       text.push_str(&string_character);
       continue;
     }
   }
+  // println!("{:?}", arena_tree);
   arena_tree
 }
 
 #[cfg(test)]
 #[test]
 pub fn is_parent_correct() {
-  let arena1 = parse_with_stack("<div><div>here is some text</div></div>".to_owned());
-  println!("{:?}", arena1);
-  assert_eq!(arena1.arena[2].parent, 1);
+  let arena_tree =
+    parse_with_stack("<div |class=classname|><div>here is some text</div></div>".to_owned());
+  assert_eq!(arena_tree.arena[2].parent, 1);
+  let arena_tree =
+    parse_with_stack("<div><div>here is some text</div><span></span></div>".to_owned());
+  assert_eq!(arena_tree.arena[2].parent, 1);
+  let arena_tree =
+    parse_with_stack("<div><div><span>here is some text</span></div></div>".to_owned());
+  assert_eq!(arena_tree.arena[3].parent, 2);
+  let arena_tree = parse_with_stack("<div>Hi there</div>".to_owned());
+  assert_eq!(arena_tree.arena[1].parent, 0);
 }
 
 pub fn html(html_string: String) -> Element {
@@ -150,11 +186,17 @@ impl CreateElement for ArenaTree {
         Some(x) => Some(x.to_owned()),
         None => None,
       };
+
+      let class_name = match &node.class_name {
+        Some(x) => Some(x.to_owned()),
+        None => None,
+      };
       let new_el = Element {
         html_type: node.element_type.clone(),
         props: Props {
           children: children(node, arena),
           text,
+          class_name,
           ..Default::default()
         },
       };
@@ -175,6 +217,7 @@ struct Node {
   parent: usize,
   children: Vec<usize>,
   text: Option<String>,
+  class_name: Option<String>,
 }
 
 impl Node {
