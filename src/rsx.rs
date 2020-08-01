@@ -13,6 +13,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
   let mut tokens = html_string.chars().peekable();
   let mut element_type: String = String::new();
   let mut is_open_tag: bool = false;
+  let mut has_text: bool = false;
+  let mut text: String = String::new();
   let mut stack: Vec<StackElement> = vec![];
   let mut arena_tree: ArenaTree = ArenaTree::default();
 
@@ -20,21 +22,39 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
   while let Some(character) = tokens.next() {
     let string_character = character.to_string();
 
-    if string_character == "<" && tokens.peek().unwrap().to_string() != "/" {
-      is_open_tag = true;
-      continue;
-    }
-    if string_character == "<" && tokens.peek().unwrap().to_string() == "/" {
-      is_open_tag = false;
-      stack.pop();
+    if string_character == "<" {
+      if has_text {
+        // This pattern may need to be function-ized since we may need to repeat.
+        if stack.len() >= 1 {
+          arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
+        } else {
+          arena_tree.set_current_parent_idx(0);
+        }
+        arena_tree.insert(Node {
+          element_type: "TEXT_ELEMENT".to_owned(),
+          text: Some(text.clone()),
+          ..Default::default()
+        });
+      }
+      if tokens.peek().unwrap().to_string() != "/" {
+        is_open_tag = true;
+      }
+      if tokens.peek().unwrap().to_string() == "/" {
+        is_open_tag = false;
+        stack.pop();
+      }
 
+      has_text = false;
+      text = "".to_owned();
       continue;
     }
 
     if string_character == ">" {
       if element_type != "".to_string() {
-        //Let's go back to dealing with Options instead of empty strings.
-
+        let next_token = tokens.peek().unwrap().to_string();
+        if next_token != "<" {
+          has_text = true;
+        };
         let el = element_type.clone();
         if stack.len() >= 1 {
           arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
@@ -43,7 +63,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
         }
 
         arena_tree.insert(Node {
-          element_type,
+          element_type: element_type.clone(),
           ..Default::default()
         });
         stack.push(StackElement {
@@ -56,12 +76,26 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
       continue;
     }
 
-    if is_open_tag == true {
+    // Down here we decide what types of variables to push to
+
+    if is_open_tag == true && has_text == false {
       element_type.push_str(&string_character);
+      continue;
+    }
+    if has_text {
+      text.push_str(&string_character);
+      continue;
     }
   }
-
   arena_tree
+}
+
+#[cfg(test)]
+#[test]
+pub fn is_parent_correct() {
+  let arena1 = parse_with_stack("<div><div>here is some text</div></div>".to_owned());
+  println!("{:?}", arena1);
+  assert_eq!(arena1.arena[2].parent, 1);
 }
 
 pub fn html(html_string: String) -> Element {
@@ -112,10 +146,15 @@ impl CreateElement for ArenaTree {
     };
 
     fn create(node: &Node, arena: &Vec<Node>) -> Element {
+      let text = match &node.text {
+        Some(x) => Some(x.to_owned()),
+        None => None,
+      };
       let new_el = Element {
         html_type: node.element_type.clone(),
         props: Props {
           children: children(node, arena),
+          text,
           ..Default::default()
         },
       };
@@ -135,6 +174,7 @@ struct Node {
   element_type: String,
   parent: usize,
   children: Vec<usize>,
+  text: Option<String>,
 }
 
 impl Node {
