@@ -12,9 +12,9 @@ extern crate rust_fel;
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
-    let main = Main::create();
-    let app = rust_fel::App::new(main);
-    app.mount();
+  let main = Main::create();
+  let app = rust_fel::App::new(main);
+  app.mount();
 
-    Ok(())
+  Ok(())
 }
