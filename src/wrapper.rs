@@ -8,7 +8,7 @@ pub fn wrapper(
     class_name: Option<String>,
     elements: Option<Element>,
 ) -> Element {
-    let mut children = None;
+    let children;
 
     match (elements, text) {
         (Some(el), None) => {
