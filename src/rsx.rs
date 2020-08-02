@@ -28,6 +28,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
       if has_text {
         // This pattern may need to be function-ized since we may need to repeat.
         // If the child is a text elment we insert
+        // We need to let arena tree know the positions of the parent
+        // In arenatree.insert we set the parent's and the children of the element being inserted
         if stack.len() >= 1 {
           arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
         } else {
@@ -52,6 +54,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
       continue;
     }
 
+    // Either last element of string or there will be a text child or another element
     if string_character == ">" {
       if element_type != "".to_string() {
         let next_token = tokens.peek().unwrap().to_string();
@@ -84,7 +87,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
           val: el,
           arena_position: arena_tree.arena.len() - 1,
         });
-        // Reset everything to read next child
+        // Reset everything so we have no data and can reade child element
         element_type = String::new();
         attributes = String::new();
         has_attributes = false;
@@ -97,12 +100,12 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
       continue;
     }
     // Down here we decide what types of variables to push to
-
     if is_open_tag == true && has_text == false {
       if string_character != " ".to_owned() && has_attributes == false {
         element_type.push_str(&string_character);
         continue;
       }
+
       if has_attributes == true && string_character != "|" {
         attributes.push_str(&string_character);
         continue;
@@ -114,7 +117,11 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
       continue;
     }
   }
-  // println!("{:?}", arena_tree);
+
+  if stack.len() > 0 {
+    panic!("Your HTML is not formed correctly");
+  }
+
   arena_tree
 }
 
@@ -132,6 +139,14 @@ pub fn is_parent_correct() {
   assert_eq!(arena_tree.arena[3].parent, 2);
   let arena_tree = parse_with_stack("<div>Hi there</div>".to_owned());
   assert_eq!(arena_tree.arena[1].parent, 0);
+}
+
+#[cfg(test)]
+#[test]
+#[should_panic(expected = "Your HTML is not formed correctly")]
+pub fn is_correct_html() {
+  parse_with_stack("<div |class=classname|><div>here is some text</div>".to_owned());
+  parse_with_stack("<div><div>here is some text<div></div>".to_owned());
 }
 
 pub fn html(html_string: String) -> Element {
