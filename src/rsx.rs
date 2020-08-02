@@ -20,7 +20,6 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
   let mut has_attributes: bool = false;
   let mut attributes: String = String::new();
 
-  //if stack has a length we have one parent.
   while let Some(character) = tokens.next() {
     let string_character = character.to_string();
 
