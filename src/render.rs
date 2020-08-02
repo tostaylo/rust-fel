@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-pub fn render(rustact_element: Element, container: &web_sys::Node, replace_child: bool) {
+pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bool) {
   let window = web_sys::window().expect("no global `window` exists");
   let document = window.document().expect("should have a document on window");
 
@@ -62,8 +62,10 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, replace_child
       }
       None => (),
     }
+
+    // Update or first render?
     let dom;
-    if replace_child == true {
+    if is_update == true {
       let id = &id_copy.unwrap();
       let formatted = format!("#{}", id);
       let old_child = document

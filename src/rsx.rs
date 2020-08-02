@@ -1,5 +1,6 @@
 use crate::element::Element;
 use crate::props::Props;
+use std::fmt;
 
 #[derive(Debug, Default, Clone)]
 struct StackElement {
@@ -73,9 +74,24 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
 
         let mut class_name = None;
         if attributes.len() >= 1 {
-          let attributes_split = attributes.split("=");
-          let attribute_vec = attributes_split.collect::<Vec<&str>>();
-          class_name = Some(attribute_vec[1].to_owned());
+          let attributes_split = attributes.split(" ").filter(|s| !s.is_empty());
+          for attribute in attributes_split {
+            let attr = attribute.split("=").collect::<Vec<&str>>();
+            match attr[0] {
+              "class" => class_name = Some(attr[1].to_owned()),
+              // "on_click" => {
+              //   match attribute_handlers {
+              //     Some(the_vec) => {
+              //       let idx = attr[1].to_owned().parse::<usize>().unwrap();
+              //       let handler = the_vec.into_iter().nth(idx).unwrap();
+              //       on_click = Some(handler);
+              //     }
+              //     None => (),
+              //   };
+              // }
+              _ => (),
+            };
+          }
         }
         arena_tree.insert(Node {
           element_type: element_type.clone(),
@@ -146,6 +162,19 @@ pub fn is_parent_correct() {
 pub fn is_correct_html() {
   parse_with_stack("<div |class=classname|><div>here is some text</div>".to_owned());
   parse_with_stack("<div><div>here is some text<div></div>".to_owned());
+}
+
+#[cfg(test)]
+#[test]
+
+pub fn is_correct_attributes() {
+  let arena_tree = parse_with_stack(
+    "<div |class=classname on_click=onclick|><div>here is some text</div></div>".to_owned(),
+  );
+  assert_eq!(
+    arena_tree.arena[0].class_name.as_ref().unwrap(),
+    &"classname".to_owned()
+  );
 }
 
 pub fn html(html_string: String) -> Element {
@@ -224,7 +253,7 @@ impl CreateElement for ArenaTree {
   }
 }
 
-#[derive(Debug, Default)]
+#[derive(Default)]
 struct Node {
   idx: usize,
   element_type: String,
@@ -232,6 +261,17 @@ struct Node {
   children: Vec<usize>,
   text: Option<String>,
   class_name: Option<String>,
+  // on_click: Option<ClosureProp>,
+}
+
+impl fmt::Debug for Node {
+  fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
+    write!(
+      f,
+      "{:#?}, {:#?} this is a node",
+      self.element_type, self.class_name
+    )
+  }
 }
 
 impl Node {
