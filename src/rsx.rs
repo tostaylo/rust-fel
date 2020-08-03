@@ -79,6 +79,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
             let attr = attribute.split("=").collect::<Vec<&str>>();
             match attr[0] {
               "class" => class_name = Some(attr[1].to_owned()),
+// Try Rc<RefCell>attribute handlers at the top of this function.
+// match attribute handlers borrow_mut()
               // "on_click" => {
               //   match attribute_handlers {
               //     Some(the_vec) => {
