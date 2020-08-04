@@ -134,5 +134,7 @@ pub fn re_render(app: Element, id: Option<String>) {
         let parent = child.parent_node().unwrap();
 
         render(app, &parent, true);
-    };
+    } else {
+        panic!("Components that initalize re-renders must have a Id");
+    }
 }
