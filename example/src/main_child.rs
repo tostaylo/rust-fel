@@ -1,3 +1,4 @@
+use crate::action::Action;
 use crate::grand_child::{ChildProps as GrandChildProps, GrandChild};
 use crate::handle;
 use crate::text_wrapper::text_wrapper;
@@ -9,7 +10,6 @@ use std::rc::Rc;
 
 #[derive(Default, Clone)]
 pub struct ChildProps {
-    pub vec_props: Vec<String>,
     pub string_props: String,
     pub closure: Option<Rc<RefCell<dyn FnMut()>>>,
 }
@@ -41,15 +41,19 @@ impl MainChild {
 
 impl rust_fel::Component for handle::Handle<MainChild> {
     type Properties = ChildProps;
-    type Message = String;
+    type Message = Action;
     type State = i32;
 
     fn add_props(&mut self, props: Self::Properties) {
         self.0.borrow_mut().props = props;
     }
 
-    fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().state += new_count;
+    fn reduce_state(&mut self, message: Action) {
+        match message {
+            Action::Increment => self.0.borrow_mut().state += 20,
+            Action::Decrement => self.0.borrow_mut().state -= 20,
+        }
+
         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
@@ -61,7 +65,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
         let borrow_clone = borrow.clone();
         let closure_prop = borrow_clone.props.closure.unwrap();
         let rc_closure_prop = Rc::clone(&closure_prop);
-        let mut child_closure = move || clone.set_state(2);
+        let mut child_closure = move || clone.reduce_state(Action::Decrement);
 
         let on_click_closure = Box::new(move || {
             let mut reference = rc_closure_prop.borrow_mut();
@@ -100,21 +104,6 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let vec_text_elements = borrow
-            .props
-            .vec_props
-            .iter()
-            .map(|item| {
-                rust_fel::create_element(
-                    "TEXT_ELEMENT".to_owned(),
-                    rust_fel::Props {
-                        text: Some(format!(" {:?}", item)),
-                        ..Default::default()
-                    },
-                )
-            })
-            .collect::<Vec<rust_fel::Element>>();
-
         let extra_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
@@ -130,17 +119,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let vec_element = rust_fel::create_element(
-            "div".to_owned(),
-            rust_fel::Props {
-                class_name: Some("main-text".to_owned()),
-                children: Some(vec_text_elements),
-                ..Default::default()
-            },
-        );
-
         let grand_child_props = GrandChildProps {
-            vec_props: borrow.props.vec_props.clone(),
             string_props: borrow.props.string_props.clone(),
         };
 
@@ -152,13 +131,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(on_click_closure),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![
-                    main_el,
-                    more_el,
-                    vec_element,
-                    extra_el,
-                    child.render(),
-                ]),
+                children: Some(vec![main_el, more_el, extra_el, child.render()]),
                 ..Default::default()
             },
         );

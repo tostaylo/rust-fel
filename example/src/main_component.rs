@@ -1,3 +1,4 @@
+use crate::action::Action;
 use crate::handle;
 use crate::main_child::{ChildProps, MainChild};
 use crate::main_sibling::{ChildProps as MainSiblingChildProps, MainSibling};
@@ -7,17 +8,11 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Debug, Default, Clone)]
-pub struct MainState {
-    i32_state: i32,
-    vec_state: Vec<String>,
-}
-
-#[derive(Debug, Default, Clone)]
 pub struct Main {
     child: handle::Handle<MainChild>,
     child_sibling: handle::Handle<MainSibling>,
     id: String,
-    state: MainState,
+    state: i32,
     props: String,
 }
 
@@ -25,10 +20,7 @@ impl Main {
     pub fn create() -> handle::Handle<Self> {
         let main = Main {
             id: "main".to_owned(),
-            state: MainState {
-                i32_state: 0,
-                vec_state: vec!["howdy".to_owned(), "doody".to_owned(), "man".to_owned()],
-            },
+            state: 0,
             child: MainChild::create(),
             child_sibling: MainSibling::create(),
             ..Default::default()
@@ -39,16 +31,19 @@ impl Main {
 
 impl rust_fel::Component for handle::Handle<Main> {
     type Properties = String;
-    type Message = String;
+    type Message = Action;
     type State = i32;
 
     fn add_props(&mut self, props: Self::Properties) {
         self.0.borrow_mut().props = props;
     }
 
-    fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().state.i32_state += new_count;
-        self.0.borrow_mut().state.vec_state.pop();
+    fn reduce_state(&mut self, message: Action) {
+        match message {
+            Action::Increment => self.0.borrow_mut().state += 100,
+            Action::Decrement => self.0.borrow_mut().state -= 100,
+        }
+
         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
@@ -57,17 +52,15 @@ impl rust_fel::Component for handle::Handle<Main> {
         let mut clone2 = self.clone();
         let mut borrow = self.0.borrow_mut();
         let state = borrow.state.clone();
-        let closure = Rc::new(RefCell::new(move || clone2.set_state(1000)));
+        let closure = Rc::new(RefCell::new(move || clone2.reduce_state(Action::Decrement)));
 
         let child_props = ChildProps {
-            vec_props: state.vec_state.clone(),
-            string_props: state.i32_state.to_string(),
+            string_props: state.to_string(),
             closure: Some(closure),
         };
 
         let child_sibling_props = MainSiblingChildProps {
-            vec_props: state.vec_state.clone(),
-            string_props: state.i32_state.to_string(),
+            string_props: state.to_string(),
         };
 
         borrow.child.add_props(child_props);
@@ -76,7 +69,7 @@ impl rust_fel::Component for handle::Handle<Main> {
         let main_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!("Hi, From Main {}", state.i32_state.to_string())),
+                text: Some(format!("Hi, From Main {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -90,7 +83,7 @@ impl rust_fel::Component for handle::Handle<Main> {
         let more_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!("Hi, From More {}", state.i32_state.to_string())),
+                text: Some(format!("Hi, From More {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -106,7 +99,7 @@ impl rust_fel::Component for handle::Handle<Main> {
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(borrow.id.clone()),
-                mouse: Some(Box::new(move || clone.set_state(2))),
+                mouse: Some(Box::new(move || clone.reduce_state(Action::Increment))),
                 class_name: Some("main".to_owned()),
                 children: Some(vec![
                     main_el,

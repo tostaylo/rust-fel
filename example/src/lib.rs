@@ -1,3 +1,4 @@
+mod action;
 mod grand_child;
 mod handle;
 mod js;
@@ -13,10 +14,10 @@ extern crate rust_fel;
 // Called when the wasm module is instantiated
 #[wasm_bindgen(start)]
 pub fn main() -> Result<(), JsValue> {
-  console_error_panic_hook::set_once();
-  let main = Main::create();
-  let app = rust_fel::App::new(main);
-  app.mount();
+    console_error_panic_hook::set_once();
+    let main = Main::create();
+    let app = rust_fel::App::new(main);
+    app.mount();
 
-  Ok(())
+    Ok(())
 }

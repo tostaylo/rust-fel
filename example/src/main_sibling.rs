@@ -1,3 +1,4 @@
+use crate::action::Action;
 use crate::handle;
 use crate::text_wrapper::text_wrapper;
 use rust_fel;
@@ -6,7 +7,6 @@ use std::rc::Rc;
 
 #[derive(Debug, Default, Clone)]
 pub struct ChildProps {
-    pub vec_props: Vec<String>,
     pub string_props: String,
 }
 
@@ -29,15 +29,19 @@ impl MainSibling {
 
 impl rust_fel::Component for handle::Handle<MainSibling> {
     type Properties = ChildProps;
-    type Message = String;
+    type Message = Action;
     type State = i32;
 
     fn add_props(&mut self, props: Self::Properties) {
         self.0.borrow_mut().props = props;
     }
 
-    fn set_state(&mut self, new_count: Self::State) {
-        self.0.borrow_mut().state += new_count;
+    fn reduce_state(&mut self, message: Action) {
+        match message {
+            Action::Increment => self.0.borrow_mut().state += 5,
+            Action::Decrement => self.0.borrow_mut().state -= 5,
+        }
+
         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
     }
 
@@ -81,22 +85,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             Some("main-text".to_owned()),
         );
 
-        let closure = move || clone.set_state(2);
-
-        let vec_text_elements = borrow
-            .props
-            .vec_props
-            .iter()
-            .map(|item| {
-                rust_fel::create_element(
-                    "TEXT_ELEMENT".to_owned(),
-                    rust_fel::Props {
-                        text: Some(format!(" {:?}", item)),
-                        ..Default::default()
-                    },
-                )
-            })
-            .collect::<Vec<rust_fel::Element>>();
+        let closure = move || clone.reduce_state(Action::Decrement);
 
         let extra_text = rust_fel::create_element(
             "TEXT_ELEMENT".to_owned(),
@@ -116,23 +105,13 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             Some("main-text".to_owned()),
         );
 
-        let vec_element = rust_fel::create_element(
-            "div".to_owned(),
-            rust_fel::Props {
-                on_click: Some(Box::new(closure.clone())),
-                class_name: Some("main-text".to_owned()),
-                children: Some(vec_text_elements),
-                ..Default::default()
-            },
-        );
-
         let main = rust_fel::create_element(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_el, more_el, vec_element, extra_el]),
+                children: Some(vec![main_el, more_el, extra_el]),
                 ..Default::default()
             },
         );
