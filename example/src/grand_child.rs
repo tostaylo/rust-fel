@@ -70,6 +70,16 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
                 ..Default::default()
             },
         );
+        let anchor = rust_fel::create_element(
+            "a".to_owned(),
+            rust_fel::Props {
+                href: Some("https://www.google.com".to_owned()),
+                children: Some(vec![rust_fel::html(
+                    "<span |class=anchor|>Anchor</span>".to_owned(),
+                )]),
+                ..Default::default()
+            },
+        );
 
         let more_el = text_wrapper(
             "div".to_owned(),
@@ -131,7 +141,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
               <h1 |class=grandchild-html|>
                 <h2 |class=grandchild-html|>Are we parsing yet?</h2>
                 <h3 |class=grandchild-html|>
-                  <h4 |class=grandchild-html|>Last Little Guy Here</h4>
+                  <a |class=grandchild-html href=https://www.google.com |>Last Little Guy Here</a>
                 </h3>
               </h1>
             </h5>"
@@ -144,7 +154,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
                 id: Some(self.0.borrow().id.clone()),
                 mouse: Some(Box::new(closure.clone())),
                 class_name: Some("grand-child".to_owned()),
-                children: Some(vec![grand_el, more_el, vec_element, extra_el, html]),
+                children: Some(vec![grand_el, more_el, vec_element, extra_el, html, anchor]),
                 ..Default::default()
             },
         );

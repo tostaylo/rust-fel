@@ -10,6 +10,7 @@ pub struct Props {
     pub mouse: Option<ClosureProp>,
     pub class_name: Option<String>,
     pub id: Option<String>,
+    pub href: Option<String>,
 }
 
 impl fmt::Debug for Props {
@@ -27,6 +28,7 @@ impl Default for Props {
             class_name: None,
             id: None,
             mouse: None,
+            href: None,
         }
     }
 }

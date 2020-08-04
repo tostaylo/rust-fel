@@ -27,6 +27,15 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
+        match rustact_element.props.href {
+            Some(href) => {
+                dom_el
+                    .set_attribute("href", &href)
+                    .expect("could not set href");
+            }
+            None => (),
+        }
+
         match rustact_element.props.on_click {
             Some(mut on_click) => {
                 let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);

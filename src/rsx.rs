@@ -73,12 +73,14 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                 }
 
                 let mut class_name = None;
+                let mut href = None;
                 if attributes.len() >= 1 {
                     let attributes_split = attributes.split(" ").filter(|s| !s.is_empty());
                     for attribute in attributes_split {
                         let attr = attribute.split("=").collect::<Vec<&str>>();
                         match attr[0] {
                             "class" => class_name = Some(attr[1].to_owned()),
+                            "href" => href = Some(attr[1].to_owned()),
                             // Try Rc<RefCell>attribute handlers at the top of this function.
                             // match attribute handlers borrow_mut()
                             // "on_click" => {
@@ -98,6 +100,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                 arena_tree.insert(Node {
                     element_type: element_type.clone(),
                     class_name,
+                    href,
                     ..Default::default()
                 });
                 stack.push(StackElement {
@@ -171,11 +174,28 @@ pub fn is_correct_html() {
 
 pub fn is_correct_attributes() {
     let arena_tree = parse_with_stack(
-        "<div |class=classname on_click=onclick|><div>here is some text</div></div>".to_owned(),
+        "<div |class=classname href=https://www.google.com |><div |class=hi href=https://www.googles.com |>here is some text</div></div>"
+            .to_owned(),
     );
     assert_eq!(
         arena_tree.arena[0].class_name.as_ref().unwrap(),
         &"classname".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[0].href.as_ref().unwrap(),
+        &"https://www.google.com".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[1].class_name.as_ref().unwrap(),
+        &"hi".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[1].href.as_ref().unwrap(),
+        &"https://www.googles.com".to_owned()
+    );
+    assert_ne!(
+        arena_tree.arena[1].href.as_ref().unwrap(),
+        &"https://www.google.com".to_owned()
     );
 }
 
@@ -235,12 +255,18 @@ impl CreateElement for ArenaTree {
                 Some(x) => Some(x.to_owned()),
                 None => None,
             };
+
+            let href = match &node.href {
+                Some(x) => Some(x.to_owned()),
+                None => None,
+            };
             let new_el = Element {
                 html_type: node.element_type.clone(),
                 props: Props {
                     children: children(node, arena),
                     text,
                     class_name,
+                    href,
                     ..Default::default()
                 },
             };
@@ -262,6 +288,7 @@ struct Node {
     children: Vec<usize>,
     text: Option<String>,
     class_name: Option<String>,
+    href: Option<String>,
     // on_click: Option<ClosureProp>,
 }
 
