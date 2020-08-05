@@ -180,7 +180,6 @@ pub fn is_correct_html() {
 
 #[cfg(test)]
 #[test]
-
 pub fn is_correct_attributes() {
     let arena_tree = parse_with_stack(
         "<div |class=classname href=https://www.google.com |><div |class=hi href=https://www.googles.com |>here is some text</div></div>"

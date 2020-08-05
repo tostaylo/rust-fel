@@ -1,41 +1,18 @@
 .main {
 	display: flex;
 	flex-wrap: wrap;
-	justify-content: center;
+	justify-content: space-evenly;
 	border: 1px solid black;
 }
 
 .main-text {
-	box-sizing: border-box;
-	height: 100px;
-	margin: 10px 0;
-	width: 90%;
-	display: flex;
-	justify-content: center;
-	align-items: center;
-	border: 1px solid red;
 }
 
 .main-child {
-	display: flex;
-	justify-content: flex-start;
-	flex-direction: column;
-	align-items: center;
-	background: lightgray;
-	width: 40%;
-	border: 1px solid green;
 }
 
 .grand-child {
-	display: flex;
-	width: 90%;
-	justify-content: center;
-	flex-direction: column;
-	align-items: center;
-	background: lightyellow;
-	border: 1px solid black;
 }
 
 .grandchild-html {
-	background: red;
 }

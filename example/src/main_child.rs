@@ -89,36 +89,6 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Hi, From Main Child More {}", state.to_string())),
-                ..Default::default()
-            },
-        );
-
-        let more_el = text_wrapper(
-            "div".to_owned(),
-            Some(vec![more_text]),
-            None,
-            Some("main-text".to_owned()),
-        );
-
-        let extra_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Hi, From Main Child Extra {:?}", borrow.props)),
-                ..Default::default()
-            },
-        );
-
-        let extra_el = text_wrapper(
-            "div".to_owned(),
-            Some(vec![extra_text]),
-            None,
-            Some("main-text".to_owned()),
-        );
-
         let grand_child_props = GrandChildProps {
             string_props: borrow.props.string_props.clone(),
         };
@@ -131,7 +101,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(on_click_closure),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_el, more_el, extra_el, child.render()]),
+                children: Some(vec![main_el, child.render()]),
                 ..Default::default()
             },
         );

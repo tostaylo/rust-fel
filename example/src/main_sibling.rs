@@ -67,43 +67,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!(
-                    "Hi, From Main Child Sibling More {}",
-                    borrow.state.to_string()
-                )),
-                ..Default::default()
-            },
-        );
-
-        let more_el = text_wrapper(
-            "div".to_owned(),
-            Some(vec![more_text]),
-            None,
-            Some("main-text".to_owned()),
-        );
-
         let closure = move || clone.reduce_state(Action::Decrement);
-
-        let extra_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!(
-                    "Hi, From Main Child Sibling Extra {:?}",
-                    borrow.props
-                )),
-                ..Default::default()
-            },
-        );
-
-        let extra_el = text_wrapper(
-            "div".to_owned(),
-            Some(vec![extra_text]),
-            None,
-            Some("main-text".to_owned()),
-        );
 
         let main = rust_fel::Element::new(
             "div".to_owned(),
@@ -111,7 +75,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
                 id: Some(self.0.borrow().id.clone()),
                 on_click: Some(Box::new(closure.clone())),
                 class_name: Some("main-child".to_owned()),
-                children: Some(vec![main_el, more_el, extra_el]),
+                children: Some(vec![main_el]),
                 ..Default::default()
             },
         );

@@ -80,21 +80,6 @@ impl rust_fel::Component for handle::Handle<Main> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Hi, From More {}", state.to_string())),
-                ..Default::default()
-            },
-        );
-
-        let more_el = text_wrapper(
-            "div".to_owned(),
-            Some(vec![more_text]),
-            None,
-            Some("main-text".to_owned()),
-        );
-
         let main = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
@@ -103,7 +88,6 @@ impl rust_fel::Component for handle::Handle<Main> {
                 class_name: Some("main".to_owned()),
                 children: Some(vec![
                     main_el,
-                    more_el,
                     borrow.child.render(),
                     borrow.child_sibling.render(),
                 ]),
