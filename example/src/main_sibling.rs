@@ -49,7 +49,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
-        let main_text = rust_fel::create_element(
+        let main_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!(
@@ -67,7 +67,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::create_element(
+        let more_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!(
@@ -87,7 +87,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
 
         let closure = move || clone.reduce_state(Action::Decrement);
 
-        let extra_text = rust_fel::create_element(
+        let extra_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!(
@@ -105,7 +105,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             Some("main-text".to_owned()),
         );
 
-        let main = rust_fel::create_element(
+        let main = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),

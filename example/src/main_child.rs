@@ -74,7 +74,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             child_closure();
         });
 
-        let main_text = rust_fel::create_element(
+        let main_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From Main Child {}", state.to_string())),
@@ -89,7 +89,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::create_element(
+        let more_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From Main Child More {}", state.to_string())),
@@ -104,7 +104,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             Some("main-text".to_owned()),
         );
 
-        let extra_text = rust_fel::create_element(
+        let extra_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From Main Child Extra {:?}", borrow.props)),
@@ -125,7 +125,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
 
         child.add_props(grand_child_props);
 
-        let main = rust_fel::create_element(
+        let main = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),

@@ -1,4 +1,4 @@
-use crate::element::{create_element, Element};
+use crate::element::Element;
 use crate::props::{ClosureProp, Props};
 
 pub fn wrapper(
@@ -15,7 +15,7 @@ pub fn wrapper(
             children = Some(vec![el]);
         }
         (None, Some(t)) => {
-            let text_el = create_element(
+            let text_el = Element::new(
                 "TEXT_ELEMENT".to_owned(),
                 Props {
                     text: Some(format!("{}", t)),
@@ -27,7 +27,7 @@ pub fn wrapper(
         _ => panic!("Have to have at least (text) or (elements) but not both."),
     };
 
-    create_element(
+    Element::new(
         html_type,
         Props {
             on_click,

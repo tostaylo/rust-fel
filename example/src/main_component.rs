@@ -66,7 +66,7 @@ impl rust_fel::Component for handle::Handle<Main> {
         borrow.child.add_props(child_props);
         borrow.child_sibling.add_props(child_sibling_props);
 
-        let main_text = rust_fel::create_element(
+        let main_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From Main {}", state.to_string())),
@@ -80,7 +80,7 @@ impl rust_fel::Component for handle::Handle<Main> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::create_element(
+        let more_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From More {}", state.to_string())),
@@ -95,7 +95,7 @@ impl rust_fel::Component for handle::Handle<Main> {
             Some("main-text".to_owned()),
         );
 
-        let main = rust_fel::create_element(
+        let main = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(borrow.id.clone()),

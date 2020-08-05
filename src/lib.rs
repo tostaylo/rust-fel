@@ -9,7 +9,7 @@ pub mod wrapper;
 
 pub use crate::app::App;
 pub use crate::component::Component;
-pub use crate::element::{create_element, Element};
+pub use crate::element::Element;
 pub use crate::js::log;
 pub use crate::props::{ClosureProp, Props};
 pub use crate::render::{re_render, render};

@@ -6,7 +6,7 @@ pub fn text_wrapper(
     on_click: Option<rust_fel::ClosureProp>,
     class_name: Option<String>,
 ) -> rust_fel::Element {
-    let text_container = rust_fel::create_element(
+    let text_container = rust_fel::Element::new(
         html_type,
         rust_fel::Props {
             on_click,

@@ -49,7 +49,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
-        let grand_text = rust_fel::create_element(
+        let grand_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From grand Child {}", borrow.state.to_string())),
@@ -64,7 +64,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
             Some("main-text".to_owned()),
         );
 
-        let more_text = rust_fel::create_element(
+        let more_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!(
@@ -74,7 +74,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
                 ..Default::default()
             },
         );
-        let anchor = rust_fel::create_element(
+        let anchor = rust_fel::Element::new(
             "a".to_owned(),
             rust_fel::Props {
                 href: Some("https://www.google.com".to_owned()),
@@ -94,7 +94,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
 
         let closure = move || clone.reduce_state(Action::Decrement);
 
-        let extra_text = rust_fel::create_element(
+        let extra_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
                 text: Some(format!("Hi, From grand Child Extra {:?}", borrow.props)),
@@ -127,7 +127,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
                 .to_owned(),
         );
 
-        let grand = rust_fel::create_element(
+        let grand = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
