@@ -75,6 +75,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                 let mut class_name = None;
                 let mut href = None;
                 let mut src = None;
+                let mut role = None;
+                let mut type_attr = None;
                 if attributes.len() >= 1 {
                     let attributes_split = attributes.split(" ").filter(|s| !s.is_empty());
                     for attribute in attributes_split {
@@ -83,6 +85,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                             "class" => class_name = Some(attr[1].to_owned()),
                             "href" => href = Some(attr[1].to_owned()),
                             "src" => src = Some(attr[1].to_owned()),
+                            "role" => role = Some(attr[1].to_owned()),
+                            "type" => type_attr = Some(attr[1].to_owned()),
                             // Try Rc<RefCell>attribute handlers at the top of this function.
                             // match attribute handlers borrow_mut()
                             // "on_click" => {
@@ -104,6 +108,8 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                     class_name,
                     href,
                     src,
+                    role,
+                    type_attr,
                     ..Default::default()
                 });
                 stack.push(StackElement {
@@ -205,6 +211,24 @@ pub fn is_correct_attributes() {
         arena_tree.arena[0].src.as_ref().unwrap(),
         &"https://www.google.com".to_owned()
     );
+
+    let arena_tree = parse_with_stack("<button | type=button role=button |><button | type=button role=button |></button></button>".to_owned());
+    assert_eq!(
+        arena_tree.arena[0].type_attr.as_ref().unwrap(),
+        &"button".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[0].role.as_ref().unwrap(),
+        &"button".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[1].type_attr.as_ref().unwrap(),
+        &"button".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[1].role.as_ref().unwrap(),
+        &"button".to_owned()
+    );
 }
 
 pub fn html(html_string: String) -> Element {
@@ -273,6 +297,17 @@ impl CreateElement for ArenaTree {
                 Some(x) => Some(x.to_owned()),
                 None => None,
             };
+
+            let type_attr = match &node.type_attr {
+                Some(x) => Some(x.to_owned()),
+                None => None,
+            };
+
+            let role = match &node.role {
+                Some(x) => Some(x.to_owned()),
+                None => None,
+            };
+
             let new_el = Element {
                 html_type: node.element_type.clone(),
                 props: Props {
@@ -281,6 +316,8 @@ impl CreateElement for ArenaTree {
                     class_name,
                     href,
                     src,
+                    type_attr,
+                    role,
                     ..Default::default()
                 },
             };
@@ -304,6 +341,8 @@ struct Node {
     class_name: Option<String>,
     href: Option<String>,
     src: Option<String>,
+    type_attr: Option<String>,
+    role: Option<String>,
     // on_click: Option<ClosureProp>,
 }
 

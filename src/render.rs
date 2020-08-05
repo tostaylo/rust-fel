@@ -45,6 +45,24 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
+        match rustact_element.props.type_attr {
+            Some(type_attr) => {
+                dom_el
+                    .set_attribute("type", &type_attr)
+                    .expect("could not set type");
+            }
+            None => (),
+        }
+
+        match rustact_element.props.role {
+            Some(role) => {
+                dom_el
+                    .set_attribute("role", &role)
+                    .expect("could not set role");
+            }
+            None => (),
+        }
+
         match rustact_element.props.on_click {
             Some(mut on_click) => {
                 let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);

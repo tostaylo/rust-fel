@@ -12,6 +12,8 @@ pub struct Props {
     pub id: Option<String>,
     pub href: Option<String>,
     pub src: Option<String>,
+    pub type_attr: Option<String>,
+    pub role: Option<String>,
 }
 
 impl fmt::Debug for Props {
@@ -31,6 +33,8 @@ impl Default for Props {
             mouse: None,
             href: None,
             src: None,
+            type_attr: None,
+            role: None,
         }
     }
 }
