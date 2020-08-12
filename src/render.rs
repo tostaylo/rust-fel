@@ -4,12 +4,34 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bool) {
+/// Recursively builds a DOM tree.
+///
+/// # Arguments
+///
+/// * `rust_fel_element` - A [rust_fel::Element](../element/struct.Element.html)
+/// * `container` - A reference to a [web_sys::Node](https://docs.rs/web-sys/0.3.21/web_sys/struct.Node.html)
+/// * `is_update` - A boolean allowing the function to differentiate between first mount of the application and subsequent updates.
+///
+/// # Examples
+/// Taken from [rust_fel::App::{mount}](../app/struct.App.html#method.mount)  
+/// ```
+///  let el = self.component.render();
+///  let window = web_sys::window().expect("no global `window` exists");
+///  let document = window.document().expect("should have a document on window");
+///
+///  let root_node = document
+///      .get_element_by_id("root")
+///      .expect("should have a root div");
+///
+///  render(el, &root_node, false);
+/// ```
+
+pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: bool) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
-    if rustact_element.html_type == "TEXT_ELEMENT" {
-        match rustact_element.props.text {
+    if rust_fel_element.html_type == "TEXT_ELEMENT" {
+        match rust_fel_element.props.text {
             Some(text) => {
                 container
                     .append_child(&document.create_text_node(&text))
@@ -18,16 +40,18 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         };
     } else {
-        let dom_el = document.create_element(&rustact_element.html_type).unwrap();
+        let dom_el = document
+            .create_element(&rust_fel_element.html_type)
+            .unwrap();
 
-        match rustact_element.props.class_name {
+        match rust_fel_element.props.class_name {
             Some(class_name) => {
                 dom_el.set_class_name(&class_name);
             }
             None => (),
         }
 
-        match rustact_element.props.href {
+        match rust_fel_element.props.href {
             Some(href) => {
                 dom_el
                     .set_attribute("href", &href)
@@ -36,7 +60,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
-        match rustact_element.props.src {
+        match rust_fel_element.props.src {
             Some(src) => {
                 dom_el
                     .set_attribute("src", &src)
@@ -45,7 +69,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
-        match rustact_element.props.type_attr {
+        match rust_fel_element.props.type_attr {
             Some(type_attr) => {
                 dom_el
                     .set_attribute("type", &type_attr)
@@ -54,7 +78,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
-        match rustact_element.props.role {
+        match rust_fel_element.props.role {
             Some(role) => {
                 dom_el
                     .set_attribute("role", &role)
@@ -63,7 +87,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
-        match rustact_element.props.on_click {
+        match rust_fel_element.props.on_click {
             Some(mut on_click) => {
                 let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);
                 dom_el
@@ -75,7 +99,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
             None => (),
         }
 
-        match rustact_element.props.mouse {
+        match rust_fel_element.props.mouse {
             Some(mut mouse) => {
                 let closure = Closure::wrap(Box::new(move || mouse()) as ClosureProp);
                 dom_el
@@ -89,7 +113,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
         }
 
         let mut id_copy = None;
-        match rustact_element.props.id {
+        match rust_fel_element.props.id {
             Some(id) => {
                 dom_el.set_id(&id);
 
@@ -130,7 +154,7 @@ pub fn render(rustact_element: Element, container: &web_sys::Node, is_update: bo
                 .expect("couldn't append child");
         };
 
-        match rustact_element.props.children {
+        match rust_fel_element.props.children {
             Some(children) => {
                 for child in children {
                     render(child, &dom, false)
