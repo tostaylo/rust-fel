@@ -1,7 +1,6 @@
 use crate::action::Action;
 use crate::grand_child::{ChildProps as GrandChildProps, GrandChild};
 use crate::handle;
-use crate::text_wrapper::text_wrapper;
 use rust_fel;
 use std::cell::RefCell;
 use std::fmt;
@@ -82,13 +81,13 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             },
         );
 
-        let main_el = text_wrapper(
+        let main_el = rust_fel::Element::new(
             "div".to_owned(),
-            Some(vec![main_text]),
-            None,
-            Some("main-text".to_owned()),
+            rust_fel::Props {
+                children: Some(vec![main_text]),
+                ..Default::default()
+            },
         );
-
         let grand_child_props = GrandChildProps {
             string_props: borrow.props.string_props.clone(),
         };

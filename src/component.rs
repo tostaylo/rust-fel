@@ -8,5 +8,4 @@ pub trait Component: Sized + 'static {
     fn render(&self) -> Element;
     fn reduce_state(&mut self, message: Self::Message);
     fn add_props(&mut self, props: Self::Properties);
-    // fn receive_update(&mut self, message: Self::Message);
 }

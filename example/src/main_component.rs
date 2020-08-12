@@ -2,7 +2,6 @@ use crate::action::Action;
 use crate::handle;
 use crate::main_child::{ChildProps, MainChild};
 use crate::main_sibling::{ChildProps as MainSiblingChildProps, MainSibling};
-use crate::text_wrapper::text_wrapper;
 use rust_fel;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -73,11 +72,12 @@ impl rust_fel::Component for handle::Handle<Main> {
                 ..Default::default()
             },
         );
-        let main_el = text_wrapper(
+        let main_el = rust_fel::Element::new(
             "div".to_owned(),
-            Some(vec![main_text]),
-            None,
-            Some("main-text".to_owned()),
+            rust_fel::Props {
+                children: Some(vec![main_text]),
+                ..Default::default()
+            },
         );
 
         let main = rust_fel::Element::new(

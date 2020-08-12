@@ -5,7 +5,6 @@ mod js;
 mod main_child;
 mod main_component;
 mod main_sibling;
-mod text_wrapper;
 use crate::main_component::Main;
 use wasm_bindgen::prelude::*;
 extern crate console_error_panic_hook;

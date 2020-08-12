@@ -1,6 +1,5 @@
 use crate::action::Action;
 use crate::handle;
-use crate::text_wrapper::text_wrapper;
 use rust_fel;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -57,11 +56,12 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
             },
         );
 
-        let grand_el = text_wrapper(
+        let grand_el = rust_fel::Element::new(
             "div".to_owned(),
-            Some(vec![grand_text]),
-            None,
-            Some("main-text".to_owned()),
+            rust_fel::Props {
+                children: Some(vec![grand_text]),
+                ..Default::default()
+            },
         );
 
         let anchor = rust_fel::Element::new(
