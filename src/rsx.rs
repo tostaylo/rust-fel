@@ -8,8 +8,8 @@ struct StackElement {
     arena_position: usize,
 }
 
-// Can I make a parser struct that's not coupled to arena tree?
-// Input has to have a wrapper div.
+// Input has to have a wrapper el.
+// Text needs wrappers as well
 pub fn parse_with_stack(html_string: String) -> ArenaTree {
     let mut tokens = html_string.chars().peekable();
     let mut element_type: String = String::new();

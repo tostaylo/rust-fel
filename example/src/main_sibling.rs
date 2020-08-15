@@ -73,7 +73,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(Box::new(closure.clone())),
+                on_click: Some(Box::new(closure)),
                 class_name: Some("main-child".to_owned()),
                 children: Some(vec![main_el]),
                 ..Default::default()

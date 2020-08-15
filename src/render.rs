@@ -165,7 +165,28 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
     }
 }
 
-pub fn re_render(app: Element, id: Option<String>) {
+/// After first mount this funtion will update the virtual DOM and then the real DOM.
+/// It differs from render in that render is only used in mount of the app
+/// # Arguments
+///
+/// * `rust_fel_element` - A [rust_fel::Element](../element/struct.Element.html)
+/// * `id` - A [String](https://doc.rust-lang.org/std/string/struct.String.html) wrapped in an [Option](https://doc.rust-lang.org/std/option/enum.Option.html)
+///
+/// # Examples
+/// ```
+/// // Used when a rust_fel struct component updates it's state and wants to propagate the changes
+/// // to it's children
+///    fn reduce_state(&mut self, message: Action) {
+///       match message {
+///             Action::Increment => self.0.borrow_mut().state += 5,
+///             Action::Decrement => self.0.borrow_mut().state -= 5,
+///         }
+///
+///         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
+///     }
+/// ```
+
+pub fn re_render(rust_fel_element: Element, id: Option<String>) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
     if let Some(i) = id {
@@ -175,7 +196,7 @@ pub fn re_render(app: Element, id: Option<String>) {
 
         let parent = child.parent_node().unwrap();
 
-        render(app, &parent, true);
+        render(rust_fel_element, &parent, true);
     } else {
         panic!("Components that initalize re-renders must have a Id");
     }
