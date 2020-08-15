@@ -59,22 +59,37 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
             "<p><span>Text From Main : </span><span>{}</span></p>",
             borrow.props.input_props
         ));
-        let grand_el = rust_fel::Element::new(
-            "div".to_owned(),
+
+        let closure = move || clone.reduce_state(Action::Decrement);
+        let inc_button_text = rust_fel::Element::new(
+            "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                children: Some(vec![grand_text, props_html]),
-                class_name: Some("main-el".to_owned()),
+                text: Some("Increment".to_owned()),
                 ..Default::default()
             },
         );
 
-        let closure = move || clone.reduce_state(Action::Decrement);
+        let inc_button = rust_fel::Element::new(
+            "button".to_owned(),
+            rust_fel::Props {
+                on_click: Some(Box::new(closure)),
+                children: Some(vec![inc_button_text]),
+                ..Default::default()
+            },
+        );
 
+        let grand_el = rust_fel::Element::new(
+            "div".to_owned(),
+            rust_fel::Props {
+                children: Some(vec![grand_text, inc_button, props_html]),
+                class_name: Some("main-el".to_owned()),
+                ..Default::default()
+            },
+        );
         let grand = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
-                mouse: Some(Box::new(closure.clone())),
                 class_name: Some("grand-child".to_owned()),
                 children: Some(vec![grand_el]),
                 ..Default::default()

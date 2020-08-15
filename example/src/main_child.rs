@@ -123,7 +123,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
         let button_wrapper = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
-                children: Some(vec![send_button, inc_button]),
+                children: Some(vec![inc_button, send_button]),
                 ..Default::default()
             },
         );
