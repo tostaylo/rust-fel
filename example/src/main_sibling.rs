@@ -51,10 +51,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
         let main_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!(
-                    "Hi, From Main Child Sibling {}",
-                    borrow.state.to_string()
-                )),
+                text: Some(format!("Main Child Sibling {}", borrow.state.to_string())),
                 ..Default::default()
             },
         );

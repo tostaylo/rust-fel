@@ -1,8 +1,7 @@
 use crate::action::Action;
 use crate::handle;
-use crate::js::log;
 use crate::main_child::{ChildProps, MainChild};
-use crate::main_sibling::{ChildProps as MainSiblingChildProps, MainSibling};
+use crate::main_sibling::MainSibling;
 use rust_fel;
 use std::cell::RefCell;
 use std::rc::Rc;
@@ -85,25 +84,17 @@ impl rust_fel::Component for handle::Handle<Main> {
         }));
 
         let child_props = ChildProps {
-            string_props: state.count.to_string(),
+            input_props: state.input_val.clone(),
+            counter_props: state.count.to_string(),
             closure: Some(closure),
         };
 
-        let child_sibling_props = MainSiblingChildProps {
-            string_props: state.count.to_string(),
-        };
-
         borrow.child.add_props(child_props);
-        borrow.child_sibling.add_props(child_sibling_props);
 
         let main_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!(
-                    "Hi, From Main {} {}",
-                    state.count.to_string(),
-                    state.input_val
-                )),
+                text: Some(format!("Main {}", state.count.to_string(),)),
                 ..Default::default()
             },
         );
@@ -148,7 +139,16 @@ impl rust_fel::Component for handle::Handle<Main> {
         let main_el = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
+                class_name: Some("main-el".to_owned()),
                 children: Some(vec![main_text, inc_button, input, send_button]),
+                ..Default::default()
+            },
+        );
+        let child_wrapper = rust_fel::Element::new(
+            "div".to_owned(),
+            rust_fel::Props {
+                class_name: Some("child-wrapper".to_owned()),
+                children: Some(vec![borrow.child.render(), borrow.child_sibling.render()]),
                 ..Default::default()
             },
         );
@@ -158,11 +158,7 @@ impl rust_fel::Component for handle::Handle<Main> {
             rust_fel::Props {
                 id: Some(borrow.id.clone()),
                 class_name: Some("main".to_owned()),
-                children: Some(vec![
-                    main_el,
-                    borrow.child.render(),
-                    borrow.child_sibling.render(),
-                ]),
+                children: Some(vec![main_el, child_wrapper]),
                 ..Default::default()
             },
         );

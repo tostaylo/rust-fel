@@ -5,14 +5,14 @@ use std::cell::RefCell;
 use std::rc::Rc;
 
 #[derive(Debug, Default, Clone)]
-pub struct ChildProps {
-    pub string_props: String,
+pub struct GCProps {
+    pub input_props: String,
 }
 
 #[derive(Debug, Default, Clone)]
 pub struct GrandChild {
     state: i32,
-    props: ChildProps,
+    props: GCProps,
     id: String,
 }
 
@@ -27,7 +27,7 @@ impl GrandChild {
 }
 
 impl rust_fel::Component for handle::Handle<GrandChild> {
-    type Properties = ChildProps;
+    type Properties = GCProps;
     type Message = Action;
     type State = i32;
 
@@ -51,7 +51,11 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
         let grand_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!("Hi, From grand Child {}", borrow.state.to_string())),
+                text: Some(format!(
+                    "Grand Child {} {}",
+                    borrow.state.to_string(),
+                    borrow.props.input_props
+                )),
                 ..Default::default()
             },
         );
@@ -64,36 +68,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
             },
         );
 
-        let anchor = rust_fel::Element::new(
-            "a".to_owned(),
-            rust_fel::Props {
-                href: Some("https://www.google.com".to_owned()),
-                children: Some(vec![rust_fel::html(
-                    "<span |class=anchor|>Anchor</span>".to_owned(),
-                )]),
-                ..Default::default()
-            },
-        );
-
         let closure = move || clone.reduce_state(Action::Decrement);
-
-        let html = rust_fel::html(
-            "<h5 |class=grandchild-html|>
-              <span |class=grandchild-html|>
-                <span |class=grandchild-html|>
-                  <p |class=grandchild-html|>From a P</p>
-                </span>
-              </span>
-              <h1 |class=grandchild-html|>From an h1</h1>
-              <h1 |class=grandchild-html|>
-                <h2 |class=grandchild-html|>Are we parsing yet?</h2>
-                <h3 |class=grandchild-html|>
-                  <a |class=grandchild-html href=https://www.google.com |>Last Little Guy Here</a>
-                </h3>
-              </h1>
-            </h5>"
-                .to_owned(),
-        );
 
         let grand = rust_fel::Element::new(
             "div".to_owned(),
@@ -101,7 +76,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
                 id: Some(self.0.borrow().id.clone()),
                 mouse: Some(Box::new(closure.clone())),
                 class_name: Some("grand-child".to_owned()),
-                children: Some(vec![grand_el, html, anchor]),
+                children: Some(vec![grand_el]),
                 ..Default::default()
             },
         );

@@ -1,5 +1,5 @@
 use crate::action::Action;
-use crate::grand_child::{ChildProps as GrandChildProps, GrandChild};
+use crate::grand_child::{GCProps, GrandChild};
 use crate::handle;
 use rust_fel;
 use std::cell::RefCell;
@@ -9,7 +9,8 @@ use std::rc::Rc;
 
 #[derive(Default, Clone)]
 pub struct ChildProps {
-    pub string_props: String,
+    pub input_props: String,
+    pub counter_props: String,
     pub closure: Option<Rc<RefCell<dyn FnMut()>>>,
 }
 
@@ -23,7 +24,7 @@ pub struct MainChild {
 
 impl fmt::Debug for ChildProps {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#?} this is a mainchild props", self.string_props)
+        write!(f, "{:#?} this is a mainchild props", self.counter_props)
     }
 }
 
@@ -76,7 +77,7 @@ impl rust_fel::Component for handle::Handle<MainChild> {
         let main_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!("Hi, From Main Child {}", state.to_string())),
+                text: Some(format!("Main Child {}", state.to_string())),
                 ..Default::default()
             },
         );
@@ -88,8 +89,8 @@ impl rust_fel::Component for handle::Handle<MainChild> {
                 ..Default::default()
             },
         );
-        let grand_child_props = GrandChildProps {
-            string_props: borrow.props.string_props.clone(),
+        let grand_child_props = GCProps {
+            input_props: borrow.props.input_props.clone(),
         };
 
         child.add_props(grand_child_props);
