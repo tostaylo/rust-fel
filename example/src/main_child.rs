@@ -50,8 +50,8 @@ impl rust_fel::Component for handle::Handle<MainChild> {
 
     fn reduce_state(&mut self, message: Action) {
         match message {
-            Action::Increment => self.0.borrow_mut().state += 20,
-            Action::Decrement => self.0.borrow_mut().state -= 20,
+            Action::Increment => self.0.borrow_mut().state += 1,
+            Action::Decrement => self.0.borrow_mut().state -= 1,
         }
 
         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
@@ -65,13 +65,12 @@ impl rust_fel::Component for handle::Handle<MainChild> {
         let borrow_clone = borrow.clone();
         let closure_prop = borrow_clone.props.closure.unwrap();
         let rc_closure_prop = Rc::clone(&closure_prop);
-        let mut child_closure = move || clone.reduce_state(Action::Decrement);
+        let mut child_closure = move || clone.reduce_state(Action::Increment);
 
         let on_click_closure = Box::new(move || {
             let mut reference = rc_closure_prop.borrow_mut();
             let deref = reference.deref_mut();
             deref();
-            child_closure();
         });
 
         let main_text = rust_fel::Element::new(
@@ -82,24 +81,64 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             },
         );
 
-        let main_el = rust_fel::Element::new(
-            "div".to_owned(),
-            rust_fel::Props {
-                children: Some(vec![main_text]),
-                ..Default::default()
-            },
-        );
         let grand_child_props = GCProps {
             input_props: borrow.props.input_props.clone(),
         };
 
         child.add_props(grand_child_props);
 
+        let inc_button_text = rust_fel::Element::new(
+            "TEXT_ELEMENT".to_owned(),
+            rust_fel::Props {
+                text: Some("Increment".to_owned()),
+                ..Default::default()
+            },
+        );
+
+        let send_button_text = rust_fel::Element::new(
+            "TEXT_ELEMENT".to_owned(),
+            rust_fel::Props {
+                text: Some("Update Parent".to_owned()),
+                ..Default::default()
+            },
+        );
+
+        let inc_button = rust_fel::Element::new(
+            "button".to_owned(),
+            rust_fel::Props {
+                on_click: Some(Box::new(move || child_closure())),
+                children: Some(vec![inc_button_text]),
+                ..Default::default()
+            },
+        );
+
+        let send_button = rust_fel::Element::new(
+            "button".to_owned(),
+            rust_fel::Props {
+                on_click: Some(on_click_closure),
+                children: Some(vec![send_button_text]),
+                ..Default::default()
+            },
+        );
+        let button_wrapper = rust_fel::Element::new(
+            "div".to_owned(),
+            rust_fel::Props {
+                children: Some(vec![send_button, inc_button]),
+                ..Default::default()
+            },
+        );
+        let main_el = rust_fel::Element::new(
+            "div".to_owned(),
+            rust_fel::Props {
+                class_name: Some("main-el".to_owned()),
+                children: Some(vec![main_text, button_wrapper]),
+                ..Default::default()
+            },
+        );
         let main = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(on_click_closure),
                 class_name: Some("main-child".to_owned()),
                 children: Some(vec![main_el, child.render()]),
                 ..Default::default()

@@ -126,8 +126,6 @@ impl rust_fel::Component for handle::Handle<Main> {
             },
         );
 
-        let input = rust_fel::html("<input | id=input-el type=text |></input>".to_owned());
-
         let send_button = rust_fel::Element::new(
             "button".to_owned(),
             rust_fel::Props {
@@ -136,11 +134,21 @@ impl rust_fel::Component for handle::Handle<Main> {
                 ..Default::default()
             },
         );
+
+        let input = rust_fel::html("<input | id=input-el type=text |></input>".to_owned());
+        let input_wrapper = rust_fel::Element::new(
+            "div".to_owned(),
+            rust_fel::Props {
+                class_name: Some("input-wrapper".to_owned()),
+                children: Some(vec![input, send_button]),
+                ..Default::default()
+            },
+        );
         let main_el = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 class_name: Some("main-el".to_owned()),
-                children: Some(vec![main_text, inc_button, input, send_button]),
+                children: Some(vec![main_text, inc_button, input_wrapper]),
                 ..Default::default()
             },
         );

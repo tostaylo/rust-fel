@@ -37,8 +37,8 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
 
     fn reduce_state(&mut self, message: Action) {
         match message {
-            Action::Increment => self.0.borrow_mut().state += 1000,
-            Action::Decrement => self.0.borrow_mut().state -= 1000,
+            Action::Increment => self.0.borrow_mut().state += 1,
+            Action::Decrement => self.0.borrow_mut().state -= 1,
         }
 
         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
@@ -51,19 +51,19 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
         let grand_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some(format!(
-                    "Grand Child {} {}",
-                    borrow.state.to_string(),
-                    borrow.props.input_props
-                )),
+                text: Some(format!("Grand Child {}", borrow.state.to_string(),)),
                 ..Default::default()
             },
         );
-
+        let props_html = rust_fel::html(format!(
+            "<p><span>Text From Main : </span><span>{}</span></p>",
+            borrow.props.input_props
+        ));
         let grand_el = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
-                children: Some(vec![grand_text]),
+                children: Some(vec![grand_text, props_html]),
+                class_name: Some("main-el".to_owned()),
                 ..Default::default()
             },
         );

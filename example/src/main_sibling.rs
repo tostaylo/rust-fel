@@ -37,8 +37,8 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
 
     fn reduce_state(&mut self, message: Action) {
         match message {
-            Action::Increment => self.0.borrow_mut().state += 5,
-            Action::Decrement => self.0.borrow_mut().state -= 5,
+            Action::Increment => self.0.borrow_mut().state += 1,
+            Action::Decrement => self.0.borrow_mut().state -= 1,
         }
 
         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
@@ -56,21 +56,37 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             },
         );
 
-        let main_el = rust_fel::Element::new(
-            "div".to_owned(),
+        let closure = move || clone.reduce_state(Action::Increment);
+        let inc_button_text = rust_fel::Element::new(
+            "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                children: Some(vec![main_text]),
+                text: Some("Increment".to_owned()),
                 ..Default::default()
             },
         );
 
-        let closure = move || clone.reduce_state(Action::Decrement);
+        let inc_button = rust_fel::Element::new(
+            "button".to_owned(),
+            rust_fel::Props {
+                on_click: Some(Box::new(closure)),
+                children: Some(vec![inc_button_text]),
+                ..Default::default()
+            },
+        );
+
+        let main_el = rust_fel::Element::new(
+            "div".to_owned(),
+            rust_fel::Props {
+                class_name: Some("main-el".to_owned()),
+                children: Some(vec![main_text, inc_button]),
+                ..Default::default()
+            },
+        );
 
         let main = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
                 id: Some(self.0.borrow().id.clone()),
-                on_click: Some(Box::new(closure)),
                 class_name: Some("main-child".to_owned()),
                 children: Some(vec![main_el]),
                 ..Default::default()
