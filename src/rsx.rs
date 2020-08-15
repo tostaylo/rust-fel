@@ -74,6 +74,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
 
                 let mut class_name = None;
                 let mut href = None;
+                let mut id = None;
                 let mut src = None;
                 let mut role = None;
                 let mut type_attr = None;
@@ -87,6 +88,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                             "src" => src = Some(attr[1].to_owned()),
                             "role" => role = Some(attr[1].to_owned()),
                             "type" => type_attr = Some(attr[1].to_owned()),
+                            "id" => id = Some(attr[1].to_owned()),
                             // Try Rc<RefCell>attribute handlers at the top of this function.
                             // match attribute handlers borrow_mut()
                             // "on_click" => {
@@ -107,6 +109,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                     element_type: element_type.clone(),
                     class_name,
                     href,
+                    id,
                     src,
                     role,
                     type_attr,
@@ -292,6 +295,11 @@ impl CreateElement for ArenaTree {
                 None => None,
             };
 
+            let id = match &node.id {
+                Some(x) => Some(x.to_owned()),
+                None => None,
+            };
+
             let src = match &node.src {
                 Some(x) => Some(x.to_owned()),
                 None => None,
@@ -314,6 +322,7 @@ impl CreateElement for ArenaTree {
                     text,
                     class_name,
                     href,
+                    id,
                     src,
                     type_attr,
                     role,
@@ -337,6 +346,7 @@ struct Node {
     parent: usize,
     children: Vec<usize>,
     text: Option<String>,
+    id: Option<String>,
     class_name: Option<String>,
     href: Option<String>,
     src: Option<String>,

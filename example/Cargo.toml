@@ -8,9 +8,22 @@ edition = "2018"
 crate-type = ["cdylib"]
 
 [dependencies]
-wasm-bindgen = "0.2.62"
+wasm-bindgen = "0.2.67"
 console_error_panic_hook = "0.1.6"
 
 [dependencies.rust-fel]
 path = "../" 
 
+
+[dependencies.web-sys]
+version = "0.3.44"
+features = [
+  'Document', 
+  'Element',
+  'HtmlElement',
+  'HtmlInputElement',
+  'Node',
+  'NodeList',
+  'Window',
+  'Text',
+]
