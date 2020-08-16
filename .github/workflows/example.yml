@@ -19,8 +19,7 @@ jobs:
     name: Test Suite
     runs-on: ubuntu-latest
     working-directory: example
-    steps:  
-        working-directory: example
+    steps:
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -36,7 +35,6 @@ jobs:
     runs-on: ubuntu-latest
     working-directory: ./example
     steps:
-        working-directory: ./example
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
@@ -54,7 +52,6 @@ jobs:
     runs-on: ubuntu-latest
     working-directory: ../example
     steps:
-    working-directory: ../example
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
