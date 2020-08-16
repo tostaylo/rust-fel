@@ -74,6 +74,7 @@ jobs:
 
   cypress:
     defaults:
+      working-directory: ../example
       run:
         working-directory: ../example
     name: End-to-end tests
@@ -85,4 +86,3 @@ jobs:
       # and run all Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v2
-        working-directory: ../example
