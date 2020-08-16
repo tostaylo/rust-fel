@@ -48,13 +48,10 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
-        let main_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Main Child Sibling {}", borrow.state.to_string())),
-                ..Default::default()
-            },
-        );
+        let main_text = rust_fel::html(format!(
+            "<span | data-cy=main-child-sibling-text| >Main Child Sibling {}</span>",
+            borrow.state.to_string()
+        ));
 
         let closure = move || clone.reduce_state(Action::Increment);
         let inc_button_text = rust_fel::Element::new(
@@ -70,6 +67,7 @@ impl rust_fel::Component for handle::Handle<MainSibling> {
             rust_fel::Props {
                 on_click: Some(Box::new(closure)),
                 children: Some(vec![inc_button_text]),
+                data_cy: Some("increment-main-child-sibling".to_owned()),
                 ..Default::default()
             },
         );

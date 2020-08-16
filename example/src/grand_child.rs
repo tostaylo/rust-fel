@@ -48,32 +48,31 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
         let mut clone = self.clone();
         let borrow = self.0.borrow();
 
-        let grand_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Grand Child {}", borrow.state.to_string(),)),
-                ..Default::default()
-            },
-        );
+        let grand_text = rust_fel::html(format!(
+            "<span | data-cy=grandchild-text| >GrandChild {}</span>",
+            borrow.state.to_string()
+        ));
+
         let props_html = rust_fel::html(format!(
-            "<p><span>Text From Main : </span><span>{}</span></p>",
+            "<p><span>Text From Main: </span><span |data-cy=grandchild-props-text| >{}</span></p>",
             borrow.props.input_props
         ));
 
         let closure = move || clone.reduce_state(Action::Decrement);
-        let inc_button_text = rust_fel::Element::new(
+        let dec_button_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
-                text: Some("Increment".to_owned()),
+                text: Some("Decrement".to_owned()),
                 ..Default::default()
             },
         );
 
-        let inc_button = rust_fel::Element::new(
+        let dec_button = rust_fel::Element::new(
             "button".to_owned(),
             rust_fel::Props {
+                data_cy: Some("decrement-grandchild".to_owned()),
                 on_click: Some(Box::new(closure)),
-                children: Some(vec![inc_button_text]),
+                children: Some(vec![dec_button_text]),
                 ..Default::default()
             },
         );
@@ -81,7 +80,7 @@ impl rust_fel::Component for handle::Handle<GrandChild> {
         let grand_el = rust_fel::Element::new(
             "div".to_owned(),
             rust_fel::Props {
-                children: Some(vec![grand_text, inc_button, props_html]),
+                children: Some(vec![grand_text, dec_button, props_html]),
                 class_name: Some("main-el".to_owned()),
                 ..Default::default()
             },

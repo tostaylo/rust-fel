@@ -78,6 +78,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                 let mut src = None;
                 let mut role = None;
                 let mut type_attr = None;
+                let mut data_cy = None;
                 if attributes.len() >= 1 {
                     let attributes_split = attributes.split(" ").filter(|s| !s.is_empty());
                     for attribute in attributes_split {
@@ -89,6 +90,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                             "role" => role = Some(attr[1].to_owned()),
                             "type" => type_attr = Some(attr[1].to_owned()),
                             "id" => id = Some(attr[1].to_owned()),
+                            "data-cy" => data_cy = Some(attr[1].to_owned()),
                             // Try Rc<RefCell>attribute handlers at the top of this function.
                             // match attribute handlers borrow_mut()
                             // "on_click" => {
@@ -109,6 +111,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                     element_type: element_type.clone(),
                     class_name,
                     href,
+                    data_cy,
                     id,
                     src,
                     role,
@@ -231,13 +234,21 @@ pub fn is_correct_attributes() {
         arena_tree.arena[1].role.as_ref().unwrap(),
         &"button".to_owned()
     );
+    let arena_tree = parse_with_stack("<button | data-cy=cypress role=button |><button | data-cy=cypress type=button role=button |></button></button>".to_owned());
+    assert_eq!(
+        arena_tree.arena[0].data_cy.as_ref().unwrap(),
+        &"cypress".to_owned()
+    );
+    assert_eq!(
+        arena_tree.arena[1].data_cy.as_ref().unwrap(),
+        &"cypress".to_owned()
+    );
 }
 
 /// This is testable and documentable
 pub fn html(html_string: String) -> Element {
     let arena_tree = parse_with_stack(html_string);
-    let el = arena_tree.create_element_from_tree();
-    el
+    arena_tree.create_element_from_tree()
 }
 
 #[derive(Debug, Default)]
@@ -273,12 +284,12 @@ impl CreateElement for ArenaTree {
         let arena = &self.arena;
 
         fn children(node: &Node, arena: &Vec<Node>) -> Option<Vec<Element>> {
-            return Some(
+            Some(
                 node.children
                     .iter()
-                    .map(|child| return create(&arena[child.to_owned()], &arena))
+                    .map(|child| create(&arena[child.to_owned()], &arena))
                     .collect::<Vec<Element>>(),
-            );
+            )
         };
 
         fn create(node: &Node, arena: &Vec<Node>) -> Element {
@@ -293,6 +304,11 @@ impl CreateElement for ArenaTree {
             };
 
             let href = match &node.href {
+                Some(x) => Some(x.to_owned()),
+                None => None,
+            };
+
+            let data_cy = match &node.data_cy {
                 Some(x) => Some(x.to_owned()),
                 None => None,
             };
@@ -317,27 +333,24 @@ impl CreateElement for ArenaTree {
                 None => None,
             };
 
-            let new_el = Element {
+            Element {
                 html_type: node.element_type.clone(),
                 props: Props {
                     children: children(node, arena),
                     text,
                     class_name,
                     href,
+                    data_cy,
                     id,
                     src,
                     type_attr,
                     role,
                     ..Default::default()
                 },
-            };
-
-            new_el
+            }
         }
         let node = &arena[0];
-        let el = create(node, arena);
-
-        el
+        create(node, arena)
     }
 }
 
@@ -354,6 +367,7 @@ struct Node {
     src: Option<String>,
     type_attr: Option<String>,
     role: Option<String>,
+    data_cy: Option<String>,
     // on_click: Option<ClosureProp>,
 }
 

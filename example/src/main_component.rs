@@ -91,13 +91,10 @@ impl rust_fel::Component for handle::Handle<Main> {
 
         borrow.child.add_props(child_props);
 
-        let main_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Main {}", state.count.to_string(),)),
-                ..Default::default()
-            },
-        );
+        let main_text = rust_fel::html(format!(
+            "<span | data-cy=main-text| >Main {}</span>",
+            state.count.to_string()
+        ));
 
         let inc_button_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
@@ -121,6 +118,7 @@ impl rust_fel::Component for handle::Handle<Main> {
                 on_click: Some(Box::new(move || {
                     clone3.reduce_state(Actions::Counter(Action::Increment))
                 })),
+                data_cy: Some("increment-main".to_owned()),
                 children: Some(vec![inc_button_text]),
                 ..Default::default()
             },
@@ -131,6 +129,7 @@ impl rust_fel::Component for handle::Handle<Main> {
             rust_fel::Props {
                 on_click: Some(Box::new(move || clone.reduce_state(Actions::InputVal))),
                 children: Some(vec![send_button_text]),
+                data_cy: Some("send-input-val".to_owned()),
                 ..Default::default()
             },
         );

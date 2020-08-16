@@ -1,7 +1,7 @@
 use crate::element::Element;
 use std::fmt;
 
-pub type ClosureProp = Box<dyn FnMut() -> ()>;
+pub type ClosureProp = Box<dyn FnMut()>;
 
 pub struct Props {
     pub children: Option<Vec<Element>>,
@@ -14,6 +14,7 @@ pub struct Props {
     pub src: Option<String>,
     pub type_attr: Option<String>,
     pub role: Option<String>,
+    pub data_cy: Option<String>,
 }
 
 impl fmt::Debug for Props {
@@ -35,6 +36,7 @@ impl Default for Props {
             src: None,
             type_attr: None,
             role: None,
+            data_cy: None,
         }
     }
 }

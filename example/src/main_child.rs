@@ -73,13 +73,10 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             deref();
         });
 
-        let main_text = rust_fel::Element::new(
-            "TEXT_ELEMENT".to_owned(),
-            rust_fel::Props {
-                text: Some(format!("Main Child {}", state.to_string())),
-                ..Default::default()
-            },
-        );
+        let main_text = rust_fel::html(format!(
+            "<span | data-cy=main-child-text|>Main Child {}</span>",
+            state.to_string()
+        ));
 
         let grand_child_props = GCProps {
             input_props: borrow.props.input_props.clone(),
@@ -95,6 +92,16 @@ impl rust_fel::Component for handle::Handle<MainChild> {
             },
         );
 
+        let inc_button = rust_fel::Element::new(
+            "button".to_owned(),
+            rust_fel::Props {
+                data_cy: Some("increment-main-child".to_owned()),
+                on_click: Some(Box::new(move || child_closure())),
+                children: Some(vec![inc_button_text]),
+                ..Default::default()
+            },
+        );
+
         let send_button_text = rust_fel::Element::new(
             "TEXT_ELEMENT".to_owned(),
             rust_fel::Props {
@@ -102,21 +109,12 @@ impl rust_fel::Component for handle::Handle<MainChild> {
                 ..Default::default()
             },
         );
-
-        let inc_button = rust_fel::Element::new(
-            "button".to_owned(),
-            rust_fel::Props {
-                on_click: Some(Box::new(move || child_closure())),
-                children: Some(vec![inc_button_text]),
-                ..Default::default()
-            },
-        );
-
         let send_button = rust_fel::Element::new(
             "button".to_owned(),
             rust_fel::Props {
                 on_click: Some(on_click_closure),
                 children: Some(vec![send_button_text]),
+                data_cy: Some("update-parent".to_owned()),
                 ..Default::default()
             },
         );

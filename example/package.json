@@ -7,8 +7,12 @@
 		"start": "tsc --watch",
 		"cargo": "sh build.sh",
 		"build-ts": "tsc",
+		"cypress:open": "cypress open",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "",
-	"license": "ISC"
+	"license": "ISC",
+	"devDependencies": {
+		"cypress": "^4.12.1"
+	}
 }

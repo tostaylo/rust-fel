@@ -78,6 +78,15 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
             None => (),
         }
 
+        match rust_fel_element.props.data_cy {
+            Some(data_cy) => {
+                dom_el
+                    .set_attribute("data-cy", &data_cy)
+                    .expect("could not set data-cy");
+            }
+            None => (),
+        }
+
         match rust_fel_element.props.role {
             Some(role) => {
                 dom_el
