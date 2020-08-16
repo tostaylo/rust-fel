@@ -4,9 +4,6 @@ defaults:
     working-directory: ./example
 name: Continuous integration
 jobs:
-defaults:
-  run:
-    working-directory: ./example
   check:
     defaults:
       run:
