@@ -21,6 +21,9 @@ jobs:
         with:
           command: check
   test:
+    defaults:
+      run:
+        working-directory: example
     name: Test Suite
     runs-on: ubuntu-latest
     steps:
@@ -35,6 +38,9 @@ jobs:
           command: test
 
   fmt:
+    defaults:
+      run:
+        working-directory: example
     name: Rustfmt
     runs-on: ubuntu-latest
     steps:
@@ -51,6 +57,9 @@ jobs:
           args: --all -- --check
 
   clippy:
+    defaults:
+      run:
+        working-directory: example
     name: Clippy
     runs-on: ubuntu-latest
     steps:
@@ -67,6 +76,9 @@ jobs:
           args: -- -D warnings
 
   cypress:
+    defaults:
+      run:
+        working-directory: example
     name: End-to-end tests
     runs-on: ubuntu-16.04
     steps:
