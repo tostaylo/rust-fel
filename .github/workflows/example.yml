@@ -75,7 +75,7 @@ jobs:
   cypress:
     defaults:
       run:
-        working-directory: ../example
+        working-directory: rust_fel/example
     name: End-to-end tests
     runs-on: ubuntu-16.04
     steps:
@@ -85,6 +85,3 @@ jobs:
       # and run all Cypress tests
       - name: Cypress run
         uses: cypress-io/github-action@v2
-        defaults:
-          run:
-          working-directory: ../example
