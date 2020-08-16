@@ -1,13 +1,22 @@
 on: [push, pull_request]
 defaults:
   run:
-    working-directory: example
+    working-directory: ./example
 name: Continuous integration
 jobs:
+defaults:
+  run:
+    working-directory: ./example
   check:
+    defaults:
+      run:
+        working-directory: ./example
     name: Check
     runs-on: ubuntu-latest
     steps:
+      defaults:
+        run:
+          working-directory: ./example
       - uses: actions/checkout@v2
       - uses: actions-rs/toolchain@v1
         with:
