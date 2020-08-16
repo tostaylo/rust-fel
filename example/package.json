@@ -9,7 +9,7 @@
 		"build-ts": "tsc",
 		"cypress:open": "cypress open",
 		"cypress:run": "cypress run",
-		"ci": "npm run cargo && wait-on http://localhost:8080 && npm run cypress::run",
+		"ci": "npm run cargo && wait-on http://localhost:8001 && npm run cypress::run",
 		"test": "echo \"Error: no test specified\" && exit 1"
 	},
 	"author": "",
