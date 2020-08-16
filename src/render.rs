@@ -14,7 +14,7 @@ use web_sys::HtmlElement;
 ///
 /// # Examples
 /// Taken from [rust_fel::App::{mount}](../app/struct.App.html#method.mount)  
-/// ```
+/// ```ignore
 ///  let el = self.component.render();
 ///  let window = web_sys::window().expect("no global `window` exists");
 ///  let document = window.document().expect("should have a document on window");
@@ -173,7 +173,7 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
 /// * `id` - A [String](https://doc.rust-lang.org/std/string/struct.String.html) wrapped in an [Option](https://doc.rust-lang.org/std/option/enum.Option.html)
 ///
 /// # Examples
-/// ```
+/// ```ignore
 /// // Used when a rust_fel struct component updates it's state and wants to propagate the changes
 /// // to it's children
 ///    fn reduce_state(&mut self, message: Action) {

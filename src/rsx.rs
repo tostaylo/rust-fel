@@ -233,6 +233,7 @@ pub fn is_correct_attributes() {
     );
 }
 
+/// This is testable and documentable
 pub fn html(html_string: String) -> Element {
     let arena_tree = parse_with_stack(html_string);
     let el = arena_tree.create_element_from_tree();
@@ -249,7 +250,7 @@ impl ArenaTree {
     fn set_current_parent_idx(&mut self, idx: usize) {
         self.current_parent_idx = idx;
     }
-
+    /// This is testable and documentable
     fn insert(&mut self, mut node: Node) {
         node.parent = self.current_parent_idx;
         node.idx = self.arena.len();
@@ -263,6 +264,7 @@ impl ArenaTree {
 }
 
 trait CreateElement {
+    /// This is testable and documentable
     fn create_element_from_tree(&self) -> Element;
 }
 

@@ -1,6 +1,7 @@
 use crate::element::Element;
 use crate::props::{ClosureProp, Props};
 
+/// This is testable and documentable
 pub fn wrapper(
     html_type: String,
     text: Option<String>,
