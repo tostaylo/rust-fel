@@ -56,7 +56,7 @@ jobs:
   clippy:
     defaults:
       run:
-        working-directory: example
+        working-directory: rust_fel/example
     name: Clippy
     runs-on: ubuntu-latest
     steps:
