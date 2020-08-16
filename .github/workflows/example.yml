@@ -73,8 +73,8 @@ jobs:
           args: -- -D warnings
 
   cypress:
+    working-directory: ../example
     defaults:
-      working-directory: ../example
       run:
         working-directory: ../example
     name: End-to-end tests
