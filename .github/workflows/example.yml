@@ -1,4 +1,7 @@
 on: [push, pull_request]
+defaults:
+  run:
+    working-directory: example
 name: Continuous integration
 jobs:
   check:
@@ -14,8 +17,6 @@ jobs:
       - uses: actions-rs/cargo@v1
         with:
           command: check
-        working-directory: example
-
   test:
     name: Test Suite
     runs-on: ubuntu-latest
