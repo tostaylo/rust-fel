@@ -30,7 +30,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                 // If the child is a text elment we insert
                 // We need to let arena tree know the positions of the parent
                 // In arenatree.insert we set the parent's and the children of the element being inserted
-                if stack.len() >= 1 {
+                if !stack.is_empty() {
                     arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
                 } else {
                     arena_tree.set_current_parent_idx(0);
@@ -56,7 +56,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
 
         // Either last element of string or there will be a text child or another element
         if string_character == ">" {
-            if element_type != "".to_string() {
+            if element_type != "" {
                 let next_token = tokens.peek().unwrap().to_string();
 
                 // Here we must have text if it's not another element
@@ -66,7 +66,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
 
                 // Here we insert our element type and all attributes collected
                 let el = element_type.clone();
-                if stack.len() >= 1 {
+                if !stack.is_empty() {
                     arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
                 } else {
                     arena_tree.set_current_parent_idx(0);
@@ -79,10 +79,10 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
                 let mut role = None;
                 let mut type_attr = None;
                 let mut data_cy = None;
-                if attributes.len() >= 1 {
-                    let attributes_split = attributes.split(" ").filter(|s| !s.is_empty());
+                if !attributes.is_empty() {
+                    let attributes_split = attributes.split(' ').filter(|s| !s.is_empty());
                     for attribute in attributes_split {
-                        let attr = attribute.split("=").collect::<Vec<&str>>();
+                        let attr = attribute.split('=').collect::<Vec<&str>>();
                         match attr[0] {
                             "class" => class_name = Some(attr[1].to_owned()),
                             "href" => href = Some(attr[1].to_owned()),
@@ -130,18 +130,18 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
             continue;
         }
 
-        if string_character == "|" && has_attributes == false {
+        if string_character == "|" && !has_attributes {
             has_attributes = true;
             continue;
         }
         // Down here we decide what types of variables to push to
-        if is_open_tag == true && has_text == false {
-            if string_character != " ".to_owned() && has_attributes == false {
+        if is_open_tag && !has_text {
+            if string_character != " " && !has_attributes {
                 element_type.push_str(&string_character);
                 continue;
             }
 
-            if has_attributes == true && string_character != "|" {
+            if has_attributes && string_character != "|" {
                 attributes.push_str(&string_character);
                 continue;
             }
@@ -153,7 +153,7 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
         }
     }
 
-    if stack.len() > 0 {
+    if !stack.is_empty() {
         panic!("Your HTML is not formed correctly");
     }
 
@@ -283,7 +283,7 @@ impl CreateElement for ArenaTree {
     fn create_element_from_tree(&self) -> Element {
         let arena = &self.arena;
 
-        fn children(node: &Node, arena: &Vec<Node>) -> Option<Vec<Element>> {
+        fn children(node: &Node, arena: &[Node]) -> Option<Vec<Element>> {
             Some(
                 node.children
                     .iter()
@@ -292,7 +292,7 @@ impl CreateElement for ArenaTree {
             )
         };
 
-        fn create(node: &Node, arena: &Vec<Node>) -> Element {
+        fn create(node: &Node, arena: &[Node]) -> Element {
             let text = match &node.text {
                 Some(x) => Some(x.to_owned()),
                 None => None,

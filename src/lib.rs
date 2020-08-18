@@ -1,5 +1,7 @@
 //! A Rust Front End Library
 
+#![allow(clippy::single_match)]
+
 pub mod app;
 pub mod component;
 pub mod element;
@@ -7,7 +9,6 @@ pub mod js;
 pub mod props;
 pub mod render;
 pub mod rsx;
-pub mod wrapper;
 
 #[doc(inline)]
 pub use crate::app::App;
@@ -23,5 +24,3 @@ pub use crate::props::{ClosureProp, Props};
 pub use crate::render::{re_render, render};
 #[doc(inline)]
 pub use crate::rsx::html;
-#[doc(inline)]
-pub use crate::wrapper::wrapper;

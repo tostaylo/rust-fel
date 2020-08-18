@@ -134,7 +134,7 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
 
         // Update or first render?
         let dom;
-        if is_update == true {
+        if is_update {
             let id = &id_copy.unwrap();
             let formatted = format!("#{}", id);
             let old_child = document
