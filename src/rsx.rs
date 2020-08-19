@@ -8,8 +8,27 @@ struct StackElement {
     arena_position: usize,
 }
 
-// Input has to have a wrapper el.
-// Text needs wrappers as well
+/// Takes a string which is formatted in an HTML-like structure.
+/// Parses the string contents and builds a [rust_fel::ArenaTree](../rsx/struct.ArenaTree.html)
+/// # Arguments
+///
+/// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element.
+///
+/// # Examples
+///```ignore
+///   //<div></div> <div></div> will not work.
+///   //<div><div></div></div>  will work.
+///   //<div> Hi <span>Hello</span></div> will not work.
+///   //<div> </span>Hi</span><span>Hello</span></div> will work.
+///
+///   let arena_tree =
+///       parse_with_stack("<div |class=classname|><div>here is some text</div></div>".to_owned());
+///       assert_eq!(arena_tree.arena[2].parent, 1);
+///   let arena_tree =
+///      parse_with_stack("<div><div><span>here is some text</span></div></div>".to_owned());
+///      assert_eq!(arena_tree.arena[3].parent, 2);
+///```
+
 pub fn parse_with_stack(html_string: String) -> ArenaTree {
     let mut tokens = html_string.chars().peekable();
     let mut element_type: String = String::new();
@@ -274,7 +293,7 @@ impl ArenaTree {
     }
 }
 
-trait CreateElement {
+pub trait CreateElement {
     /// This is testable and documentable
     fn create_element_from_tree(&self) -> Element;
 }
@@ -355,7 +374,7 @@ impl CreateElement for ArenaTree {
 }
 
 #[derive(Default)]
-struct Node {
+pub struct Node {
     idx: usize,
     element_type: String,
     parent: usize,
