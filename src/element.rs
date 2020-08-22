@@ -11,7 +11,7 @@ impl fmt::Debug for Element {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{:#?}, {:#?} this is a element",
+            "{:#?} this is a element html_type and here are it's props -> {:#?}",
             self.html_type, self.props
         )
     }

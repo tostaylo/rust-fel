@@ -19,7 +19,11 @@ pub struct Props {
 
 impl fmt::Debug for Props {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
-        write!(f, "{:#?} this is props", self.children)
+        write!(
+            f,
+            "{:#?} props.children, {:#?} props.text,  {:#?} props.class_name {:#?} props.id",
+            self.children, self.text, self.class_name, self.id
+        )
     }
 }
 

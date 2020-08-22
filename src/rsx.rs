@@ -272,9 +272,51 @@ pub fn html(html_string: String) -> Element {
     arena_tree.create_element_from_tree()
 }
 
-/// A structure which builds an arena(```Vector```) of nodes that represent a tree.
-/// # Use
-/// An ```Arena Tree```
+#[cfg(test)]
+#[test]
+pub fn creates_html() {
+    let html = html(
+        "<div |class=classname|><span |role=button|>Span Text</span><p>Paragraph Text</p></div>"
+            .to_owned(),
+    );
+    assert_eq!(html.html_type, "div".to_owned());
+    assert_eq!(html.props.class_name.unwrap(), "classname".to_owned());
+
+    let children = html.props.children.unwrap();
+    let first_child = children.iter().nth(0);
+    let second_child = children.iter().nth(1);
+    assert_eq!(first_child.unwrap().html_type, "span");
+    assert_eq!(first_child.unwrap().props.role.as_ref().unwrap(), "button");
+    assert_eq!(second_child.unwrap().html_type, "p");
+
+    let second_childs_child = &second_child
+        .unwrap()
+        .props
+        .children
+        .iter()
+        .nth(0)
+        .unwrap()
+        .iter()
+        .nth(0)
+        .unwrap();
+    assert_eq!(second_childs_child.html_type, "TEXT_ELEMENT");
+}
+
+/// A structure which builds an ```arena``` ([std::vec::Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html)) of [rust_fel::Node](../rsx/struct.Node.html)'s that represent a tree structure.
+/// # Examples
+/// ```ignore
+///   arena_tree.insert(Node {
+///     element_type: element_type.clone(),
+///     class_name,
+///     href,
+///     data_cy,
+///     id,
+///     src,
+///     role,
+///     type_attr,
+///     ..Default::default()
+///     });
+/// ```
 #[derive(Debug, Default)]
 pub struct ArenaTree {
     current_parent_idx: usize,
@@ -371,10 +413,22 @@ impl ArenaTree {
     }
 }
 /// A ```Node``` is an intermediary representation of an HTML element.
-/// A ```Node``` is constructed as a result of a html string being parsed.
-///
-/// # Use
-/// A ```Node``` is then inserted into an arena tree
+/// A ```Node``` is constructed as a result of a html string being parsed. It will be inserted into a arena tree after initialization.
+/// # Examples
+/// ```ignore
+///   arena_tree.insert(Node {
+///     element_type: element_type.clone(),
+///     class_name,
+///     href,
+///     data_cy,
+///     id,
+///     src,
+///     role,
+///     type_attr,
+///     ..Default::default()
+///     });
+/// ```
+
 #[derive(Default)]
 pub struct Node {
     idx: usize,
