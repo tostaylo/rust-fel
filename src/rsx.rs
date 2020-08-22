@@ -12,24 +12,24 @@ struct StackElement {
 /// Parses the string contents and builds a [rust_fel::ArenaTree](../rsx/struct.ArenaTree.html)
 /// # Arguments
 ///
-/// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element.
+/// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element. Text and non text elements cannot be siblings.
 ///
 /// # Examples
 ///```ignore
-///   //<div></div> <div></div> will not work.
-///   //<div><div></div></div>  will work.
-///   //<div> Hi <span>Hello</span></div> will not work.
-///   //<div> </span>Hi</span><span>Hello</span></div> will work.
+///   // <div></div> <div></div> will not work.
+///   // <div><div></div></div> will work.
+///   // <div> Hi <span>Hello</span></div> will not work.
+///   // <div> </span>Hi</span><span>Hello</span></div> will work.
 ///
 ///   let arena_tree =
-///       parse_with_stack("<div |class=classname|><div>here is some text</div></div>".to_owned());
+///       parse_html_to_arena_tree("<div |class=classname|><div>here is some text</div></div>".to_owned());
 ///       assert_eq!(arena_tree.arena[2].parent, 1);
 ///   let arena_tree =
-///      parse_with_stack("<div><div><span>here is some text</span></div></div>".to_owned());
+///      parse_html_to_arena_tree("<div><div><span>here is some text</span></div></div>".to_owned());
 ///      assert_eq!(arena_tree.arena[3].parent, 2);
 ///```
 
-pub fn parse_with_stack(html_string: String) -> ArenaTree {
+pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
     let mut tokens = html_string.chars().peekable();
     let mut element_type: String = String::new();
     let mut is_open_tag: bool = false;
@@ -182,16 +182,17 @@ pub fn parse_with_stack(html_string: String) -> ArenaTree {
 #[cfg(test)]
 #[test]
 pub fn is_parent_correct() {
-    let arena_tree =
-        parse_with_stack("<div |class=classname|><div>here is some text</div></div>".to_owned());
+    let arena_tree = parse_html_to_arena_tree(
+        "<div |class=classname|><div>here is some text</div></div>".to_owned(),
+    );
     assert_eq!(arena_tree.arena[2].parent, 1);
     let arena_tree =
-        parse_with_stack("<div><div>here is some text</div><span></span></div>".to_owned());
+        parse_html_to_arena_tree("<div><div>here is some text</div><span></span></div>".to_owned());
     assert_eq!(arena_tree.arena[2].parent, 1);
     let arena_tree =
-        parse_with_stack("<div><div><span>here is some text</span></div></div>".to_owned());
+        parse_html_to_arena_tree("<div><div><span>here is some text</span></div></div>".to_owned());
     assert_eq!(arena_tree.arena[3].parent, 2);
-    let arena_tree = parse_with_stack("<div>Hi there</div>".to_owned());
+    let arena_tree = parse_html_to_arena_tree("<div>Hi there</div>".to_owned());
     assert_eq!(arena_tree.arena[1].parent, 0);
 }
 
@@ -199,14 +200,14 @@ pub fn is_parent_correct() {
 #[test]
 #[should_panic(expected = "Your HTML is not formed correctly")]
 pub fn is_correct_html() {
-    parse_with_stack("<div |class=classname|><div>here is some text</div>".to_owned());
-    parse_with_stack("<div><div>here is some text<div></div>".to_owned());
+    parse_html_to_arena_tree("<div |class=classname|><div>here is some text</div>".to_owned());
+    parse_html_to_arena_tree("<div><div>here is some text<div></div>".to_owned());
 }
 
 #[cfg(test)]
 #[test]
 pub fn is_correct_attributes() {
-    let arena_tree = parse_with_stack(
+    let arena_tree = parse_html_to_arena_tree(
         "<div |class=classname href=https://www.google.com |><div |class=hi href=https://www.googles.com |>here is some text</div></div>"
             .to_owned(),
     );
@@ -230,13 +231,14 @@ pub fn is_correct_attributes() {
         arena_tree.arena[1].href.as_ref().unwrap(),
         &"https://www.google.com".to_owned()
     );
-    let arena_tree = parse_with_stack("<script |src=https://www.google.com |></script>".to_owned());
+    let arena_tree =
+        parse_html_to_arena_tree("<script |src=https://www.google.com |></script>".to_owned());
     assert_eq!(
         arena_tree.arena[0].src.as_ref().unwrap(),
         &"https://www.google.com".to_owned()
     );
 
-    let arena_tree = parse_with_stack("<button | type=button role=button |><button | type=button role=button |></button></button>".to_owned());
+    let arena_tree = parse_html_to_arena_tree("<button | type=button role=button |><button | type=button role=button |></button></button>".to_owned());
     assert_eq!(
         arena_tree.arena[0].type_attr.as_ref().unwrap(),
         &"button".to_owned()
@@ -253,7 +255,7 @@ pub fn is_correct_attributes() {
         arena_tree.arena[1].role.as_ref().unwrap(),
         &"button".to_owned()
     );
-    let arena_tree = parse_with_stack("<button | data-cy=cypress role=button |><button | data-cy=cypress type=button role=button |></button></button>".to_owned());
+    let arena_tree = parse_html_to_arena_tree("<button | data-cy=cypress role=button |><button | data-cy=cypress type=button role=button |></button></button>".to_owned());
     assert_eq!(
         arena_tree.arena[0].data_cy.as_ref().unwrap(),
         &"cypress".to_owned()
@@ -264,12 +266,15 @@ pub fn is_correct_attributes() {
     );
 }
 
-/// This is testable and documentable
+/// parse html string to create a virtual dom
 pub fn html(html_string: String) -> Element {
-    let arena_tree = parse_with_stack(html_string);
+    let arena_tree = parse_html_to_arena_tree(html_string);
     arena_tree.create_element_from_tree()
 }
 
+/// A structure which builds an arena(```Vector```) of nodes that represent a tree.
+/// # Use
+/// An ```Arena Tree```
 #[derive(Debug, Default)]
 pub struct ArenaTree {
     current_parent_idx: usize,
@@ -280,7 +285,7 @@ impl ArenaTree {
     fn set_current_parent_idx(&mut self, idx: usize) {
         self.current_parent_idx = idx;
     }
-    /// This is testable and documentable
+
     fn insert(&mut self, mut node: Node) {
         node.parent = self.current_parent_idx;
         node.idx = self.arena.len();
@@ -291,14 +296,7 @@ impl ArenaTree {
             parent_node.add_child(child_index);
         }
     }
-}
 
-pub trait CreateElement {
-    /// This is testable and documentable
-    fn create_element_from_tree(&self) -> Element;
-}
-
-impl CreateElement for ArenaTree {
     fn create_element_from_tree(&self) -> Element {
         let arena = &self.arena;
 
@@ -372,7 +370,11 @@ impl CreateElement for ArenaTree {
         create(node, arena)
     }
 }
-
+/// A ```Node``` is an intermediary representation of an HTML element.
+/// A ```Node``` is constructed as a result of a html string being parsed.
+///
+/// # Use
+/// A ```Node``` is then inserted into an arena tree
 #[derive(Default)]
 pub struct Node {
     idx: usize,
