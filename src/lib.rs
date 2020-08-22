@@ -5,7 +5,11 @@
 //! Relies on [rustwasm](https://github.com/rustwasm).  
 //!
 //! Very lightweight and does not support much of the HTML spec. More work needs to be done to truly make this a viable option
-//! for creating client side front-ends with [rustwasm](https://github.com/rustwasm).
+//! for creating client side front-ends with [rustwasm](https://github.com/rustwasm).  
+//! ### Features
+//! * State Management
+//! * JSX-like syntax
+//! * DOM construction from a Virtual DOM
 //!
 //! # Use
 //! ```ignore
@@ -157,13 +161,14 @@
 //!
 //!```
 //!
-//!  A rust_fel functional component
+//!  A rust_fel functional component with [rust_fel::html](../rust_fel/rsx/fn.html.html)
 //!```ignore
 //!pub fn theme_switcher(on_click: rust_fel::ClosureProp, title: String) -> rust_fel::Element {
 //!    let text = rust_fel::html(format!(
 //!        "<span |class=theme-switcher-text|>{}</span>",
 //!        title
 //!    ));
+//!
 //!    let theme_button = rust_fel::Element::new(
 //!        "button".to_owned(),
 //!        rust_fel::Props {
@@ -191,7 +196,6 @@
 pub mod app;
 pub mod component;
 pub mod element;
-pub mod js;
 pub mod props;
 pub mod render;
 pub mod rsx;
@@ -202,8 +206,6 @@ pub use crate::app::App;
 pub use crate::component::Component;
 #[doc(inline)]
 pub use crate::element::Element;
-#[doc(inline)]
-pub use crate::js::log;
 #[doc(inline)]
 pub use crate::props::{ClosureProp, Props};
 #[doc(inline)]
