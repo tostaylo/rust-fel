@@ -1,7 +1,8 @@
 use crate::component::Component;
 use crate::render::render;
 
-/// ```App``` holds a component which represents a rust_fel element which implements the component trait
+/// ```App``` has a member, ```component```,  representing a [rust_fel::Element](../rust_fel/struct.Element.html)
+/// implementing [rust_fel::Component](../rust_fel/trait.Component.html)
 #[derive(Debug)]
 pub struct App<Component> {
     component: Component,
