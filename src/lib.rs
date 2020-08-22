@@ -1,4 +1,11 @@
-//! A Rust Front End Library
+//! A Rust Front End Library.  
+//!
+//! Experimental.  
+//!
+//! Relies on rust-wasm.  
+//!
+//! Very lightweight and does not support much of the HTML spec. More work needs to be done to truly make this a viable option
+//! for creating client side front end's with rust-wasm.
 
 #![allow(clippy::single_match)]
 

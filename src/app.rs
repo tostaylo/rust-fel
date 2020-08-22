@@ -1,5 +1,7 @@
 use crate::component::Component;
 use crate::render::render;
+
+/// ```App``` holds a component which represents a rust_fel element which implements the component trait
 #[derive(Debug)]
 pub struct App<Component> {
     component: Component,
@@ -14,7 +16,9 @@ where
     pub fn new(component: COMPONENT) -> Self {
         App { component }
     }
-
+    /// ```App``` holds a rust_fel element and  ```mount``` call's the element's render function.
+    /// After the Element is created from the call to ```self.component.render();``` then ```render``` is called.
+    /// This constructs a DOM in the browser.
     pub fn mount(&self, node_id: &str) {
         let el = self.component.render();
         let window = web_sys::window().expect("no global `window` exists");

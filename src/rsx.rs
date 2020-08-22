@@ -266,40 +266,44 @@ pub fn is_correct_attributes() {
     );
 }
 
-/// parse html string to create a virtual dom
+/// Create a Virtual Dom of [rust_fel::Element](../rsx/struct.Element.html) from a string of html.
+/// Uses an [rust_fel::ArenaTree](../rsx/struct.ArenaTree.html) to build an intermediary tree.
+/// # Arguments
+///
+/// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element. Text and non text elements cannot be siblings.
+/// # Examples
+/// ```
+/// use rust_fel::html;
+/// let html = html(
+///      "<div |class=classname|><span |role=button|>Span Text</span><p>Paragraph Text</p></div>"
+///          .to_owned(),
+///  );
+///  assert_eq!(html.html_type, "div".to_owned());
+///  assert_eq!(html.props.class_name.unwrap(), "classname".to_owned());
+///
+///  let children = html.props.children.unwrap();
+///  let first_child = children.iter().nth(0);
+///  let second_child = children.iter().nth(1);
+///  assert_eq!(first_child.unwrap().html_type, "span");
+///  assert_eq!(first_child.unwrap().props.role.as_ref().unwrap(), "button");
+///  assert_eq!(second_child.unwrap().html_type, "p");
+///
+///  let second_childs_child = &second_child
+///      .unwrap()
+///      .props
+///      .children
+///      .iter()
+///      .nth(0)
+///      .unwrap()
+///      .iter()
+///      .nth(0)
+///      .unwrap();
+///  assert_eq!(second_childs_child.html_type, "TEXT_ELEMENT");
+/// ```
+
 pub fn html(html_string: String) -> Element {
     let arena_tree = parse_html_to_arena_tree(html_string);
     arena_tree.create_element_from_tree()
-}
-
-#[cfg(test)]
-#[test]
-pub fn creates_html() {
-    let html = html(
-        "<div |class=classname|><span |role=button|>Span Text</span><p>Paragraph Text</p></div>"
-            .to_owned(),
-    );
-    assert_eq!(html.html_type, "div".to_owned());
-    assert_eq!(html.props.class_name.unwrap(), "classname".to_owned());
-
-    let children = html.props.children.unwrap();
-    let first_child = children.iter().nth(0);
-    let second_child = children.iter().nth(1);
-    assert_eq!(first_child.unwrap().html_type, "span");
-    assert_eq!(first_child.unwrap().props.role.as_ref().unwrap(), "button");
-    assert_eq!(second_child.unwrap().html_type, "p");
-
-    let second_childs_child = &second_child
-        .unwrap()
-        .props
-        .children
-        .iter()
-        .nth(0)
-        .unwrap()
-        .iter()
-        .nth(0)
-        .unwrap();
-    assert_eq!(second_childs_child.html_type, "TEXT_ELEMENT");
 }
 
 /// A structure which builds an ```arena``` ([std::vec::Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html)) of [rust_fel::Node](../rsx/struct.Node.html)'s that represent a tree structure.

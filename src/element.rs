@@ -1,6 +1,7 @@
 use crate::props::Props;
 use std::fmt;
 
+/// The structure which represents a Virtual Dom for the rust_fel library.
 #[derive(Default)]
 pub struct Element {
     pub html_type: String,
