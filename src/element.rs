@@ -2,6 +2,8 @@ use crate::props::Props;
 use std::fmt;
 
 /// The structure which represents a Virtual Dom for the rust_fel library.
+/// It holds Props, which in turn holds a vector of Element's as children.
+/// This means ```Element``` can represent a tree of DOM elements.
 #[derive(Default)]
 pub struct Element {
     pub html_type: String,

@@ -1,8 +1,24 @@
 use crate::element::Element;
 use std::fmt;
 
+/// A type commonly used for passing closures to DOM element event handlers
+///```ignore
+/// match rust_fel_element.props.on_click {
+///           Some(mut on_click) => {
+///               let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);
+///               dom_el
+///                   .dyn_ref::<HtmlElement>()
+///                   .expect("should be an `HtmlElement`")
+///                   .set_onclick(Some(closure.as_ref().unchecked_ref()));
+///               closure.forget();
+///           }
+///           None => (),
+///       }
+///```
 pub type ClosureProp = Box<dyn FnMut()>;
 
+/// A struct holding attributes for a Virtual Dom [rust_fel::Element](../rust_fel/struct.Element.html).  
+/// ```Elements``` can have children that are also stored here inside a [std::vec::Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html).
 pub struct Props {
     pub children: Option<Vec<Element>>,
     pub text: Option<String>,

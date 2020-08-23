@@ -13,11 +13,9 @@
 //!
 //! # Use
 //! ```ignore
-//!
 //! use crate::main_component::Main;
 //! use wasm_bindgen::prelude::*;
 //! extern crate rust_fel;
-//!
 //!
 //! // Called when the wasm module is instantiated
 //! #[wasm_bindgen(start)]
@@ -160,7 +158,6 @@
 //!}
 //!
 //!```
-//!
 //!  A rust_fel functional component with [rust_fel::html](../rust_fel/rsx/fn.html.html)
 //!```ignore
 //!pub fn theme_switcher(on_click: rust_fel::ClosureProp, title: String) -> rust_fel::Element {
