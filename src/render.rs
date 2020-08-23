@@ -4,7 +4,7 @@ use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::HtmlElement;
 
-/// Recursively builds a DOM tree.
+/// Recursively builds a DOM tree from a Virtual DOM [rust_fel::Element](../element/struct.Element.html).
 ///
 /// # Arguments
 ///
@@ -174,8 +174,8 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
     }
 }
 
-/// After first mount this funtion will update the virtual DOM and then the real DOM.
-/// It differs from render in that render is only used in mount of the app
+/// After first mount this function will update the virtual DOM and then the real DOM.
+/// It differs from [rust_fel::render::render](../render/fn.render.html) in that ```render``` is only used in [rust_fel::app::App::mount](../rust_fel/app/struct.App.html#method.mount)
 /// # Arguments
 ///
 /// * `rust_fel_element` - A [rust_fel::Element](../element/struct.Element.html)
