@@ -3,17 +3,21 @@ use std::fmt;
 
 /// A type commonly used for passing closures to DOM element event handlers
 ///```ignore
-/// match rust_fel_element.props.on_click {
-///           Some(mut on_click) => {
-///               let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);
-///               dom_el
-///                   .dyn_ref::<HtmlElement>()
-///                   .expect("should be an `HtmlElement`")
-///                   .set_onclick(Some(closure.as_ref().unchecked_ref()));
-///               closure.forget();
-///           }
-///           None => (),
-///       }
+///  let mut new_clone = self.clone();
+///  let (theme_onclick, theme_title) = match action {
+///      Actions::LightMode => (
+///          Box::new(move || new_clone.reduce_state(Actions::LightMode))
+///              as rust_fel::ClosureProp,
+///          "Light Mode".to_owned(),
+///      ),
+///
+///      Actions::DarkMode => (
+///          Box::new(move || new_clone.reduce_state(Actions::DarkMode))
+///              as rust_fel::ClosureProp,
+///          "Dark Mode".to_owned(),
+///      ),
+///      _ => (Box::new(|| ()) as rust_fel::ClosureProp, "".to_owned()),
+///  };
 ///```
 pub type ClosureProp = Box<dyn FnMut()>;
 

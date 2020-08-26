@@ -2,6 +2,7 @@ use crate::element::Element;
 use crate::props::Props;
 use std::fmt;
 
+#[doc(hidden)]
 #[derive(Debug, Default, Clone)]
 struct StackElement {
     val: String,
@@ -28,7 +29,7 @@ struct StackElement {
 ///      parse_html_to_arena_tree("<div><div><span>here is some text</span></div></div>".to_owned());
 ///      assert_eq!(arena_tree.arena[3].parent, 2);
 ///```
-
+#[doc(hidden)]
 pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
     let mut tokens = html_string.chars().peekable();
     let mut element_type: String = String::new();
@@ -267,7 +268,6 @@ pub fn is_correct_attributes() {
 }
 
 /// Create a Virtual Dom of [rust_fel::Element](../rsx/struct.Element.html) from a string of html.
-/// Uses an [rust_fel::ArenaTree](../rsx/struct.ArenaTree.html) to build an intermediary tree.
 /// # Arguments
 ///
 /// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element. Text and non text elements cannot be siblings.
@@ -321,6 +321,7 @@ pub fn html(html_string: String) -> Element {
 ///     ..Default::default()
 ///     });
 /// ```
+#[doc(hidden)]
 #[derive(Debug, Default)]
 pub struct ArenaTree {
     current_parent_idx: usize,
@@ -433,6 +434,7 @@ impl ArenaTree {
 ///     });
 /// ```
 
+#[doc(hidden)]
 #[derive(Default)]
 pub struct Node {
     idx: usize,

@@ -25,7 +25,7 @@ use web_sys::HtmlElement;
 ///
 ///  render(el, &root_node, false);
 /// ```
-
+#[doc(hidden)]
 pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: bool) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");

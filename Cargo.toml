@@ -1,8 +1,15 @@
 [package]
-name = "rust-fel"
-version = "0.1.0"
+name = "rust-fel"  
+version = "0.1.0" # // Must be kept in sync with html_root_url
 authors = ["Torre Taylor"]
 edition = "2018"
+repository = "https://github.com/tostaylo/rust-fel"
+homepage = "https://github.com/tostaylo/rust-fel"
+license = "MIT"
+readme = "./README.md"
+keywords = ["web", "rust", "wasm", "javascript"]
+categories = ["gui", "web-programming"]
+description = "A small library for making client-side single-page apps"
 
 [dependencies]
 wasm-bindgen = "0.2.67"

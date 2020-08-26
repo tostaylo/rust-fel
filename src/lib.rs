@@ -188,13 +188,19 @@
 //!}
 //!```
 
+#![doc(html_root_url = "https://docs.rs/rust-fel/0.1.0")] // Must be kept in sync with Cargo.toml
 #![allow(clippy::single_match)]
-
+/// Module containing the App struct which mounts your rust_fel app to the DOM.
 pub mod app;
+/// Module containing the Component trait. Necessary for state management at the struct level.
 pub mod component;
+/// Module containing the Element struct which acts as a Virtual DOM.
 pub mod element;
+/// Module containing the Props struct which allows an Element to have properties and children.
 pub mod props;
+/// Module containing the functions to render and re_render the rust_fel app.
 pub mod render;
+/// Module containing all the functions needed for the rust_fel::html function to create rust_fel::Element's from strings of HTML.
 pub mod rsx;
 
 #[doc(inline)]
