@@ -2,22 +2,38 @@ use crate::element::Element;
 use std::fmt;
 
 /// A type commonly used for passing closures to DOM element event handlers
+/// # Examples
+/// In this example &self is a tuple struct which implements [rust_fel::Component](../rust_fel/trait.Component.html)
 ///```ignore
+///fn render(&self) -> rust_fel::Element {
+///  let borrow = self.0.borrow_mut();
+///  let state = borrow.state.clone();
 ///  let mut new_clone = self.clone();
-///  let (theme_onclick, theme_title) = match action {
+///
+///  let (theme_onclick, theme_class) = match state.action {
 ///      Actions::LightMode => (
 ///          Box::new(move || new_clone.reduce_state(Actions::LightMode))
 ///              as rust_fel::ClosureProp,
-///          "Light Mode".to_owned(),
+///          "Light-Mode".to_owned(),
 ///      ),
-///
 ///      Actions::DarkMode => (
 ///          Box::new(move || new_clone.reduce_state(Actions::DarkMode))
 ///              as rust_fel::ClosureProp,
-///          "Dark Mode".to_owned(),
+///          "Dark-Mode".to_owned(),
 ///      ),
 ///      _ => (Box::new(|| ()) as rust_fel::ClosureProp, "".to_owned()),
 ///  };
+///
+///  rust_fel::Element::new(
+///    "main".to_owned(),
+///     rust_fel::Props {
+///       id: Some(borrow.id.clone()),
+///       onclick: Some(theme_onclick),
+///       class_name: Some(format!("main {}", theme_class)),
+///       ..Default::default()
+///       },
+///   )
+/// }
 ///```
 pub type ClosureProp = Box<dyn FnMut()>;
 

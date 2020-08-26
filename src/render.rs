@@ -173,9 +173,14 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
         }
     }
 }
-
-/// After first mount this function will update the virtual DOM and then the real DOM.
-/// It differs from [rust_fel::render::render](../render/fn.render.html) in that ```render``` is only used in [rust_fel::app::App::mount](../rust_fel/app/struct.App.html#method.mount)
+/// Used when a rust_fel struct component updates it's state and wants to propagate the changes
+/// to it's children.    
+/// After first mount this function will update the virtual DOM and then the real DOM.  
+/// It works by
+///1. taking a rust_fel element who called re_render by updating itself
+///2. finding the id of that element in the DOM,
+///3. removing that DOM node and all it's children
+///4. replacing it with the new rust_fel::Element.
 /// # Arguments
 ///
 /// * `rust_fel_element` - A [rust_fel::Element](../element/struct.Element.html)
@@ -183,8 +188,6 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
 ///
 /// # Examples
 /// ```ignore
-/// // Used when a rust_fel struct component updates it's state and wants to propagate the changes
-/// // to it's children
 ///    fn reduce_state(&mut self, message: Action) {
 ///       match message {
 ///             Action::Increment => self.0.borrow_mut().state += 5,
