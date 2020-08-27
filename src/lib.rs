@@ -212,6 +212,6 @@ pub use crate::element::Element;
 #[doc(inline)]
 pub use crate::props::{ClosureProp, Props};
 #[doc(inline)]
-pub use crate::render::{re_render, render};
+pub use crate::render::re_render;
 #[doc(inline)]
 pub use crate::rsx::html;
