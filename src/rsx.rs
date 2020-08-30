@@ -267,10 +267,10 @@ pub fn is_correct_attributes() {
     );
 }
 
-/// Create a Virtual Dom of [rust_fel::Element](../rsx/struct.Element.html) from a string of html.
+/// Create a Virtual Dom of [rust_fel::Element](../rsx/struct.Element.html) from a string of [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML]).
 /// # Arguments
 ///
-/// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element. Text and non text elements cannot be siblings.
+/// * `html_string` - Must have a parent wrapping [HTML Element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element). All text must have a wrapping [HTML Element](https://developer.mozilla.org/en-US/docs/Web/HTML/Element). Text and non text [HTML Elements](https://developer.mozilla.org/en-US/docs/Web/HTML/Element) cannot be siblings.
 /// # Examples
 /// ```
 /// use rust_fel::html;

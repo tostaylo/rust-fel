@@ -163,7 +163,7 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
 /// to it's children.    
 /// After first mount this function will update the Virtual [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) and then the real [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).  
 /// It works by
-///1. Passing the function a new [rust_fel::Element](../rust_fel/struct.Element.html) who called ```re_render``` by updating itself.
+///1. Passing the function a new [rust_fel::Element](../rust_fel/struct.Element.html) who invoked ```re_render``` by updating itself.
 ///2. Finding the associated [DOM Element](https://developer.mozilla.org/en-US/docs/Web/API/Element) by ```id```.
 ///3. Removing the [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) and all of it's children.
 ///4. Replacing the removed [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) with the new [rust_fel::Element](../rust_fel/struct.Element.html).

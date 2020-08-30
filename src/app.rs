@@ -1,7 +1,7 @@
 use crate::component::Component;
 use crate::render::render;
 
-/// ```App``` has a member, ```component```,  representing a [rust_fel::Element](../rust_fel/struct.Element.html)
+/// ```App``` has a member, ```component```,  representing a [rust_fel::Element](../rust_fel/struct.Element.html).
 /// implementing [rust_fel::Component](../rust_fel/trait.Component.html)
 #[derive(Debug)]
 pub struct App<Component> {
@@ -17,9 +17,9 @@ where
     pub fn new(component: COMPONENT) -> Self {
         App { component }
     }
-    /// ```App``` holds a rust_fel element and  ```mount``` call's the element's render function.
-    /// After the Element is created from the call to ```self.component.render();``` then ```render``` is called.
-    /// This constructs a [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) and then the real [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) in the browser.
+    /// ```App``` holds a [rust_fel::Element](../rust_fel/struct.Element.html) and  ```mount``` invokes the [rust_fel::Element's](../rust_fel/struct.Element.html) [render](../rust_fel/trait.Component.html#tymethod.render) function.
+    /// After the [rust_fel::Element](../rust_fel/struct.Element.html) is created from the call to ```self.component.render();``` then ```rustfel::render::render``` is invoked.
+    /// This constructs a Virtual [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) and then the real [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) in the browser.
     pub fn mount(&self, node_id: &str) {
         let el = self.component.render();
         let window = web_sys::window().expect("no global `window` exists");

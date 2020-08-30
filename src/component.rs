@@ -150,6 +150,6 @@ pub trait Component: Sized + 'static {
     /// How a ```Component manages``` internal state.
     fn reduce_state(&mut self, message: Self::Message);
 
-    /// Called by a ```Component's``` parent in order to pass properties.
+    /// Invoked by a ```Component's``` parent in order to pass properties.
     fn add_props(&mut self, props: Self::Properties);
 }
