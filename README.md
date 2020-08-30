@@ -42,7 +42,6 @@ use crate::handle;
 use crate::main_child::{ChildProps, MainChild};
 use std::cell::RefCell;
 use std::rc::Rc;
-use wasm_bindgen::JsCast;
 
 #[derive(Debug, Default, Clone)]
 pub struct MainState {
