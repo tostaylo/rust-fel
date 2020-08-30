@@ -4,12 +4,12 @@
 //!
 //! Relies on [rustwasm](https://github.com/rustwasm).  
 //!
-//! Very lightweight and does not support much of the HTML spec. More work needs to be done to truly make this a viable option
+//! Very lightweight and does not support much of the [HTML Standard](https://html.spec.whatwg.org/). More work needs to be done to truly make this a viable option
 //! for creating client side front-ends with [rustwasm](https://github.com/rustwasm).  
 //! ### Features
 //! * State Management
-//! * JSX-like syntax
-//! * DOM construction from a Virtual DOM
+//! * [JSX](https://github.com/facebook/jsx) -like syntax
+//! * [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) construction from a Virtual [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).
 //!
 //! # Use
 //! ```ignore
@@ -28,7 +28,7 @@
 //!
 //! ```
 //! # Examples
-//! A rust_fel struct component implements [rust_fel::Component](../rust_fel/trait.Component.html)
+//! A ```rust_fel``` [struct](https://doc.rust-lang.org/std/keyword.struct.html) component implements [rust_fel::Component](../rust_fel/trait.Component.html)
 //!```ignore
 //!use crate::action::Action;
 //!use crate::handle;
@@ -158,7 +158,7 @@
 //!}
 //!
 //!```
-//!  A rust_fel functional component with [rust_fel::html](../rust_fel/rsx/fn.html.html)
+//!  A ```rust_fel``` functional component with [rust_fel::html](../rust_fel/rsx/fn.html.html)
 //!```ignore
 //!pub fn theme_switcher(on_click: rust_fel::ClosureProp, title: String) -> rust_fel::Element {
 //!    let text = rust_fel::html(format!(
@@ -190,17 +190,17 @@
 
 #![doc(html_root_url = "https://docs.rs/rust-fel/0.1.0")] // Must be kept in sync with Cargo.toml
 #![allow(clippy::single_match)]
-/// Module containing the App struct which mounts your rust_fel app to the DOM.
+/// Module containing the [rust_fel::App](../rust_fel/struct.App.html) [struct](https://doc.rust-lang.org/std/keyword.struct.html) which mounts your ```App``` to the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).
 pub mod app;
-/// Module containing the Component trait. Necessary for state management at the struct level.
+/// Module containing the [rust_fel::Component](../rust_fel/trait.Component.html) trait. Necessary for state management at the [struct](https://doc.rust-lang.org/std/keyword.struct.html) level.
 pub mod component;
-/// Module containing the Element struct which acts as a Virtual DOM.
+/// Module containing the [rust_fel::Element](../rust_fel/struct.Element.html) [struct](https://doc.rust-lang.org/std/keyword.struct.html) which acts as a Virtual [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).
 pub mod element;
-/// Module containing the Props struct which allows an Element to have properties and children.
+/// Module containing the [rust_fel::Props](../rust_fel/struct.Props.html) [struct](https://doc.rust-lang.org/std/keyword.struct.html) which allows an [rust_fel::Element](../rust_fel/struct.Element.html) to have ```properties``` and ```children```.
 pub mod props;
-/// Module containing the functions to render and re_render the rust_fel app.
+/// Module containing the functions to ```render``` and [rust_fel::re_render](../rust_fel/fn.re_render.html) the [rust_fel::App](../rust_fel/struct.App.html).
 pub mod render;
-/// Module containing all the functions needed for the rust_fel::html function to create rust_fel::Element's from strings of HTML.
+/// Module containing all the functions needed for the [rust_fel::html](../rust_fel/fn.html.html) function to create [rust_fel::Element](../rust_fel/struct.Element.html) from strings of [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
 pub mod rsx;
 
 #[doc(inline)]

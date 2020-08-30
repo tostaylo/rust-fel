@@ -11,20 +11,6 @@ use web_sys::HtmlElement;
 /// * `rust_fel_element` - A [rust_fel::Element](../element/struct.Element.html)
 /// * `container` - A reference to a [web_sys::Node](https://docs.rs/web-sys/0.3.21/web_sys/struct.Node.html)
 /// * `is_update` - A boolean allowing the function to differentiate between first mount of the application and subsequent updates.
-///
-/// # Examples
-/// Taken from [rust_fel::App::{mount}](../app/struct.App.html#method.mount)  
-/// ```ignore
-///  let el = self.component.render();
-///  let window = web_sys::window().expect("no global `window` exists");
-///  let document = window.document().expect("should have a document on window");
-///
-///  let root_node = document
-///      .get_element_by_id("root")
-///      .expect("should have a root div");
-///
-///  render(el, &root_node, false);
-/// ```
 #[doc(hidden)]
 pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: bool) {
     let window = web_sys::window().expect("no global `window` exists");
@@ -173,14 +159,14 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
         }
     }
 }
-/// Used when a rust_fel struct component updates it's state and wants to propagate the changes
+/// Used when a ```rust_fel``` [struct](https://doc.rust-lang.org/std/keyword.struct.html) component updates it's state and wants to propagate the changes
 /// to it's children.    
-/// After first mount this function will update the virtual DOM and then the real DOM.  
+/// After first mount this function will update the Virtual [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) and then the real [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).  
 /// It works by
-///1. taking a rust_fel element who called re_render by updating itself
-///2. finding the id of that element in the DOM,
-///3. removing that DOM node and all it's children
-///4. replacing it with the new rust_fel::Element.
+///1. Passing the function a new [rust_fel::Element](../rust_fel/struct.Element.html) who called ```re_render``` by updating itself.
+///2. Finding the associated [DOM Element](https://developer.mozilla.org/en-US/docs/Web/API/Element) by ```id```.
+///3. Removing the [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) and all of it's children.
+///4. Replacing the removed [DOM Node](https://developer.mozilla.org/en-US/docs/Web/API/Node) with the new [rust_fel::Element](../rust_fel/struct.Element.html).
 /// # Arguments
 ///
 /// * `rust_fel_element` - A [rust_fel::Element](../element/struct.Element.html)

@@ -19,7 +19,7 @@ where
     }
     /// ```App``` holds a rust_fel element and  ```mount``` call's the element's render function.
     /// After the Element is created from the call to ```self.component.render();``` then ```render``` is called.
-    /// This constructs a DOM in the browser.
+    /// This constructs a [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) and then the real [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) in the browser.
     pub fn mount(&self, node_id: &str) {
         let el = self.component.render();
         let window = web_sys::window().expect("no global `window` exists");

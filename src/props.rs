@@ -1,9 +1,9 @@
 use crate::element::Element;
 use std::fmt;
 
-/// A type commonly used for passing closures to DOM element event handlers
+/// A type commonly used for construction of a [wasm-bindgen Closure](https://docs.rs/wasm-bindgen/0.2.67/wasm_bindgen/closure/struct.Closure.html) for use with [DOM Element Event Handlers](https://developer.mozilla.org/en-US/docs/Web/Guide/Events/Event_handlers).
 /// # Examples
-/// In this example &self is a tuple struct which implements [rust_fel::Component](../rust_fel/trait.Component.html)
+/// In this example ```&self``` is a [tuple struct](https://doc.rust-lang.org/1.9.0/book/structs.html#tuple-structs) which implements [rust_fel::Component](../rust_fel/trait.Component.html)
 ///```ignore
 ///fn render(&self) -> rust_fel::Element {
 ///  let borrow = self.0.borrow_mut();
@@ -37,8 +37,8 @@ use std::fmt;
 ///```
 pub type ClosureProp = Box<dyn FnMut()>;
 
-/// A struct holding attributes for a Virtual Dom [rust_fel::Element](../rust_fel/struct.Element.html).  
-/// ```Elements``` can have children that are also stored here inside a [std::vec::Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html).
+/// A [struct](https://doc.rust-lang.org/std/keyword.struct.html) holding attributes for a Virtual [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction) [rust_fel::Element](../rust_fel/struct.Element.html).  
+/// ```Elements``` can have ```children``` stored inside a [std::vec::Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html).
 pub struct Props {
     pub children: Option<Vec<Element>>,
     pub text: Option<String>,
