@@ -1,6 +1,6 @@
 # rust-fel
 
-[![Actions Status](https://github.com/tostaylo/rust-fel/workflows/Check%20Test%20Fmt%20Clippy/badge.svg)](https://github.com/tostaylo/rust-fel/actions) [![GitHub issues](https://img.shields.io/github/issues/tostaylo/rust-fel)](https://github.com/tostaylo/rust-fel/issues) [![GitHub license](https://img.shields.io/github/license/tostaylo/rust-fel)](https://github.com/tostaylo/rust-fel/blob/master/LICENSE.txt) [![Crates.io](https://img.shields.io/badge/crates.io-rust--fel-blue)](https://crates.io/crates/rust-fel) [![Crates.io](https://img.shields.io/badge/docs-rust--fel-red)](https://docs.rs/rust-fel/0.1.0/rust_fel/)
+[![Actions Status](https://github.com/tostaylo/rust-fel/workflows/Check%20Test%20Fmt%20Clippy/badge.svg)](https://github.com/tostaylo/rust-fel/actions) [![GitHub issues](https://img.shields.io/github/issues/tostaylo/rust-fel)](https://github.com/tostaylo/rust-fel/issues) [![GitHub license](https://img.shields.io/github/license/tostaylo/rust-fel)](https://github.com/tostaylo/rust-fel/blob/master/LICENSE.txt) [![Crates.io](https://img.shields.io/crates/v/rust-fel)](https://crates.io/crates/rust-fel) [![GitHub release (latest by date)](https://img.shields.io/github/v/release/tostaylo/rust-fel)](https://github.com/tostaylo/rust-fel/releases/tag/v0.1.0) [![Crates.io](https://img.shields.io/badge/docs-rust--fel-red)](https://docs.rs/rust-fel/0.1.0/rust_fel/)
 
 An experimental front end library which relies on [rustwasm](https://github.com/rustwasm).
 
