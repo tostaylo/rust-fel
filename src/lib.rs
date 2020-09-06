@@ -106,17 +106,10 @@
 //!            state.count.to_string()
 //!        ));
 //!
-//!        let inc_button_text = rust_fel::Element::new(
-//!            "TEXT_ELEMENT".to_owned(),
-//!            rust_fel::Props {
-//!                text: Some("Increment".to_owned()),
-//!                ..Default::default()
-//!            },
-//!        );
-//!
 //!        let inc_button = rust_fel::Element::new(
 //!            "button".to_owned(),
 //!            rust_fel::Props {
+//!                text: Some("Increment".to_owned()),
 //!                on_click: Some(Box::new(move || {
 //!                    clone_for_inc.reduce_state(Actions::Counter(Action::Increment))
 //!                })),

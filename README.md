@@ -34,7 +34,7 @@ pub fn main() -> Result<(), JsValue> {
 
 ### Examples
 
-A`rust_fel` [struct](https://doc.rust-lang.org/std/keyword.struct.html) component implements [rust_fel::Component](../rust_fel/trait.Component.html)
+A`rust_fel` [struct](https://doc.rust-lang.org/std/keyword.struct.html) component implements [rust_fel::Component](https://docs.rs/rust-fel/0.1.0/rust_fel/component/index.html)
 
 ```
 use crate::action::Action;
@@ -112,17 +112,10 @@ impl rust_fel::Component for handle::Handle<Main> {
       state.count.to_string()
       ));
 
-    let inc_button_text = rust_fel::Element::new(
-      "TEXT_ELEMENT".to_owned(),
-      rust_fel::Props {
-        text: Some("Increment".to_owned()),
-        ..Default::default()
-        },
-      );
-
     let inc_button = rust_fel::Element::new(
       "button".to_owned(),
       rust_fel::Props {
+        text: Some("Increment".to_owned()),
         on_click: Some(Box::new(move || {
         clone_for_inc.reduce_state(Actions::Counter(Action::Increment))
         })),
@@ -163,7 +156,7 @@ impl rust_fel::Component for handle::Handle<Main> {
 }
 ```
 
-A `rust_fel` functional component with [rust_fel::html](../rust_fel/rsx/fn.html.html).
+A `rust_fel` functional component with [rust_fel::html](https://docs.rs/rust-fel/0.1.0/rust_fel/rsx/fn.html.html).
 
 ```
   pub fn theme_switcher(on_click: rust_fel::ClosureProp, title: String) -> rust_fel::Element {

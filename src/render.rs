@@ -30,6 +30,15 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
             .create_element(&rust_fel_element.html_type)
             .unwrap();
 
+        match rust_fel_element.props.text {
+            Some(text) => {
+                dom_el
+                    .append_child(&document.create_text_node(&text))
+                    .expect("couldn't append text node");
+            }
+            None => (),
+        };
+
         match rust_fel_element.props.class_name {
             Some(class_name) => {
                 dom_el.set_class_name(&class_name);
@@ -101,7 +110,7 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")
                     .add_event_listener_with_callback("mouseout", closure.as_ref().unchecked_ref())
-                    .expect("could not add event listenter");
+                    .expect("could not add event listener");
                 closure.forget();
             }
             None => (),
@@ -131,9 +140,10 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
 
             // Here we replace instead of append
             // We do this because we need to keep an element position in the dom
+            // Possible fastest method? https://stackoverflow.com/a/22966637
             container
                 .replace_child(&dom_el, &old_child)
-                .expect(" can't replace");
+                .expect("can't replace child");
 
             let new_child = document
                 .query_selector_all(&formatted)
@@ -142,8 +152,8 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
                 .unwrap();
             dom = new_child;
         } else {
-            // Here we append instead or replace
-            // This only occurs on first render of the app.
+            // Here we append_child instead of replace_child
+            // Replace_child only happens to the element starting the update
             dom = container
                 .append_child(&dom_el)
                 .expect("couldn't append child");
