@@ -180,7 +180,7 @@
 //!}
 //!```
 
-#![doc(html_root_url = "https://docs.rs/rust-fel/0.1.0")] // Must be kept in sync with Cargo.toml
+#![doc(html_root_url = "https://docs.rs/rust-fel/0.1.1")] // Must be kept in sync with Cargo.toml
 #![allow(clippy::single_match)]
 /// Module containing the [rust_fel::App](../rust_fel/struct.App.html) [struct](https://doc.rust-lang.org/std/keyword.struct.html) which mounts your ```App``` to the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).
 pub mod app;
