@@ -133,7 +133,7 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
             let id = &id_copy.unwrap();
             let old_child = document
                 .get_element_by_id(&id)
-                .expect(&format!("Unable to get element by id {}", id));
+                .unwrap_or_else(|| panic!("Unable to get element by id {}", id));
 
             // Here we replace instead of append
             // We do this because we need to keep an element position in the dom
@@ -145,7 +145,7 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
             let new_child: Node = Node::from(
                 document
                     .get_element_by_id(&id)
-                    .expect(&format!("Unable to get element by id {}", id)),
+                    .unwrap_or_else(|| panic!("Unable to get element by id {}", id)),
             );
             dom = new_child;
         } else {
