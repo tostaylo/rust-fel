@@ -2,7 +2,7 @@ use crate::element::Element;
 use crate::props::ClosureProp;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
-use web_sys::HtmlElement;
+use web_sys::{HtmlElement, Node};
 
 /// Recursively builds a DOM tree from a Virtual DOM [rust_fel::Element](../element/struct.Element.html).
 ///
@@ -12,7 +12,7 @@ use web_sys::HtmlElement;
 /// * `container` - A reference to a [web_sys::Node](https://docs.rs/web-sys/0.3.21/web_sys/struct.Node.html)
 /// * `is_update` - A boolean allowing the function to differentiate between first mount of the application and subsequent updates.
 #[doc(hidden)]
-pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: bool) {
+pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");
 
@@ -128,35 +128,33 @@ pub fn render(rust_fel_element: Element, container: &web_sys::Node, is_update: b
         }
 
         // Update or first render?
-        let dom;
+        let dom: Node;
         if is_update {
             let id = &id_copy.unwrap();
-            let formatted = format!("#{}", id);
             let old_child = document
-                .query_selector_all(&formatted)
-                .expect("can't find node")
-                .item(0)
-                .unwrap();
+                .get_element_by_id(&id)
+                .expect(&format!("Unable to get element by id {}", id));
 
             // Here we replace instead of append
             // We do this because we need to keep an element position in the dom
             // Possible fastest method? https://stackoverflow.com/a/22966637
             container
                 .replace_child(&dom_el, &old_child)
-                .expect("can't replace child");
+                .expect("Unable to replace child");
 
-            let new_child = document
-                .query_selector_all(&formatted)
-                .expect("can't find node")
-                .item(0)
-                .unwrap();
+            let new_child: Node = Node::from(
+                document
+                    .get_element_by_id(&id)
+                    .expect(&format!("Unable to get element by id {}", id)),
+            );
             dom = new_child;
         } else {
             // Here we append_child instead of replace_child
             // Replace_child only happens to the element starting the update
+
             dom = container
                 .append_child(&dom_el)
-                .expect("couldn't append child");
+                .expect("Unable to append child to the container node");
         };
 
         match rust_fel_element.props.children {
