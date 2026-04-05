@@ -415,3 +415,7 @@ impl Node {
         self.children.push(child_idx);
     }
 }
+
+#[cfg(test)]
+#[path = "rsx_tests.rs"]
+mod rsx_tests;

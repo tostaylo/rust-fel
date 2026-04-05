@@ -48,3 +48,7 @@ impl fmt::Debug for Props {
         )
     }
 }
+
+#[cfg(test)]
+#[path = "props_tests.rs"]
+mod props_tests;
