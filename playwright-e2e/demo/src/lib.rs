@@ -1,4 +1,4 @@
-use rust_fel::{re_render, App, ClosureProp, Component, Element, Props};
+use rust_fel::{re_render, App, ClosureProp, Component, Element};
 use std::cell::RefCell;
 use std::rc::Rc;
 use wasm_bindgen::prelude::*;
@@ -68,64 +68,16 @@ impl Component for Handle<Counter> {
             Box::new(move || handle.reduce_state(Message::Decrement))
         };
 
-        let header = Element::new("h1".to_owned(), {
-            let mut props = Props {
-                text: Some("rust-fel Playwright demo".to_owned()),
-                ..Default::default()
-            };
-            props.set_attribute("data-cy", "demo-title");
-            props
-        });
-
-        let status = Element::new("span".to_owned(), {
-            let mut props = Props {
-                text: Some(count.to_string()),
-                ..Default::default()
-            };
-            props.set_attribute("data-cy", "count-value");
-            props
-        });
-
-        let increment_button = Element::new("button".to_owned(), {
-            let mut props = Props {
-                text: Some("Increment".to_owned()),
-                on_click: Some(increment),
-                ..Default::default()
-            };
-            props.set_attribute("type", "button");
-            props.set_attribute("data-cy", "increment");
-            props
-        });
-
-        let decrement_button = Element::new("button".to_owned(), {
-            let mut props = Props {
-                text: Some("Decrement".to_owned()),
-                on_click: Some(decrement),
-                ..Default::default()
-            };
-            props.set_attribute("type", "button");
-            props.set_attribute("data-cy", "decrement");
-            props
-        });
-
-        let controls = Element::new("div".to_owned(), {
-            let mut props = Props {
-                children: Some(vec![increment_button, decrement_button]),
-                ..Default::default()
-            };
-            props.set_attribute("class", "controls");
-            props
-        });
-
-        Element::new("main".to_owned(), {
-            let mut props = Props {
-                children: Some(vec![header, status, controls]),
-                ..Default::default()
-            };
-            props.set_attribute("id", id);
-            props.set_attribute("class", "demo-app");
-            props
-        })
+        rust_fel::rsx! {
+            <main id={id} class="demo-app">
+                <h1 data-cy="demo-title">{"rust-fel Playwright demo"}</h1>
+                <span data-cy="count-value">{count}</span>
+                <div class="controls">
+                    <button type="button" data-cy="increment" on_click={increment}>{"Increment"}</button>
+                    <button type="button" data-cy="decrement" on_click={decrement}>{"Decrement"}</button>
+                </div>
+            </main>
+        }
     }
 }
 

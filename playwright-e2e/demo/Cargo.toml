@@ -13,3 +13,5 @@ crate-type = ["cdylib"]
 [dependencies]
 rust-fel = { path = "../.." }
 wasm-bindgen = "0.2.117"
+
+[workspace]
