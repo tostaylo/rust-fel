@@ -119,6 +119,58 @@ If you want to apply formatting instead of checking it:
 cargo fmt --all
 ```
 
+## Publish to crates.io
+
+This repository is already configured as a publishable crate, and it currently passes both:
+
+```sh
+cargo package
+cargo publish --dry-run
+```
+
+One important constraint: `rust-fel 0.1.2` already exists on crates.io, so you cannot publish this repository again with the current version number.
+
+Before publishing a new release:
+
+1. Update the version in `Cargo.toml`.
+2. Keep the `html_root_url` in `src/lib.rs` in sync with that same version.
+3. Run the local quality checks:
+
+```sh
+cargo check
+cargo test
+cargo fmt --all -- --check
+cargo clippy -- -D warnings
+cd playwright-e2e && npm test
+cd ..
+```
+
+4. Verify the package contents and publish flow:
+
+```sh
+cargo package
+cargo publish --dry-run
+```
+
+5. Authenticate with crates.io if needed:
+
+```sh
+cargo login
+```
+
+6. Publish the new version:
+
+```sh
+cargo publish
+```
+
+Useful notes:
+
+- `cargo publish --dry-run` already succeeds locally for this repository.
+- `cargo publish` will fail if the version in `Cargo.toml` has already been published.
+- `README.md` is included as the crate readme because `Cargo.toml` sets `readme = "./README.md"`.
+- `LICENSE.txt` is included in the package and matches the crate's `license = "MIT"` metadata.
+
 ## Recommended contribution flow
 
 1. Install Rust stable if you do not already have it.
