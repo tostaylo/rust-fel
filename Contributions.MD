@@ -1,37 +1,20 @@
 # Contributing to rust-fel
 
-This repository can still be built and tested locally, but it does not build on current Rust stable toolchains because it depends on `wasm-bindgen 0.2.67`.
-
-At the time of writing, `cargo check` with Rust `1.93.1` fails with:
-
-```text
-older versions of the `wasm-bindgen` crate are incompatible with current versions of Rust; please update to `wasm-bindgen` v0.2.88
-```
-
-Until the dependency versions are updated, use an older Rust toolchain for local contribution work.
+This repository now builds, tests, formats, and passes Clippy on current Rust stable toolchains.
 
 ## Local setup
 
-Install a compatible toolchain:
+Install Rust stable and the standard formatting and linting components:
 
 ```sh
-rustup toolchain install 1.56.1
-rustup component add --toolchain 1.56.1 rustfmt clippy
+rustup toolchain install stable
+rustup component add rustfmt clippy
 ```
 
-You can either run commands with the toolchain explicitly:
+If you want this repository to always use stable while you work in it, set a local override:
 
 ```sh
-cargo +1.56.1 check
-cargo +1.56.1 test
-```
-
-Or set a local override while working in this repository:
-
-```sh
-rustup override set 1.56.1
-cargo check
-cargo test
+rustup override set stable
 ```
 
 If you set an override and want to remove it later:
@@ -45,27 +28,80 @@ rustup override unset
 Use this command to confirm the crate still compiles:
 
 ```sh
-cargo +1.56.1 check
+cargo check
 ```
 
 This project is a library crate, so there is no standalone binary to run from this repository.
 
 ## Test
 
-Run the full local test suite with:
+From the repository root, run the full local test suite with:
 
 ```sh
-cargo +1.56.1 test
+cargo test
 ```
 
 This runs the unit tests in the crate and the doc tests that are enabled in the source. Browser testing is not required for this local workflow.
 
-Verified locally with Rust `1.56.1`:
+If you want to run only the crate's unit tests:
+
+```sh
+cargo test --lib
+```
+
+If you want to run only the documentation tests:
+
+```sh
+cargo test --doc
+```
+
+Verified locally on current stable:
 
 ```text
 3 unit tests passed
-1 doc test passed
-9 doc tests ignored
+10 doc tests passed
+0 doc tests ignored
+```
+
+## Browser E2E tests
+
+This repository also includes a Playwright-based browser harness under `playwright-e2e/` for testing real HTML, JavaScript module loading, wasm startup, and DOM updates.
+
+Prerequisites:
+
+```sh
+rustup target add wasm32-unknown-unknown
+command -v wasm-pack
+node --version
+npm --version
+```
+
+From the repository root, install the browser test dependencies:
+
+```sh
+cd playwright-e2e
+npm install
+npm run install:browsers
+```
+
+Run the full browser end-to-end suite with:
+
+```sh
+cd playwright-e2e
+npm test
+```
+
+That command:
+
+1. Builds the demo wasm app in `playwright-e2e/demo`.
+2. Serves the static test page from `playwright-e2e/site`.
+3. Runs Playwright assertions against the real browser DOM.
+
+If you want to watch the test run in a visible browser:
+
+```sh
+cd playwright-e2e
+npm run test:headed
 ```
 
 ## Formatting and linting
@@ -73,27 +109,22 @@ Verified locally with Rust `1.56.1`:
 The repository CI workflow checks formatting and Clippy in addition to build and test. To match that locally, run:
 
 ```sh
-cargo +1.56.1 fmt --all -- --check
-cargo +1.56.1 clippy -- -D warnings
+cargo fmt --all -- --check
+cargo clippy -- -D warnings
 ```
 
 If you want to apply formatting instead of checking it:
 
 ```sh
-cargo +1.56.1 fmt --all
+cargo fmt --all
 ```
-
-## Expected warning
-
-The current test run emits one warning in `src/rsx.rs` for an unnecessary trailing semicolon. That warning does not prevent local tests from passing.
 
 ## Recommended contribution flow
 
-1. Install Rust `1.56.1` if you do not already have it.
-2. Run `cargo +1.56.1 check` before making changes.
+1. Install Rust stable if you do not already have it.
+2. Run `cargo check` before making changes.
 3. Make your changes.
-4. Run `cargo +1.56.1 test`.
-5. Run `cargo +1.56.1 fmt --all -- --check`.
-6. Run `cargo +1.56.1 clippy -- -D warnings`.
-
-If you later update the `wasm-bindgen` and `web-sys` dependencies to modern versions, this document should be updated to remove the legacy toolchain requirement.
+4. Run `cargo test`.
+5. Run `cargo fmt --all -- --check`.
+6. Run `cargo clippy -- -D warnings`.
+7. If your changes affect DOM behavior, run `cd playwright-e2e && npm test`.

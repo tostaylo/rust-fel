@@ -1,0 +1,50 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>rust-fel Playwright demo</title>
+    <style>
+      body {
+        font-family: Georgia, serif;
+        margin: 0;
+        min-height: 100vh;
+        display: grid;
+        place-items: center;
+        background: linear-gradient(180deg, #f4efe5 0%, #d9e2ec 100%);
+      }
+
+      #root {
+        background: rgba(255, 255, 255, 0.88);
+        border: 1px solid rgba(46, 79, 79, 0.2);
+        border-radius: 18px;
+        padding: 32px;
+        min-width: 320px;
+        box-shadow: 0 20px 60px rgba(34, 51, 59, 0.18);
+      }
+
+      .demo-app {
+        display: grid;
+        gap: 16px;
+      }
+
+      .controls {
+        display: flex;
+        gap: 12px;
+      }
+
+      button {
+        border: 0;
+        border-radius: 999px;
+        padding: 10px 18px;
+        background: #264653;
+        color: #fdfcf7;
+        cursor: pointer;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script type="module" src="./main.js"></script>
+  </body>
+</html>

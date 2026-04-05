@@ -1,2 +1,6 @@
 # Generated files
 /target/
+/playwright-e2e/node_modules/
+/playwright-e2e/playwright-report/
+/playwright-e2e/test-results/
+/playwright-e2e/site/pkg/

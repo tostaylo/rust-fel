@@ -5,7 +5,6 @@ use std::fmt;
 #[doc(hidden)]
 #[derive(Debug, Default, Clone)]
 struct StackElement {
-    val: String,
     arena_position: usize,
 }
 
@@ -16,18 +15,15 @@ struct StackElement {
 /// * `html_string` - Must have a parent wrapping html element. All text must have a wrapping element. Text and non text elements cannot be siblings.
 ///
 /// # Examples
-///```ignore
-///   // <div></div> <div></div> will not work.
-///   // <div><div></div></div> will work.
-///   // <div> Hi <span>Hello</span></div> will not work.
-///   // <div> </span>Hi</span><span>Hello</span></div> will work.
+///```
+///use rust_fel::rsx::parse_html_to_arena_tree;
 ///
-///   let arena_tree =
-///       parse_html_to_arena_tree("<div |class=classname|><div>here is some text</div></div>".to_owned());
-///       assert_eq!(arena_tree.arena[2].parent, 1);
-///   let arena_tree =
-///      parse_html_to_arena_tree("<div><div><span>here is some text</span></div></div>".to_owned());
-///      assert_eq!(arena_tree.arena[3].parent, 2);
+///let arena_tree =
+///    parse_html_to_arena_tree("<div><span>here is some text</span></div>".to_owned());
+///let debug = format!("{arena_tree:#?}");
+///
+///assert!(debug.contains("ArenaTree"));
+///assert!(debug.contains("span"));
 ///```
 #[doc(hidden)]
 pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
@@ -76,7 +72,7 @@ pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
 
         // Either last element of string or there will be a text child or another element
         if string_character == ">" {
-            if element_type != "" {
+            if !element_type.is_empty() {
                 let next_token = tokens.peek().unwrap().to_string();
 
                 // Here we must have text if it's not another element
@@ -85,7 +81,6 @@ pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
                 };
 
                 // Here we insert our element type and all attributes collected
-                let el = element_type.clone();
                 if !stack.is_empty() {
                     arena_tree.set_current_parent_idx(stack.last().unwrap().arena_position);
                 } else {
@@ -139,7 +134,6 @@ pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
                     ..Default::default()
                 });
                 stack.push(StackElement {
-                    val: el,
                     arena_position: arena_tree.arena.len() - 1,
                 });
                 // Reset everything so we have no data and can reade child element
@@ -300,7 +294,6 @@ pub fn is_correct_attributes() {
 ///      .unwrap();
 ///  assert_eq!(second_childs_child.html_type, "TEXT_ELEMENT");
 /// ```
-
 pub fn html(html_string: String) -> Element {
     let arena_tree = parse_html_to_arena_tree(html_string);
     arena_tree.create_element_from_tree()
@@ -308,18 +301,16 @@ pub fn html(html_string: String) -> Element {
 
 /// A structure which builds an ```arena``` ([std::vec::Vec](https://doc.rust-lang.org/std/vec/struct.Vec.html)) of [rust_fel::Node](../rsx/struct.Node.html)'s that represent a tree structure.
 /// # Examples
-/// ```ignore
-///   arena_tree.insert(Node {
-///     element_type: element_type.clone(),
-///     class_name,
-///     href,
-///     data_cy,
-///     id,
-///     src,
-///     role,
-///     type_attr,
-///     ..Default::default()
-///     });
+/// ```
+/// use rust_fel::rsx::parse_html_to_arena_tree;
+///
+/// let arena_tree = parse_html_to_arena_tree(
+///     "<div |class=wrapper|><span>child</span></div>".to_owned(),
+/// );
+/// let debug = format!("{arena_tree:#?}");
+///
+/// assert!(debug.contains("wrapper"));
+/// assert!(debug.contains("span"));
 /// ```
 #[doc(hidden)]
 #[derive(Debug, Default)]
@@ -351,64 +342,24 @@ impl ArenaTree {
             Some(
                 node.children
                     .iter()
-                    .map(|child| create(&arena[child.to_owned()], &arena))
+                    .map(|child| create(&arena[*child], arena))
                     .collect::<Vec<Element>>(),
             )
-        };
+        }
 
         fn create(node: &Node, arena: &[Node]) -> Element {
-            let text = match &node.text {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let class_name = match &node.class_name {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let href = match &node.href {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let data_cy = match &node.data_cy {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let id = match &node.id {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let src = match &node.src {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let type_attr = match &node.type_attr {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
-            let role = match &node.role {
-                Some(x) => Some(x.to_owned()),
-                None => None,
-            };
-
             Element {
                 html_type: node.element_type.clone(),
                 props: Props {
                     children: children(node, arena),
-                    text,
-                    class_name,
-                    href,
-                    data_cy,
-                    id,
-                    src,
-                    type_attr,
-                    role,
+                    text: node.text.clone(),
+                    class_name: node.class_name.clone(),
+                    href: node.href.clone(),
+                    data_cy: node.data_cy.clone(),
+                    id: node.id.clone(),
+                    src: node.src.clone(),
+                    type_attr: node.type_attr.clone(),
+                    role: node.role.clone(),
                     ..Default::default()
                 },
             }
@@ -420,20 +371,17 @@ impl ArenaTree {
 /// A ```Node``` is an intermediary representation of an HTML element.
 /// A ```Node``` is constructed as a result of a html string being parsed. It will be inserted into a arena tree after initialization.
 /// # Examples
-/// ```ignore
-///   arena_tree.insert(Node {
-///     element_type: element_type.clone(),
-///     class_name,
-///     href,
-///     data_cy,
-///     id,
-///     src,
-///     role,
-///     type_attr,
-///     ..Default::default()
-///     });
 /// ```
-
+/// use rust_fel::rsx::parse_html_to_arena_tree;
+///
+/// let arena_tree = parse_html_to_arena_tree(
+///     "<div><span>child</span></div>".to_owned(),
+/// );
+/// let debug = format!("{arena_tree:#?}");
+///
+/// assert!(debug.contains("span"));
+/// assert!(debug.contains("TEXT_ELEMENT"));
+/// ```
 #[doc(hidden)]
 #[derive(Default)]
 pub struct Node {
