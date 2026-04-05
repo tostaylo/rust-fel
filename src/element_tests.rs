@@ -3,17 +3,16 @@ use crate::props::Props;
 
 #[test]
 fn new_preserves_html_type_and_props() {
-    let element = Element::new(
-        "section".to_owned(),
-        Props {
-            id: Some("root".to_owned()),
-            text: Some("hello".to_owned()),
-            ..Default::default()
-        },
-    );
+    let mut props = Props {
+        text: Some("hello".to_owned()),
+        ..Default::default()
+    };
+    props.set_attribute("id", "root");
+
+    let element = Element::new("section".to_owned(), props);
 
     assert_eq!(element.html_type, "section");
-    assert_eq!(element.props.id.as_deref(), Some("root"));
+    assert_eq!(element.props.attribute("id"), Some("root"));
     assert_eq!(element.props.text.as_deref(), Some("hello"));
 }
 

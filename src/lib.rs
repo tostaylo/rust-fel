@@ -95,13 +95,16 @@
 //!
 //!    let theme_button = rust_fel::Element::new(
 //!        "button".to_owned(),
-//!        rust_fel::Props {
-//!            on_click: Some(on_click),
-//!            type_attr: Some("button".to_owned()),
-//!            class_name: Some("theme-switcher-button".to_owned()),
-//!            children: Some(vec![text]),
-//!            data_cy: Some(title),
-//!            ..Default::default()
+//!        {
+//!            let mut props = rust_fel::Props {
+//!                on_click: Some(on_click),
+//!                children: Some(vec![text]),
+//!                ..Default::default()
+//!            };
+//!            props.set_attribute("type", "button");
+//!            props.set_attribute("class", "theme-switcher-button");
+//!            props.set_attribute("data-cy", title);
+//!            props
 //!        },
 //!    );
 //!
