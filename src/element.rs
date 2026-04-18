@@ -25,3 +25,7 @@ impl Element {
         Element { html_type, props }
     }
 }
+
+#[cfg(test)]
+#[path = "element_tests.rs"]
+mod element_tests;

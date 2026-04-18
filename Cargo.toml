@@ -2,7 +2,7 @@
 name = "rust-fel"  
 version = "0.1.2" # // Must be kept in sync with html_root_url
 authors = ["Torre Taylor"]
-edition = "2018"
+edition = "2021"
 repository = "https://github.com/tostaylo/rust-fel"
 homepage = "https://github.com/tostaylo/rust-fel"
 license = "MIT"
@@ -12,10 +12,10 @@ categories = ["gui", "web-programming"]
 description = "A small library for making client-side single-page apps"
 
 [dependencies]
-wasm-bindgen = "0.2.67"
+wasm-bindgen = "0.2.117"
 
 [dependencies.web-sys]
-version = "0.3.44"
+version = "0.3.94"
 features = [
   'Document',
   'Element',

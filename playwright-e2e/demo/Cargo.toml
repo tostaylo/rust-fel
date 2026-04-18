@@ -1,0 +1,15 @@
+[package]
+name = "rust-fel-playwright-demo"
+version = "0.1.0"
+edition = "2021"
+publish = false
+description = "Playwright browser demo for rust-fel"
+repository = "https://github.com/tostaylo/rust-fel"
+license-file = "../../LICENSE.txt"
+
+[lib]
+crate-type = ["cdylib"]
+
+[dependencies]
+rust-fel = { path = "../.." }
+wasm-bindgen = "0.2.117"

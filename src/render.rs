@@ -1,5 +1,4 @@
 use crate::element::Element;
-use crate::props::ClosureProp;
 use wasm_bindgen::prelude::*;
 use wasm_bindgen::JsCast;
 use web_sys::{HtmlElement, Node};
@@ -92,8 +91,8 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
         }
 
         match rust_fel_element.props.on_click {
-            Some(mut on_click) => {
-                let closure = Closure::wrap(Box::new(move || on_click()) as ClosureProp);
+            Some(on_click) => {
+                let closure = Closure::wrap(on_click);
                 dom_el
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")
@@ -104,8 +103,8 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
         }
 
         match rust_fel_element.props.mouse {
-            Some(mut mouse) => {
-                let closure = Closure::wrap(Box::new(move || mouse()) as ClosureProp);
+            Some(mouse) => {
+                let closure = Closure::wrap(mouse);
                 dom_el
                     .dyn_ref::<HtmlElement>()
                     .expect("should be an `HtmlElement`")
@@ -128,11 +127,10 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
         }
 
         // Update or first render?
-        let dom: Node;
-        if is_update {
-            let id = &id_copy.unwrap();
+        let dom: Node = if is_update {
+            let id = id_copy.unwrap();
             let old_child = document
-                .get_element_by_id(&id)
+                .get_element_by_id(id.as_str())
                 .unwrap_or_else(|| panic!("Unable to get element by id {}", id));
 
             // Here we replace instead of append
@@ -142,19 +140,18 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
                 .replace_child(&dom_el, &old_child)
                 .expect("Unable to replace child");
 
-            let new_child: Node = Node::from(
+            Node::from(
                 document
-                    .get_element_by_id(&id)
+                    .get_element_by_id(id.as_str())
                     .unwrap_or_else(|| panic!("Unable to get element by id {}", id)),
-            );
-            dom = new_child;
+            )
         } else {
             // Here we append_child instead of replace_child
             // Replace_child only happens to the element starting the update
 
-            dom = container
+            container
                 .append_child(&dom_el)
-                .expect("Unable to append child to the container node");
+                .expect("Unable to append child to the container node")
         };
 
         match rust_fel_element.props.children {
@@ -181,17 +178,47 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
 /// * `id` - A [String](https://doc.rust-lang.org/std/string/struct.String.html) wrapped in an [Option](https://doc.rust-lang.org/std/option/enum.Option.html)
 ///
 /// # Examples
-/// ```ignore
-///    fn reduce_state(&mut self, message: Action) {
-///       match message {
-///             Action::Increment => self.0.borrow_mut().state += 5,
-///             Action::Decrement => self.0.borrow_mut().state -= 5,
+/// ```no_run
+/// use rust_fel::{Component, Element, Props};
+///
+/// struct Counter {
+///     id: String,
+///     count: i32,
+/// }
+///
+/// enum Action {
+///     Increment,
+///     Decrement,
+/// }
+///
+/// impl Component for Counter {
+///     type Properties = ();
+///     type Message = Action;
+///     type State = i32;
+///
+///     fn render(&self) -> Element {
+///         Element::new(
+///             "div".to_owned(),
+///             Props {
+///                 id: Some(self.id.clone()),
+///                 text: Some(self.count.to_string()),
+///                 ..Default::default()
+///             },
+///         )
+///     }
+///
+///     fn reduce_state(&mut self, message: Self::Message) {
+///         match message {
+///             Action::Increment => self.count += 1,
+///             Action::Decrement => self.count -= 1,
 ///         }
 ///
-///         rust_fel::re_render(self.render(), Some(self.0.borrow().id.clone()));
+///         rust_fel::re_render(self.render(), Some(self.id.clone()));
 ///     }
+///
+///     fn add_props(&mut self, _props: Self::Properties) {}
+/// }
 /// ```
-
 pub fn re_render(rust_fel_element: Element, id: Option<String>) {
     let window = web_sys::window().expect("no global `window` exists");
     let document = window.document().expect("should have a document on window");

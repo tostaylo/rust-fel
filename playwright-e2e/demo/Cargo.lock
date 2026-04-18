@@ -57,6 +57,14 @@ dependencies = [
 ]
 
 [[package]]
+name = "rust-fel-playwright-demo"
+version = "0.1.0"
+dependencies = [
+ "rust-fel",
+ "wasm-bindgen",
+]
+
+[[package]]
 name = "rustversion"
 version = "1.0.22"
 source = "registry+https://github.com/rust-lang/crates.io-index"
