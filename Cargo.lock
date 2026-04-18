@@ -52,8 +52,17 @@ dependencies = [
 name = "rust-fel"
 version = "0.1.2"
 dependencies = [
+ "rust-fel-macro",
  "wasm-bindgen",
  "web-sys",
+]
+
+[[package]]
+name = "rust-fel-macro"
+version = "0.1.0"
+dependencies = [
+ "proc-macro2",
+ "quote",
 ]
 
 [[package]]

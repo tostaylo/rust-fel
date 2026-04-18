@@ -122,6 +122,8 @@
 
 #![doc(html_root_url = "https://docs.rs/rust-fel/0.1.2")] // Must be kept in sync with Cargo.toml
 #![allow(clippy::single_match)]
+extern crate self as rust_fel;
+
 /// Module containing the [rust_fel::App](../rust_fel/struct.App.html) [struct](https://doc.rust-lang.org/std/keyword.struct.html) which mounts your ```App``` to the [DOM](https://developer.mozilla.org/en-US/docs/Web/API/Document_Object_Model/Introduction).
 pub mod app;
 /// Module containing the [rust_fel::Component](../rust_fel/trait.Component.html) trait. Necessary for state management at the [struct](https://doc.rust-lang.org/std/keyword.struct.html) level.
@@ -135,6 +137,21 @@ pub mod render;
 /// Module containing all the functions needed for the [rust_fel::html](../rust_fel/fn.html.html) function to create [rust_fel::Element](../rust_fel/struct.Element.html) from strings of [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML).
 pub mod rsx;
 
+#[doc(hidden)]
+pub mod __private {
+    use crate::{Element, Props};
+
+    pub fn text(value: impl ToString) -> Element {
+        Element::new(
+            "TEXT_ELEMENT".to_owned(),
+            Props {
+                text: Some(value.to_string()),
+                ..Default::default()
+            },
+        )
+    }
+}
+
 #[doc(inline)]
 pub use crate::app::App;
 #[doc(inline)]
@@ -147,3 +164,9 @@ pub use crate::props::{ClosureProp, Props};
 pub use crate::render::re_render;
 #[doc(inline)]
 pub use crate::rsx::html;
+#[doc(inline)]
+pub use rust_fel_macro::rsx;
+
+#[cfg(test)]
+#[path = "rsx_angle_tests.rs"]
+mod rsx_angle_tests;
