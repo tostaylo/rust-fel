@@ -30,22 +30,43 @@ pub struct Props {
     pub text: Option<String>,
     pub on_click: Option<ClosureProp>,
     pub mouse: Option<ClosureProp>,
-    pub class_name: Option<String>,
-    pub id: Option<String>,
-    pub href: Option<String>,
-    pub src: Option<String>,
-    pub type_attr: Option<String>,
-    pub role: Option<String>,
-    pub data_cy: Option<String>,
+    pub attributes: Option<Vec<(String, String)>>,
 }
 
 impl fmt::Debug for Props {
     fn fmt(&self, f: &mut fmt::Formatter) -> fmt::Result {
         write!(
             f,
-            "{:#?} props.children, {:#?} props.text,  {:#?} props.class_name {:#?} props.id",
-            self.children, self.text, self.class_name, self.id
+            "{:#?} props.children, {:#?} props.text, {:#?} props.attributes",
+            self.children, self.text, self.attributes
         )
+    }
+}
+
+impl Props {
+    pub fn attribute(&self, name: &str) -> Option<&str> {
+        self.attributes.as_ref().and_then(|attributes| {
+            attributes
+                .iter()
+                .find(|(attribute_name, _)| attribute_name == name)
+                .map(|(_, value)| value.as_str())
+        })
+    }
+
+    pub fn set_attribute(&mut self, name: impl Into<String>, value: impl Into<String>) {
+        let name = name.into();
+        let value = value.into();
+        let attributes = self.attributes.get_or_insert_with(Vec::new);
+
+        if let Some((_, existing_value)) = attributes
+            .iter_mut()
+            .find(|(attribute_name, _)| attribute_name == &name)
+        {
+            *existing_value = value;
+            return;
+        }
+
+        attributes.push((name, value));
     }
 }
 

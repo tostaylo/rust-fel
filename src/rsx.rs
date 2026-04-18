@@ -8,6 +8,26 @@ struct StackElement {
     arena_position: usize,
 }
 
+fn parse_attribute(attribute: &str) -> Option<(String, String)> {
+    let (name, value) = attribute.split_once('=')?;
+    Some((name.to_owned(), value.to_owned()))
+}
+
+fn parse_attributes(attributes: &str) -> Vec<(String, String)> {
+    attributes
+        .split(' ')
+        .filter(|attribute| !attribute.is_empty())
+        .filter_map(parse_attribute)
+        .collect()
+}
+
+fn attributes_to_props(attributes: &Option<Vec<(String, String)>>) -> Props {
+    Props {
+        attributes: attributes.clone(),
+        ..Default::default()
+    }
+}
+
 /// Takes a string which is formatted in an HTML-like structure.
 /// Parses the string contents and builds a [rust_fel::ArenaTree](../rsx/struct.ArenaTree.html)
 /// # Arguments
@@ -87,50 +107,14 @@ pub fn parse_html_to_arena_tree(html_string: String) -> ArenaTree {
                     arena_tree.set_current_parent_idx(0);
                 }
 
-                let mut class_name = None;
-                let mut href = None;
-                let mut id = None;
-                let mut src = None;
-                let mut role = None;
-                let mut type_attr = None;
-                let mut data_cy = None;
-                if !attributes.is_empty() {
-                    let attributes_split = attributes.split(' ').filter(|s| !s.is_empty());
-                    for attribute in attributes_split {
-                        let attr = attribute.split('=').collect::<Vec<&str>>();
-                        match attr[0] {
-                            "class" => class_name = Some(attr[1].to_owned()),
-                            "href" => href = Some(attr[1].to_owned()),
-                            "src" => src = Some(attr[1].to_owned()),
-                            "role" => role = Some(attr[1].to_owned()),
-                            "type" => type_attr = Some(attr[1].to_owned()),
-                            "id" => id = Some(attr[1].to_owned()),
-                            "data-cy" => data_cy = Some(attr[1].to_owned()),
-                            // Try Rc<RefCell>attribute handlers at the top of this function.
-                            // match attribute handlers borrow_mut()
-                            // "on_click" => {
-                            //   match attribute_handlers {
-                            //     Some(the_vec) => {
-                            //       let idx = attr[1].to_owned().parse::<usize>().unwrap();
-                            //       let handler = the_vec.into_iter().nth(idx).unwrap();
-                            //       on_click = Some(handler);
-                            //     }
-                            //     None => (),
-                            //   };
-                            // }
-                            _ => (),
-                        };
-                    }
-                }
+                let parsed_attributes = parse_attributes(&attributes);
                 arena_tree.insert(Node {
                     element_type: element_type.clone(),
-                    class_name,
-                    href,
-                    data_cy,
-                    id,
-                    src,
-                    role,
-                    type_attr,
+                    attributes: if parsed_attributes.is_empty() {
+                        None
+                    } else {
+                        Some(parsed_attributes)
+                    },
                     ..Default::default()
                 });
                 stack.push(StackElement {
@@ -206,59 +190,79 @@ pub fn is_correct_attributes() {
         "<div |class=classname href=https://www.google.com |><div |class=hi href=https://www.googles.com |>here is some text</div></div>"
             .to_owned(),
     );
-    assert_eq!(
-        arena_tree.arena[0].class_name.as_ref().unwrap(),
-        &"classname".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[0].href.as_ref().unwrap(),
-        &"https://www.google.com".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[1].class_name.as_ref().unwrap(),
-        &"hi".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[1].href.as_ref().unwrap(),
-        &"https://www.googles.com".to_owned()
-    );
-    assert_ne!(
-        arena_tree.arena[1].href.as_ref().unwrap(),
-        &"https://www.google.com".to_owned()
-    );
+    let root_attributes = arena_tree.arena[0]
+        .attributes
+        .as_ref()
+        .expect("root node should have attributes");
+    let child_attributes = arena_tree.arena[1]
+        .attributes
+        .as_ref()
+        .expect("child node should have attributes");
+
+    assert!(root_attributes
+        .iter()
+        .any(|(name, value)| name == "class" && value == "classname"));
+    assert!(root_attributes
+        .iter()
+        .any(|(name, value)| name == "href" && value == "https://www.google.com"));
+    assert!(child_attributes
+        .iter()
+        .any(|(name, value)| name == "class" && value == "hi"));
+    assert!(child_attributes
+        .iter()
+        .any(|(name, value)| name == "href" && value == "https://www.googles.com"));
+    assert!(!child_attributes
+        .iter()
+        .any(|(name, value)| name == "href" && value == "https://www.google.com"));
+
     let arena_tree =
         parse_html_to_arena_tree("<script |src=https://www.google.com |></script>".to_owned());
-    assert_eq!(
-        arena_tree.arena[0].src.as_ref().unwrap(),
-        &"https://www.google.com".to_owned()
-    );
+    assert!(arena_tree.arena[0]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "src" && value == "https://www.google.com")));
 
     let arena_tree = parse_html_to_arena_tree("<button | type=button role=button |><button | type=button role=button |></button></button>".to_owned());
-    assert_eq!(
-        arena_tree.arena[0].type_attr.as_ref().unwrap(),
-        &"button".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[0].role.as_ref().unwrap(),
-        &"button".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[1].type_attr.as_ref().unwrap(),
-        &"button".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[1].role.as_ref().unwrap(),
-        &"button".to_owned()
-    );
+    assert!(arena_tree.arena[0]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "type" && value == "button")));
+    assert!(arena_tree.arena[0]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "role" && value == "button")));
+    assert!(arena_tree.arena[1]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "type" && value == "button")));
+    assert!(arena_tree.arena[1]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "role" && value == "button")));
+
     let arena_tree = parse_html_to_arena_tree("<button | data-cy=cypress role=button |><button | data-cy=cypress type=button role=button |></button></button>".to_owned());
-    assert_eq!(
-        arena_tree.arena[0].data_cy.as_ref().unwrap(),
-        &"cypress".to_owned()
-    );
-    assert_eq!(
-        arena_tree.arena[1].data_cy.as_ref().unwrap(),
-        &"cypress".to_owned()
-    );
+    assert!(arena_tree.arena[0]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "data-cy" && value == "cypress")));
+    assert!(arena_tree.arena[1]
+        .attributes
+        .as_ref()
+        .is_some_and(|attributes| attributes
+            .iter()
+            .any(|(name, value)| name == "data-cy" && value == "cypress")));
 }
 
 /// Create a Virtual Dom of [rust_fel::Element](../rsx/struct.Element.html) from a string of [HTML](https://developer.mozilla.org/en-US/docs/Web/HTML]).
@@ -273,13 +277,13 @@ pub fn is_correct_attributes() {
 ///          .to_owned(),
 ///  );
 ///  assert_eq!(html.html_type, "div".to_owned());
-///  assert_eq!(html.props.class_name.unwrap(), "classname".to_owned());
+///  assert_eq!(html.props.attribute("class"), Some("classname"));
 ///
 ///  let children = html.props.children.unwrap();
 ///  let first_child = children.iter().nth(0);
 ///  let second_child = children.iter().nth(1);
 ///  assert_eq!(first_child.unwrap().html_type, "span");
-///  assert_eq!(first_child.unwrap().props.role.as_ref().unwrap(), "button");
+///  assert_eq!(first_child.unwrap().props.attribute("role"), Some("button"));
 ///  assert_eq!(second_child.unwrap().html_type, "p");
 ///
 ///  let second_childs_child = &second_child
@@ -348,20 +352,13 @@ impl ArenaTree {
         }
 
         fn create(node: &Node, arena: &[Node]) -> Element {
+            let mut props = attributes_to_props(&node.attributes);
+            props.children = children(node, arena);
+            props.text = node.text.clone();
+
             Element {
                 html_type: node.element_type.clone(),
-                props: Props {
-                    children: children(node, arena),
-                    text: node.text.clone(),
-                    class_name: node.class_name.clone(),
-                    href: node.href.clone(),
-                    data_cy: node.data_cy.clone(),
-                    id: node.id.clone(),
-                    src: node.src.clone(),
-                    type_attr: node.type_attr.clone(),
-                    role: node.role.clone(),
-                    ..Default::default()
-                },
+                props,
             }
         }
         let node = &arena[0];
@@ -390,13 +387,7 @@ pub struct Node {
     parent: usize,
     children: Vec<usize>,
     text: Option<String>,
-    id: Option<String>,
-    class_name: Option<String>,
-    href: Option<String>,
-    src: Option<String>,
-    type_attr: Option<String>,
-    role: Option<String>,
-    data_cy: Option<String>,
+    attributes: Option<Vec<(String, String)>>,
     // on_click: Option<ClosureProp>,
 }
 
@@ -405,7 +396,7 @@ impl fmt::Debug for Node {
         write!(
             f,
             "{:#?}, {:#?} this is a node",
-            self.element_type, self.class_name
+            self.element_type, self.attributes
         )
     }
 }

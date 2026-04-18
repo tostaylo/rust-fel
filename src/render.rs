@@ -29,66 +29,27 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
             .create_element(&rust_fel_element.html_type)
             .unwrap();
 
-        match rust_fel_element.props.text {
+        match rust_fel_element.props.text.as_ref() {
             Some(text) => {
                 dom_el
-                    .append_child(&document.create_text_node(&text))
+                    .append_child(&document.create_text_node(text))
                     .expect("couldn't append text node");
             }
             None => (),
         };
 
-        match rust_fel_element.props.class_name {
-            Some(class_name) => {
-                dom_el.set_class_name(&class_name);
+        match rust_fel_element.props.attributes.as_ref() {
+            Some(attributes) => {
+                for (name, value) in attributes {
+                    dom_el
+                        .set_attribute(name, value)
+                        .unwrap_or_else(|_| panic!("could not set attribute {}", name));
+                }
             }
             None => (),
         }
 
-        match rust_fel_element.props.href {
-            Some(href) => {
-                dom_el
-                    .set_attribute("href", &href)
-                    .expect("could not set href");
-            }
-            None => (),
-        }
-
-        match rust_fel_element.props.src {
-            Some(src) => {
-                dom_el
-                    .set_attribute("src", &src)
-                    .expect("could not set src");
-            }
-            None => (),
-        }
-
-        match rust_fel_element.props.type_attr {
-            Some(type_attr) => {
-                dom_el
-                    .set_attribute("type", &type_attr)
-                    .expect("could not set type");
-            }
-            None => (),
-        }
-
-        match rust_fel_element.props.data_cy {
-            Some(data_cy) => {
-                dom_el
-                    .set_attribute("data-cy", &data_cy)
-                    .expect("could not set data-cy");
-            }
-            None => (),
-        }
-
-        match rust_fel_element.props.role {
-            Some(role) => {
-                dom_el
-                    .set_attribute("role", &role)
-                    .expect("could not set role");
-            }
-            None => (),
-        }
+        let id_copy = rust_fel_element.props.attribute("id").map(str::to_owned);
 
         match rust_fel_element.props.on_click {
             Some(on_click) => {
@@ -111,17 +72,6 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
                     .add_event_listener_with_callback("mouseout", closure.as_ref().unchecked_ref())
                     .expect("could not add event listener");
                 closure.forget();
-            }
-            None => (),
-        }
-
-        let mut id_copy = None;
-        match rust_fel_element.props.id {
-            Some(id) => {
-                dom_el.set_id(&id);
-
-                // Is this really necessary. Kinda ugly
-                id_copy = Some(id);
             }
             None => (),
         }
@@ -197,13 +147,15 @@ pub fn render(rust_fel_element: Element, container: &Node, is_update: bool) {
 ///     type State = i32;
 ///
 ///     fn render(&self) -> Element {
+///         let mut props = Props {
+///             text: Some(self.count.to_string()),
+///             ..Default::default()
+///         };
+///         props.set_attribute("id", self.id.clone());
+///
 ///         Element::new(
 ///             "div".to_owned(),
-///             Props {
-///                 id: Some(self.id.clone()),
-///                 text: Some(self.count.to_string()),
-///                 ..Default::default()
-///             },
+///             props,
 ///         )
 ///     }
 ///
